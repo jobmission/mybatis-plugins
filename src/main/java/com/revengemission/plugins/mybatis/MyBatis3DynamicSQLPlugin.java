@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 动态sql,无xml mapping
  * MyBatis Dynamic SQL
  * http://www.mybatis.org/mybatis-dynamic-sql/docs/introduction.html
  * <p>

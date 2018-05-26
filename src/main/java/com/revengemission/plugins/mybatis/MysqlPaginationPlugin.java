@@ -24,9 +24,6 @@ public class MysqlPaginationPlugin extends PluginAdapter {
         return true;
     }
 
-    /**
-     * 为每个Example类添加limit和offset属性已经set、get方法
-     */
     @Override
     public boolean modelExampleClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
 
