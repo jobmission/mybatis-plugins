@@ -393,22 +393,16 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
 
     private String tableNameToEntityName(String tableName) {
         StringBuilder result = new StringBuilder();
-        // 快速检查
         if (tableName == null || tableName.isEmpty()) {
-            // 没必要转换
             return "";
         } else if (!tableName.contains("_")) {
-            // 不含下划线
             return tableName;
         }
-        // 用下划线将原始字符串分割
         String camels[] = tableName.split("_");
         for (String camel : camels) {
-            // 跳过原始字符串中开头、结尾的下换线或双重下划线
             if (camel.isEmpty()) {
                 continue;
             }
-            // 处理真正的驼峰片段
             result.append(camel.substring(0, 1).toUpperCase());
             result.append(camel.substring(1));
         }
@@ -416,7 +410,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
     }
 
     protected String getTableName(IntrospectedTable introspectedTable) {
-        return introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();//数据库表名
+        return introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
     }
 
     protected String getEntityName(IntrospectedTable introspectedTable) {

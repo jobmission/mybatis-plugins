@@ -31,11 +31,10 @@ public class MybatisSelectByPrimaryKeyAndStorePlugin extends AbstractXmbgPlugin 
 
     @Override
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
-        String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();//数据库表名
+        String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
 
         XmlElement parentElement = document.getRootElement();
 
-        // 产生分页语句前半部分
         XmlElement deleteLogicByIdsElement = new XmlElement("select");
         deleteLogicByIdsElement.addAttribute(new Attribute("id", "selectByPrimaryKeyAndStore"));
 
