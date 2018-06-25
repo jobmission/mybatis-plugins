@@ -421,4 +421,8 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         }
         return objectName;
     }
+
+    protected String getTableColumnName(IntrospectedColumn introspectedColumn) {
+        return introspectedColumn.getActualColumnName();
+    }
 }
