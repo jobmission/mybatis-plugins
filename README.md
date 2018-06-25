@@ -9,7 +9,7 @@
 [MyBatis Generator插件定制教程](http://www.mybatis.org/generator/reference/pluggingIn.html)
 #### 4.本插件使用方法
 ````
-//生成TruncateTable语句
+生成TruncateTable语句
 <plugin type="com.revengemission.plugins.mybatis.MysqlTruncateTablePlugin">
             <property name="category_entity" value=""/>
             <property name="brand_entity" value=""/>
@@ -17,7 +17,7 @@
 ````
 
 ````
-//根据唯一值字段查询，返回单行
+根据唯一值字段查询，返回单行
 <plugin type="com.revengemission.plugins.mybatis.MybatisCustomSelectPlugin">
             <property
                     name="category_entity-selectUniqueByCode"
@@ -26,10 +26,12 @@
 ````
 
 ````
-//mybatis model上添加注解,name完整包名加类名，value注解内容
+mybatis model上添加注解
+name:[表明;完整包名加类名]，如果所有表的model都加注解则name:[every_table;完整包名加类名]
+value:[注解内容]
 <plugin type="com.revengemission.plugins.mybatis.MybatisModelAnnotationPlugin">
             <property
-                    name="com.fasterxml.jackson.annotation.JsonInclude"
+                    name="user_entity;com.fasterxml.jackson.annotation.JsonInclude"
                     value="@JsonInclude(JsonInclude.Include.NON_NULL)"/>
 </plugin>
 ````
