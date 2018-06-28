@@ -24,6 +24,16 @@ public class MysqlTruncateTablePlugin extends AbstractXmbgPlugin {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MysqlTruncateTablePlugin.class);
 
+    Map<String, String> todo = new LinkedHashMap<>();
+
+    @Override
+    public void initialized(IntrospectedTable introspectedTable) {
+        todo.clear();
+        properties.forEach((k, v) -> {
+            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
+        });
+    }
+
     @Override
     public boolean validate(List<String> warnings) {
         return true;
@@ -32,13 +42,8 @@ public class MysqlTruncateTablePlugin extends AbstractXmbgPlugin {
     @Override
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         String tableName = getTableName(introspectedTable);
-        Map<String, String> todo = new LinkedHashMap<>();
-        properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
 
         todo.forEach((k, v) -> {
-
             if (StringUtils.startsWith(k, tableName)) {
                 Method method = new Method("truncateTable");
                 method.setReturnType(FullyQualifiedJavaType.getIntInstance());
@@ -54,16 +59,6 @@ public class MysqlTruncateTablePlugin extends AbstractXmbgPlugin {
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
 
         String tableName = getTableName(introspectedTable);
-        Map<String, String> todo = new LinkedHashMap<>();
-        properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
-        logger.info("truncateTable_" + todo.size());
-        todo.forEach((k, v) -> {
-            logger.info("truncateTable_ k ===============" + k);
-            logger.info("truncateTable_ v ===============" + v);
-        });
 
         todo.forEach((k, v) -> {
 
@@ -77,8 +72,6 @@ public class MysqlTruncateTablePlugin extends AbstractXmbgPlugin {
                 document.getRootElement().addElement(selectElement);
             }
         });
-
-
         return true;
     }
 

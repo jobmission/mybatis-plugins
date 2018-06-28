@@ -17,11 +17,13 @@
 ````
 
 ````
-根据唯一值字段查询，返回单行
-<plugin type="com.revengemission.plugins.mybatis.MybatisCustomSelectPlugin">
+根据字段组合查询唯一记录，返回单行
+name:[mapper方法名]
+value:[表名;字段类型 字段名,字段类型 字段名...]，every_table所有表
+<plugin type="com.revengemission.plugins.mybatis.MybatisSelectOneByColumnsPlugin">
             <property
-                    name="category_entity-selectUniqueByCode"
-                    value="single-row;String code;select * from category_entity where code=#{code}"/>
+                    name="selectUniqueByCode"
+                    value="category_entity;String code,long shop_id"/>
 </plugin>
 ````
 

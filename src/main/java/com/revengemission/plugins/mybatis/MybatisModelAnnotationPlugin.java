@@ -20,10 +20,8 @@ public class MybatisModelAnnotationPlugin extends AbstractXmbgPlugin {
         return true;
     }
 
-    @Override
-    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass,
-                                                 IntrospectedTable introspectedTable) {
 
+    private void addAnnotations(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         String currentTableName = getTableName(introspectedTable);
 
         //<table name ,<annotationClass,annotationValue>>
@@ -50,7 +48,21 @@ public class MybatisModelAnnotationPlugin extends AbstractXmbgPlugin {
                 });
             }
         });
+    }
 
+    @Override
+    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass,
+                                                 IntrospectedTable introspectedTable) {
+
+        addAnnotations(topLevelClass, introspectedTable);
+        return true;
+    }
+
+    @Override
+    public boolean modelRecordWithBLOBsClassGenerated(TopLevelClass topLevelClass,
+                                                      IntrospectedTable introspectedTable) {
+
+        addAnnotations(topLevelClass, introspectedTable);
         return true;
     }
 }

@@ -14,6 +14,14 @@ public class BatchIncrementUpdatePlugin extends AbstractXmbgPlugin {
 
     private static final String BATCH_INCREMENT_UPDATE = "batchIncrementUpdate";
 
+    Map<String, String> todo = new LinkedHashMap<>();
+
+    @Override
+    public void initialized(IntrospectedTable introspectedTable) {
+        properties.forEach((k, v) -> {
+            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
+        });
+    }
 
     @Override
     public boolean validate(List<String> warnings) {
@@ -23,12 +31,6 @@ public class BatchIncrementUpdatePlugin extends AbstractXmbgPlugin {
     @Override
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         String tableName = getTableName(introspectedTable);
-
-        Map<String, String> todo = new LinkedHashMap<>();
-        properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
         todo.forEach((k, v) -> {
             if (StringUtils.startsWith(k, tableName)) {
                 Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
@@ -45,19 +47,11 @@ public class BatchIncrementUpdatePlugin extends AbstractXmbgPlugin {
         return true;
     }
 
-
     @Override
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
 
-
         String tableName = getTableName(introspectedTable);
-        Map<String, String> todo = new LinkedHashMap<>();
-        properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
         todo.forEach((k, v) -> {
-
             if (StringUtils.startsWith(k, tableName)) {
 
                 XmlElement update = new XmlElement("update");

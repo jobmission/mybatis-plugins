@@ -24,6 +24,16 @@ public class MybatisCustomSelectPlugin extends AbstractXmbgPlugin {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MybatisCustomSelectPlugin.class);
 
+    Map<String, String> todo = new LinkedHashMap<>();
+
+    @Override
+    public void initialized(IntrospectedTable introspectedTable) {
+        todo.clear();
+        properties.forEach((k, v) -> {
+            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
+        });
+    }
+
     @Override
     public boolean validate(List<String> list) {
         return true;
@@ -32,12 +42,6 @@ public class MybatisCustomSelectPlugin extends AbstractXmbgPlugin {
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         String objectName = getEntityName(introspectedTable);
         String tableName = getTableName(introspectedTable);
-        Map<String, String> todo = new LinkedHashMap<>();
-        properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
-
         todo.forEach((k, v) -> {
 
             if (StringUtils.startsWith(k, tableName)) {
@@ -100,23 +104,9 @@ public class MybatisCustomSelectPlugin extends AbstractXmbgPlugin {
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
 
         String tableName = getTableName(introspectedTable);
-        Map<String, String> todo = new LinkedHashMap<>();
-        properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
-        logger.info("customSelect_" + todo.size());
-        todo.forEach((k, v) -> {
-            logger.info("customSelect_ k ===============" + k);
-            logger.info("customSelect_ v ===============" + v);
-        });
-
         todo.forEach((k, v) -> {
 
             if (StringUtils.startsWith(k, tableName)) {
-
-
-                // 产生分页语句前半部分
                 XmlElement selectElement = new XmlElement("select");
                 selectElement.addAttribute(new Attribute("id", k.replace(tableName, "").replace("-", "")));
                 int firstSemicolon = v.indexOf(";");

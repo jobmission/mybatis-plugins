@@ -125,7 +125,7 @@ public class MyBatis3DynamicSQLPlugin extends AbstractXmbgPlugin {
             stringBuffer.append(field.getJavaProperty());
         }
         stringBuffer.append(")\n                .from(");
-        stringBuffer.append(toLowerCaseFirstChar(objectName));
+        stringBuffer.append(lowerCaseFirstChar(objectName));
         stringBuffer.append(");");
         selectUniqueByExample.addBodyLine(stringBuffer.toString());
         interfaze.addMethod(selectUniqueByExample);

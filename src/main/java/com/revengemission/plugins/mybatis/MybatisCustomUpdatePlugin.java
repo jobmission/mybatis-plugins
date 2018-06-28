@@ -23,6 +23,16 @@ public class MybatisCustomUpdatePlugin extends AbstractXmbgPlugin {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MybatisCustomUpdatePlugin.class);
 
+    Map<String, String> todo = new LinkedHashMap<>();
+
+    @Override
+    public void initialized(IntrospectedTable introspectedTable) {
+        todo.clear();
+        properties.forEach((k, v) -> {
+            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
+        });
+    }
+
     @Override
     public boolean validate(List<String> list) {
         return true;
@@ -30,14 +40,7 @@ public class MybatisCustomUpdatePlugin extends AbstractXmbgPlugin {
 
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         String tableName = getTableName(introspectedTable);
-        Map<String, String> todo = new LinkedHashMap<>();
-        properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
-
         todo.forEach((k, v) -> {
-
             if (StringUtils.startsWith(k, tableName)) {
                 int firstSemicolon = v.indexOf(";");
                 Map<String, String> result = getCustomerMapperParameters(v.substring(0, firstSemicolon));
@@ -76,19 +79,8 @@ public class MybatisCustomUpdatePlugin extends AbstractXmbgPlugin {
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
 
         String tableName = getTableName(introspectedTable);
-        Map<String, String> todo = new LinkedHashMap<>();
-        properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
-        logger.info("customUpdate_" + todo.size());
-        todo.forEach((k, v) -> {
-            logger.info("customUpdate_ k ===============" + k);
-            logger.info("customUpdate_ v ===============" + v);
-        });
 
         todo.forEach((k, v) -> {
-
             if (StringUtils.startsWith(k, tableName)) {
 
                 XmlElement selectElement = new XmlElement("update");
@@ -103,7 +95,6 @@ public class MybatisCustomUpdatePlugin extends AbstractXmbgPlugin {
                 parentElement.addElement(selectElement);
             }
         });
-
 
         return true;
     }
