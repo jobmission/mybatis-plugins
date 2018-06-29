@@ -45,7 +45,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
             sb.setLength(0);
 
             if (StringUtils.equals(introspectedColumn.getActualColumnName(), "version")) {
-                sb.append("  version = version+1");
+                sb.append("  version = version + 1");
             } else if (StringUtils.equals(introspectedColumn.getActualColumnName(), "last_modified")) {
                 sb.append("  last_modified = now()");
             } else if (StringUtils.equals(introspectedColumn.getActualColumnName(), "last_modified")) {
@@ -329,7 +329,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                     final Integer tempIndex = i;
                     todo.forEach((k, v) -> {
                         if (StringUtils.contains(element1.getContent(), k)) {
-                            logger.info("match ===============" + k);
+                            logger.info("match ===============" + element1.getContent());
                             if (StringUtils.indexOf(element1.getContent(), ",") > 0) {
                                 tobeReplaced.put(tempIndex, new TextElement(v + ","));
                             } else {
@@ -339,9 +339,10 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                         }
 
                     });
+                } else {
+                    XmlElement xmlElement = (XmlElement) element.getElements().get(i);
+                    replaceElement(xmlElement, todo);
                 }
-
-
             }
             if (tobeReplaced.size() > 0) {
                 tobeReplaced.forEach((k, v) -> {

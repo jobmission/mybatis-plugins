@@ -75,6 +75,7 @@ public class BatchUpdatePlugin extends AbstractXmbgPlugin {
         TextElement setElement = new TextElement("set"); //$NON-NLS-1$
         foreach.addElement(setElement);
 
+//        version = version + 1
         generateParameterForSet(PROPERTY_PREFIX, introspectedTable.getNonPrimaryKeyColumns(), foreach);
         replaceElement(foreach, todo);
 
