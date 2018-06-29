@@ -54,7 +54,6 @@ public class MybatisCustomSelectPlugin extends AbstractXmbgPlugin {
                 result.forEach((key, value) -> {
                     FullyQualifiedJavaType type = new FullyQualifiedJavaType(value);
                     String annotation = "@Param(\"" + key + "\")";
-                    System.err.println("annotation=========" + annotation);
                     method.addParameter(new Parameter(type, key, annotation));
                 });
 

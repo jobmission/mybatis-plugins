@@ -67,15 +67,11 @@ public class MybatisSelectOneByColumnsPlugin extends AbstractXmbgPlugin {
         String[] temp = StringUtils.split(StringUtils.trim(columns), ",");
         for (int i = 0; i < temp.length; i++) {
             String[] tempColumn = StringUtils.split(temp[i]);
-            System.out.println("tempColumn:" + tempColumn);
             a.add(tempColumn[1]);
         }
         introspectedColumns.forEach(introspectedColumn -> {
             b.add(introspectedColumn.getActualColumnName());
         });
-        System.out.println("columns:" + columns);
-        System.out.println("a:" + a);
-        System.out.println("b:" + b);
         return b.containsAll(a);
     }
 

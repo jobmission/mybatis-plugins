@@ -28,8 +28,12 @@ public class MybatisCustomUpdatePlugin extends AbstractXmbgPlugin {
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
         todo.clear();
+        String tableName = getTableName(introspectedTable);
         properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
+            String name = StringUtils.trim(k.toString());
+            if (StringUtils.startsWith(name, tableName)) {
+                todo.put(name.replace(tableName, "").replace("-", ""), StringUtils.trim(v.toString()));
+            }
         });
     }
 
@@ -39,23 +43,19 @@ public class MybatisCustomUpdatePlugin extends AbstractXmbgPlugin {
     }
 
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        String tableName = getTableName(introspectedTable);
         todo.forEach((k, v) -> {
-            if (StringUtils.startsWith(k, tableName)) {
-                int firstSemicolon = v.indexOf(";");
-                Map<String, String> result = getCustomerMapperParameters(v.substring(0, firstSemicolon));
-                Method method = new Method(k.replace(tableName, "").replace("-", ""));
-                result.forEach((key, value) -> {
-                    FullyQualifiedJavaType type = new FullyQualifiedJavaType(value);
-                    String annotation = "@Param(\"" + key + "\")";
-                    System.err.println("annotation=========" + annotation);
-                    method.addParameter(new Parameter(type, key, annotation));
-                });
+            int firstSemicolon = v.indexOf(";");
+            Map<String, String> result = getCustomerMapperParameters(v.substring(0, firstSemicolon));
+            Method method = new Method(k);
+            result.forEach((key, value) -> {
+                FullyQualifiedJavaType type = new FullyQualifiedJavaType(value);
+                String annotation = "@Param(\"" + key + "\")";
+                method.addParameter(new Parameter(type, key, annotation));
+            });
 
-                method.setReturnType(FullyQualifiedJavaType.getIntInstance());
+            method.setReturnType(FullyQualifiedJavaType.getIntInstance());
 
-                interfaze.addMethod(method);
-            }
+            interfaze.addMethod(method);
         });
 
 
@@ -78,22 +78,18 @@ public class MybatisCustomUpdatePlugin extends AbstractXmbgPlugin {
     @Override
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
 
-        String tableName = getTableName(introspectedTable);
-
         todo.forEach((k, v) -> {
-            if (StringUtils.startsWith(k, tableName)) {
 
-                XmlElement selectElement = new XmlElement("update");
-                selectElement.addAttribute(new Attribute("id", k.replace(tableName, "").replace("-", "")));
-                int lastSemicolon = v.lastIndexOf(";");
-                String tempString = v.substring(lastSemicolon + 1);
+            XmlElement selectElement = new XmlElement("update");
+            selectElement.addAttribute(new Attribute("id", k));
+            int lastSemicolon = v.lastIndexOf(";");
+            String tempString = v.substring(lastSemicolon + 1);
 
-                selectElement.addElement(
-                        new TextElement(tempString
-                        ));
-                XmlElement parentElement = document.getRootElement();
-                parentElement.addElement(selectElement);
-            }
+            selectElement.addElement(
+                    new TextElement(tempString
+                    ));
+            XmlElement parentElement = document.getRootElement();
+            parentElement.addElement(selectElement);
         });
 
         return true;

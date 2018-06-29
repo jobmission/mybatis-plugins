@@ -18,7 +18,7 @@ import java.util.Map;
 * */
 public class MybatisModifyUpdateSqlPlugin extends AbstractXmbgPlugin {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MybatisModifyUpdateSqlPlugin.class);
+    private static final org.slf4j.Logger log= LoggerFactory.getLogger(MybatisModifyUpdateSqlPlugin.class);
 
     Map<String, String> todo = new LinkedHashMap<>();
 
@@ -47,9 +47,6 @@ public class MybatisModifyUpdateSqlPlugin extends AbstractXmbgPlugin {
     public boolean sqlMapUpdateByExampleWithBLOBsElementGenerated(
             XmlElement element, IntrospectedTable introspectedTable) {
         replaceElement(element, todo);
-        element.getElements().forEach(element1 -> {
-            logger.info("element ===============" + ReflectionToStringBuilder.toString(element1));
-        });
         return true;
     }
 
