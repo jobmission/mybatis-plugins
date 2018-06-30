@@ -17,6 +17,7 @@ import java.util.List;
 *
  *       http://www.mybatis.org/generator/reference/plugins.html
 * */
+@Deprecated
 public class MysqlPaginationPlugin extends PluginAdapter {
 
     @Override

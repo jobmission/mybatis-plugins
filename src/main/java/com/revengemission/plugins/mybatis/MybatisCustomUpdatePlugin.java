@@ -23,36 +23,41 @@ public class MybatisCustomUpdatePlugin extends AbstractXmbgPlugin {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MybatisCustomUpdatePlugin.class);
 
+    Map<String, String> todo = new LinkedHashMap<>();
+
+    @Override
+    public void initialized(IntrospectedTable introspectedTable) {
+        todo.clear();
+        String currentTableName = getTableName(introspectedTable);
+        properties.forEach((k, v) -> {
+            String[] temp = StringUtils.split(StringUtils.trim(k.toString()), ";");
+            if (temp.length == 2) {
+                if (StringUtils.equalsIgnoreCase(currentTableName, temp[0])) {
+                    todo.put(StringUtils.trim(temp[1]), StringUtils.trim(v.toString()));
+                }
+            }
+        });
+    }
+
     @Override
     public boolean validate(List<String> list) {
         return true;
     }
 
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        String tableName = getTableName(introspectedTable);
-        Map<String, String> todo = new LinkedHashMap<>();
-        properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
-
         todo.forEach((k, v) -> {
+            int firstSemicolon = v.indexOf(";");
+            Map<String, String> result = getCustomerMapperParameters(v.substring(0, firstSemicolon));
+            Method method = new Method(k);
+            result.forEach((key, value) -> {
+                FullyQualifiedJavaType type = new FullyQualifiedJavaType(value);
+                String annotation = "@Param(\"" + key + "\")";
+                method.addParameter(new Parameter(type, key, annotation));
+            });
 
-            if (StringUtils.startsWith(k, tableName)) {
-                int firstSemicolon = v.indexOf(";");
-                Map<String, String> result = getCustomerMapperParameters(v.substring(0, firstSemicolon));
-                Method method = new Method(k.replace(tableName, "").replace("-", ""));
-                result.forEach((key, value) -> {
-                    FullyQualifiedJavaType type = new FullyQualifiedJavaType(value);
-                    String annotation = "@Param(\"" + key + "\")";
-                    System.err.println("annotation=========" + annotation);
-                    method.addParameter(new Parameter(type, key, annotation));
-                });
+            method.setReturnType(FullyQualifiedJavaType.getIntInstance());
 
-                method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-
-                interfaze.addMethod(method);
-            }
+            interfaze.addMethod(method);
         });
 
 
@@ -75,35 +80,19 @@ public class MybatisCustomUpdatePlugin extends AbstractXmbgPlugin {
     @Override
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
 
-        String tableName = getTableName(introspectedTable);
-        Map<String, String> todo = new LinkedHashMap<>();
-        properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
-        logger.info("customUpdate_" + todo.size());
-        todo.forEach((k, v) -> {
-            logger.info("customUpdate_ k ===============" + k);
-            logger.info("customUpdate_ v ===============" + v);
-        });
-
         todo.forEach((k, v) -> {
 
-            if (StringUtils.startsWith(k, tableName)) {
+            XmlElement selectElement = new XmlElement("update");
+            selectElement.addAttribute(new Attribute("id", k));
+            int lastSemicolon = v.lastIndexOf(";");
+            String tempString = v.substring(lastSemicolon + 1);
 
-                XmlElement selectElement = new XmlElement("update");
-                selectElement.addAttribute(new Attribute("id", k.replace(tableName, "").replace("-", "")));
-                int lastSemicolon = v.lastIndexOf(";");
-                String tempString = v.substring(lastSemicolon + 1);
-
-                selectElement.addElement(
-                        new TextElement(tempString
-                        ));
-                XmlElement parentElement = document.getRootElement();
-                parentElement.addElement(selectElement);
-            }
+            selectElement.addElement(
+                    new TextElement(tempString
+                    ));
+            XmlElement parentElement = document.getRootElement();
+            parentElement.addElement(selectElement);
         });
-
 
         return true;
     }

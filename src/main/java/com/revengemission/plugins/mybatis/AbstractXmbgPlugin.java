@@ -45,7 +45,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
             sb.setLength(0);
 
             if (StringUtils.equals(introspectedColumn.getActualColumnName(), "version")) {
-                sb.append("  version = version+1");
+                sb.append("  version = version + 1");
             } else if (StringUtils.equals(introspectedColumn.getActualColumnName(), "last_modified")) {
                 sb.append("  last_modified = now()");
             } else if (StringUtils.equals(introspectedColumn.getActualColumnName(), "last_modified")) {
@@ -205,14 +205,10 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         parent.addElement(where);
     }
 
-  /*---------------
-   * Generate Helper Method For Java Source
-   **--------------*/
-
     protected void generateGetterFor(String field, FullyQualifiedJavaType type, InnerClass innerClass) {
         Method method = new Method();
         method.setVisibility(JavaVisibility.PUBLIC);
-        method.setName("get" + capitalize(field));
+        method.setName("get" + upperCaseFirstChar(field));
         method.setReturnType(type);
         method.addBodyLine("return this." + field + ";");
         innerClass.addMethod(method);
@@ -221,7 +217,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
     protected void generateSetterFor(String field, FullyQualifiedJavaType type, InnerClass innerClass) {
         Method method = new Method();
         method.setVisibility(JavaVisibility.PUBLIC);
-        method.setName("set" + capitalize(field));
+        method.setName("set" + upperCaseFirstChar(field));
         method.addParameter(new Parameter(type, field));
         method.addBodyLine("this." + field + " = " + field + ";");
         innerClass.addMethod(method);
@@ -272,11 +268,6 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         innerClass.addMethod(method);
     }
 
-    protected void generateBuilderFor(TopLevelClass topLevelClass) {
-        if (topLevelClass == null || topLevelClass.getFields() == null || topLevelClass.getFields().isEmpty()) return;
-        generateBuilderFor(topLevelClass.getType().getShortName(), topLevelClass, topLevelClass.getFields());
-    }
-
     protected void generateBuilderFor(String builderName, TopLevelClass topLevelClass, List<Field> fields) {
         if (fields == null || fields.isEmpty()) return;
 
@@ -302,7 +293,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
 
         // builder owner's builder()
         method = new Method();
-        method.setName(uncapitalize(builderName));
+        method.setName(lowerCaseFirstChar(builderName));
         method.setVisibility(JavaVisibility.PUBLIC);
         method.addBodyLine("return new " + builderName + "();");
         method.setReturnType(builderType);
@@ -312,44 +303,16 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
     }
 
 
-    public String capitalize(final String str) {
-        int strLen;
-        if (str == null || (strLen = str.length()) == 0) {
+    public String upperCaseFirstChar(final String str) {
+        if (Character.isUpperCase(str.charAt(0)))
             return str;
-        }
-
-        char firstChar = str.charAt(0);
-        if (Character.isTitleCase(firstChar)) {
-            // already capitalized
-            return str;
-        }
-
-        return new StringBuilder(strLen)
-                .append(Character.toTitleCase(firstChar))
-                .append(str.substring(1))
-                .toString();
+        else
+            return (new StringBuilder()).append(Character.toUpperCase(str.charAt(0))).append(str.substring(1)).toString();
     }
 
-    public String uncapitalize(final String str) {
-        int strLen;
-        if (str == null || (strLen = str.length()) == 0) {
-            return str;
-        }
-
-        char firstChar = str.charAt(0);
-        if (Character.isLowerCase(firstChar)) {
-            // already uncapitalized
-            return str;
-        }
-
-        return new StringBuilder(strLen)
-                .append(Character.toLowerCase(firstChar))
-                .append(str.substring(1))
-                .toString();
-    }
 
     //首字母转小写
-    public String toLowerCaseFirstChar(String s) {
+    public String lowerCaseFirstChar(String s) {
         if (Character.isLowerCase(s.charAt(0)))
             return s;
         else
@@ -366,7 +329,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                     final Integer tempIndex = i;
                     todo.forEach((k, v) -> {
                         if (StringUtils.contains(element1.getContent(), k)) {
-                            logger.info("match ===============" + k);
+                            logger.info("match ===============" + element1.getContent());
                             if (StringUtils.indexOf(element1.getContent(), ",") > 0) {
                                 tobeReplaced.put(tempIndex, new TextElement(v + ","));
                             } else {
@@ -376,9 +339,10 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                         }
 
                     });
+                } else {
+                    XmlElement xmlElement = (XmlElement) element.getElements().get(i);
+                    replaceElement(xmlElement, todo);
                 }
-
-
             }
             if (tobeReplaced.size() > 0) {
                 tobeReplaced.forEach((k, v) -> {
@@ -392,19 +356,42 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
     }
 
     private String tableNameToEntityName(String tableName) {
+        return upperCaseFirstChar(camelName(tableName));
+    }
+
+    public static String underlineName(String name) {
         StringBuilder result = new StringBuilder();
-        if (tableName == null || tableName.isEmpty()) {
-            return "";
-        } else if (!tableName.contains("_")) {
-            return tableName;
+        if (name != null && name.length() > 0) {
+            result.append(name.substring(0, 1));
+            for (int i = 1; i < name.length(); i++) {
+                String s = name.substring(i, i + 1);
+                if (s.equals(s.toUpperCase()) && !Character.isDigit(s.charAt(0))) {
+                    result.append("_");
+                }
+                result.append(s.toLowerCase());
+            }
         }
-        String camels[] = tableName.split("_");
+        return result.toString();
+    }
+
+    public static String camelName(String name) {
+        StringBuilder result = new StringBuilder();
+        if (name == null || name.isEmpty()) {
+            return "";
+        } else if (!name.contains("_")) {
+            return name.substring(0, 1).toLowerCase() + name.substring(1);
+        }
+        String camels[] = name.split("_");
         for (String camel : camels) {
             if (camel.isEmpty()) {
                 continue;
             }
-            result.append(camel.substring(0, 1).toUpperCase());
-            result.append(camel.substring(1));
+            if (result.length() == 0) {
+                result.append(camel.toLowerCase());
+            } else {
+                result.append(camel.substring(0, 1).toUpperCase());
+                result.append(camel.substring(1).toLowerCase());
+            }
         }
         return result.toString();
     }
@@ -420,5 +407,9 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
             objectName = tableNameToEntityName(getTableName(introspectedTable));
         }
         return objectName;
+    }
+
+    protected String getTableColumnName(IntrospectedColumn introspectedColumn) {
+        return introspectedColumn.getActualColumnName();
     }
 }

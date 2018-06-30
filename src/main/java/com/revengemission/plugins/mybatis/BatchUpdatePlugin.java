@@ -24,6 +24,16 @@ public class BatchUpdatePlugin extends AbstractXmbgPlugin {
 
     private static final String PROPERTY_PREFIX = "item.";
 
+    Map<String, String> todo = new LinkedHashMap<>();
+
+    @Override
+    public void initialized(IntrospectedTable introspectedTable) {
+        todo.clear();
+        properties.forEach((k, v) -> {
+            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
+        });
+    }
+
     @Override
     public boolean validate(List<String> warnings) {
         return true;
@@ -47,13 +57,6 @@ public class BatchUpdatePlugin extends AbstractXmbgPlugin {
     @Override
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
 
-        Map<String, String> todo = new LinkedHashMap<>();
-
-        properties.forEach((k, v) -> {
-            logger.info("k ==" + k + ",v==========" + v);
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
         XmlElement update = new XmlElement("update");
         update.addAttribute(new Attribute("id", BATCH_UPDATE));
 
@@ -72,16 +75,13 @@ public class BatchUpdatePlugin extends AbstractXmbgPlugin {
         TextElement setElement = new TextElement("set"); //$NON-NLS-1$
         foreach.addElement(setElement);
 
+//        version = version + 1
         generateParameterForSet(PROPERTY_PREFIX, introspectedTable.getNonPrimaryKeyColumns(), foreach);
         replaceElement(foreach, todo);
 
         generateWhereConditions(PROPERTY_PREFIX, introspectedTable.getPrimaryKeyColumns(), foreach);
 
         update.addElement(foreach);
-
-        foreach.getElements().forEach(element1 -> {
-            logger.info("element ===============" + ReflectionToStringBuilder.toString(element1));
-        });
         document.getRootElement().addElement(update);
 
         return true;

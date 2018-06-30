@@ -18,7 +18,17 @@ import java.util.Map;
 * */
 public class MybatisModifyUpdateSqlPlugin extends AbstractXmbgPlugin {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MybatisModifyUpdateSqlPlugin.class);
+    private static final org.slf4j.Logger log= LoggerFactory.getLogger(MybatisModifyUpdateSqlPlugin.class);
+
+    Map<String, String> todo = new LinkedHashMap<>();
+
+    @Override
+    public void initialized(IntrospectedTable introspectedTable) {
+        todo.clear();
+        properties.forEach((k, v) -> {
+            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
+        });
+    }
 
     @Override
     public boolean validate(List<String> list) {
@@ -28,72 +38,30 @@ public class MybatisModifyUpdateSqlPlugin extends AbstractXmbgPlugin {
     @Override
     public boolean sqlMapUpdateByExampleSelectiveElementGenerated(
             XmlElement element, IntrospectedTable introspectedTable) {
-        Map<String, String> todo = new LinkedHashMap<>();
-
-        properties.forEach((k, v) -> {
-            logger.info("k ==" + k + ",v==========" + v);
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
 
         replaceElement(element, todo);
-
-        element.getElements().forEach(element1 -> {
-            logger.info("element ===============" + ReflectionToStringBuilder.toString(element1));
-        });
         return true;
     }
 
     @Override
     public boolean sqlMapUpdateByExampleWithBLOBsElementGenerated(
             XmlElement element, IntrospectedTable introspectedTable) {
-        Map<String, String> todo = new LinkedHashMap<>();
-
-        properties.forEach((k, v) -> {
-            logger.info("k ==" + k + ",v==========" + v);
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
         replaceElement(element, todo);
-
-        element.getElements().forEach(element1 -> {
-            logger.info("element ===============" + ReflectionToStringBuilder.toString(element1));
-        });
         return true;
     }
 
     @Override
     public boolean sqlMapUpdateByExampleWithoutBLOBsElementGenerated(
             XmlElement element, IntrospectedTable introspectedTable) {
-        Map<String, String> todo = new LinkedHashMap<>();
-
-        properties.forEach((k, v) -> {
-            logger.info("k ==" + k + ",v==========" + v);
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
 
         replaceElement(element, todo);
-
-        element.getElements().forEach(element1 -> {
-            logger.info("element ===============" + ReflectionToStringBuilder.toString(element1));
-        });
         return true;
     }
 
     @Override
     public boolean sqlMapUpdateByPrimaryKeySelectiveElementGenerated(
             XmlElement element, IntrospectedTable introspectedTable) {
-        Map<String, String> todo = new LinkedHashMap<>();
-
-        properties.forEach((k, v) -> {
-            logger.info("k ==" + k + ",v==========" + v);
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
         replaceElement(element, todo);
-
-        element.getElements().forEach(element1 -> {
-            logger.info("element ===============" + ReflectionToStringBuilder.toString(element1));
-        });
         return true;
     }
 
@@ -101,18 +69,7 @@ public class MybatisModifyUpdateSqlPlugin extends AbstractXmbgPlugin {
     public boolean sqlMapUpdateByPrimaryKeyWithoutBLOBsElementGenerated(
             XmlElement element, IntrospectedTable introspectedTable) {
 
-        Map<String, String> todo = new LinkedHashMap<>();
-
-        properties.forEach((k, v) -> {
-            logger.info("k ==" + k + ",v==========" + v);
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
         replaceElement(element, todo);
-
-        element.getElements().forEach(element1 -> {
-            logger.info("element ===============" + ReflectionToStringBuilder.toString(element1));
-        });
         return true;
     }
 
@@ -120,18 +77,7 @@ public class MybatisModifyUpdateSqlPlugin extends AbstractXmbgPlugin {
     public boolean sqlMapUpdateByPrimaryKeyWithBLOBsElementGenerated(
             XmlElement element, IntrospectedTable introspectedTable) {
 
-        Map<String, String> todo = new LinkedHashMap<>();
-
-        properties.forEach((k, v) -> {
-            logger.info("k ==" + k + ",v==========" + v);
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
-        });
-
         replaceElement(element, todo);
-
-        element.getElements().forEach(element1 -> {
-            logger.info("element ===============" + ReflectionToStringBuilder.toString(element1));
-        });
         return true;
     }
 
