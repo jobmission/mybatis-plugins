@@ -28,11 +28,13 @@ public class MybatisCustomUpdatePlugin extends AbstractXmbgPlugin {
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
         todo.clear();
-        String tableName = getTableName(introspectedTable);
+        String currentTableName = getTableName(introspectedTable);
         properties.forEach((k, v) -> {
-            String name = StringUtils.trim(k.toString());
-            if (StringUtils.startsWith(name, tableName)) {
-                todo.put(name.replace(tableName, "").replace("-", ""), StringUtils.trim(v.toString()));
+            String[] temp = StringUtils.split(StringUtils.trim(k.toString()), ";");
+            if (temp.length == 2) {
+                if (StringUtils.equalsIgnoreCase(currentTableName, temp[0])) {
+                    todo.put(StringUtils.trim(temp[1]), StringUtils.trim(v.toString()));
+                }
             }
         });
     }

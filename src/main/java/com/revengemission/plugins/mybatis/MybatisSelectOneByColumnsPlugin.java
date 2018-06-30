@@ -26,11 +26,11 @@ public class MybatisSelectOneByColumnsPlugin extends AbstractXmbgPlugin {
         todo.clear();
         String currentTableName = getTableName(introspectedTable);
         properties.forEach((k, v) -> {
-            String[] temp = StringUtils.split(StringUtils.trim(v.toString()), ";");
+            String[] temp = StringUtils.split(StringUtils.trim(k.toString()), ";");
             if (temp.length == 2) {
                 if (StringUtils.equalsIgnoreCase(currentTableName, temp[0]) || StringUtils.equalsIgnoreCase("every_table", temp[0])) {
                     if (checkColumns(StringUtils.trim(v.toString()), introspectedTable.getAllColumns())) {
-                        todo.put(StringUtils.trim(k.toString()), StringUtils.trim(temp[1]));
+                        todo.put(StringUtils.trim(temp[1]), StringUtils.trim(v.toString()));
                     }
                 }
             }
@@ -48,10 +48,10 @@ public class MybatisSelectOneByColumnsPlugin extends AbstractXmbgPlugin {
         if (todo != null && todo.size() > 0) {
             todo.forEach((k, v) -> {
                 Method method = new Method(k);
-                String[] temp = StringUtils.split(StringUtils.trim(v.toString()), ",");
+                String[] temp = StringUtils.split(StringUtils.trim(v), ",");
                 for (int i = 0; i < temp.length; i++) {
                     String[] tempColumn = StringUtils.split(temp[i]);
-                    method.addParameter(new Parameter(new FullyQualifiedJavaType(tempColumn[0]), camelName(tempColumn[1]), "@Param(\"" + camelName(tempColumn[1]) + "\")"));
+                    method.addParameter(new Parameter(new FullyQualifiedJavaType(tempColumn[1]), camelName(tempColumn[0]), "@Param(\"" + camelName(tempColumn[1]) + "\")"));
                 }
                 method.setReturnType(new FullyQualifiedJavaType(getEntityName(introspectedTable)));
                 interfaze.addMethod(method);
@@ -64,10 +64,10 @@ public class MybatisSelectOneByColumnsPlugin extends AbstractXmbgPlugin {
     boolean checkColumns(String columns, List<IntrospectedColumn> introspectedColumns) {
         List<String> a = new ArrayList<>();
         List<String> b = new ArrayList<>();
-        String[] temp = StringUtils.split(StringUtils.trim(columns), ",");
+        String[] temp = StringUtils.split(columns, ",");
         for (int i = 0; i < temp.length; i++) {
             String[] tempColumn = StringUtils.split(temp[i]);
-            a.add(tempColumn[1]);
+            a.add(tempColumn[0]);
         }
         introspectedColumns.forEach(introspectedColumn -> {
             b.add(introspectedColumn.getActualColumnName());
@@ -92,7 +92,7 @@ public class MybatisSelectOneByColumnsPlugin extends AbstractXmbgPlugin {
                     if (i != 0) {
                         whereCondition.append(" and ");
                     }
-                    whereCondition.append(tempColumn[1]).append(" = ").append("#{").append(camelName(tempColumn[1])).append("} ");
+                    whereCondition.append(tempColumn[0]).append(" = ").append("#{").append(camelName(tempColumn[0])).append("} ");
                 }
 
                 if (introspectedTable.getBLOBColumns().size() > 0) {

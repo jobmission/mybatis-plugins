@@ -33,7 +33,7 @@
 自定义查询,可连表，可返回单值
 <plugin type="com.revengemission.plugins.mybatis.MySQLCustomSelectPlugin">
             <property
-                    name="user_account_entity-selectUniqueByUsername"
+                    name="user_account_entity;selectUniqueByUsername"
                     value="single-row;String username;select * from user_account_entity where username=#{username}"/>
 </plugin>
 ````
@@ -47,8 +47,8 @@
 自定义更新
 <plugin type="com.revengemission.plugins.mybatis.MybatisCustomUpdatePlugin">
             <property
-                    name="user_account_entity-updateByUsername"
-                    value="long id,String username;update user_account_entity where username=#{username} where id=#{id}"/>
+                    name="user_account_entity;updateByUsername"
+                    value="long id,String username;update user_account_entity set username=#{username} where id=#{id}"/>
 </plugin>
 ````
 
@@ -86,12 +86,12 @@ value:[注解内容]
 
 ````
 根据字段组合查询唯一记录，返回单行
-name:[mapper方法名]
-value:[表名;字段类型 字段名,字段类型 字段名...]，every_table所有表
+name:[表名;mapper方法名]
+value:[表字段名 字段java类型,表字段名 字段java类型...]，every_table所有表
 <plugin type="com.revengemission.plugins.mybatis.MybatisSelectOneByColumnsPlugin">
             <property
-                    name="selectUniqueByCode"
-                    value="category_entity;String code,long shop_id"/>
+                    name="category_entity;selectUniqueByCode"
+                    value="code String,shop_id long"/>
 </plugin>
 ````
 
