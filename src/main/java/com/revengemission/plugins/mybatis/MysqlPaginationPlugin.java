@@ -13,9 +13,9 @@ import java.util.List;
 
 *Mysql Limit 分页插件
 *
-* Supplied Plugins
+* 仅作为插件样例保留！
 *
- *       http://www.mybatis.org/generator/reference/plugins.html
+*  http://www.mybatis.org/generator/reference/plugins.html
 * */
 @Deprecated
 public class MysqlPaginationPlugin extends PluginAdapter {

@@ -51,7 +51,7 @@ public class MybatisSelectOneByColumnsPlugin extends AbstractXmbgPlugin {
                 String[] temp = StringUtils.split(StringUtils.trim(v), ",");
                 for (int i = 0; i < temp.length; i++) {
                     String[] tempColumn = StringUtils.split(temp[i]);
-                    method.addParameter(new Parameter(new FullyQualifiedJavaType(tempColumn[1]), camelName(tempColumn[0]), "@Param(\"" + camelName(tempColumn[1]) + "\")"));
+                    method.addParameter(new Parameter(new FullyQualifiedJavaType(tempColumn[1]), camelName(tempColumn[0]), "@Param(\"" + camelName(tempColumn[0]) + "\")"));
                 }
                 method.setReturnType(new FullyQualifiedJavaType(getEntityName(introspectedTable)));
                 interfaze.addMethod(method);
