@@ -57,12 +57,12 @@ public class OrderByPlugin extends PluginAdapter {
         Parameter orderParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "sortOrder", false);
         addOrderBy.addParameter(filedParameter);
         addOrderBy.addParameter(orderParameter);
-        addOrderBy.addBodyLine("if (tableFields.contains(fieldName) && (\"asc\".equalsIgnoreCase(sortOrder)) || \"desc\".equalsIgnoreCase(sortOrder)){");
-        addOrderBy.addBodyLine("if (orderByClause!=null){");
-        addOrderBy.addBodyLine("orderByClause.put(fieldName,sortOrder);");
+        addOrderBy.addBodyLine("if (tableFields.contains(fieldName) && (\"asc\".equalsIgnoreCase(sortOrder)) || \"desc\".equalsIgnoreCase(sortOrder)) {");
+        addOrderBy.addBodyLine("if (orderByClause != null) {");
+        addOrderBy.addBodyLine("orderByClause.put(fieldName, sortOrder);");
         addOrderBy.addBodyLine("} else {");
-        addOrderBy.addBodyLine("orderByClause=new LinkedHashMap<>();");
-        addOrderBy.addBodyLine("orderByClause.put(fieldName,sortOrder);");
+        addOrderBy.addBodyLine("orderByClause = new LinkedHashMap<>();");
+        addOrderBy.addBodyLine("orderByClause.put(fieldName, sortOrder);");
         addOrderBy.addBodyLine("}");
         addOrderBy.addBodyLine("}");
         topLevelClass.addMethod(addOrderBy);
@@ -78,10 +78,12 @@ public class OrderByPlugin extends PluginAdapter {
         for (Method method : topLevelClass.getMethods()) {
             if (StringUtils.equals(method.getName(), "getOrderByClause")) {
                 method.getBodyLines().clear();
-                method.addBodyLine("if (orderByClause !=null && orderByClause.size() > 0) {");
-                method.addBodyLine("StringBuffer sb=new StringBuffer();");
-                method.addBodyLine("orderByClause.forEach((k,v)->{sb.append(','+k+' '+v);});");
-                method.addBodyLine("return sb.toString().replaceFirst(\",\",\"\");");
+                method.addBodyLine("if (orderByClause != null && orderByClause.size() > 0) {");
+                method.addBodyLine("StringBuffer sb = new StringBuffer();");
+                method.addBodyLine("orderByClause.forEach((k, v)->{");
+                method.addBodyLine("sb.append(',' + k + ' ' + v);");
+                method.addBodyLine("});");
+                method.addBodyLine("return sb.toString().replaceFirst(\",\", \"\");");
                 method.addBodyLine("} else {");
                 method.addBodyLine("return null;");
                 method.addBodyLine("}");
@@ -89,7 +91,7 @@ public class OrderByPlugin extends PluginAdapter {
             }
 
             if (StringUtils.equals(method.getName(), getEntityName(introspectedTable) + "Example")) {
-                method.addBodyLine("tableFields=new ArrayList<>();");
+                method.addBodyLine("tableFields = new ArrayList<>();");
                 for (IntrospectedColumn introspectedColumn : introspectedTable.getAllColumns()) {
                     method.addBodyLine("tableFields.add(\"" + introspectedColumn.getActualColumnName() + "\");");
                 }
