@@ -41,16 +41,10 @@ public class MysqlTruncateTablePlugin extends AbstractXmbgPlugin {
 
     @Override
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        String tableName = getTableName(introspectedTable);
 
-        todo.forEach((k, v) -> {
-            if (StringUtils.startsWith(k, tableName)) {
-                Method method = new Method("truncateTable");
-                method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-                interfaze.addMethod(method);
-            }
-        });
-
+        Method method = new Method("truncateTable");
+        method.setReturnType(FullyQualifiedJavaType.getIntInstance());
+        interfaze.addMethod(method);
         return true;
     }
 
@@ -60,18 +54,13 @@ public class MysqlTruncateTablePlugin extends AbstractXmbgPlugin {
 
         String tableName = getTableName(introspectedTable);
 
-        todo.forEach((k, v) -> {
-
-            if (StringUtils.startsWith(k, tableName)) {
-                XmlElement selectElement = new XmlElement("update");
-                selectElement.addAttribute(new Attribute("id", "truncateTable"));
-                String tempString = "TRUNCATE TABLE " + tableName;
-                selectElement.addElement(
-                        new TextElement(tempString
-                        ));
-                document.getRootElement().addElement(selectElement);
-            }
-        });
+        XmlElement selectElement = new XmlElement("update");
+        selectElement.addAttribute(new Attribute("id", "truncateTable"));
+        String tempString = "TRUNCATE TABLE " + tableName;
+        selectElement.addElement(
+                new TextElement(tempString
+                ));
+        document.getRootElement().addElement(selectElement);
         return true;
     }
 
