@@ -80,7 +80,7 @@ public class OrderByPlugin extends PluginAdapter {
                 method.getBodyLines().clear();
                 method.addBodyLine("if (orderByClause != null && orderByClause.size() > 0) {");
                 method.addBodyLine("StringBuffer sb = new StringBuffer();");
-                method.addBodyLine("orderByClause.forEach((k, v)->{");
+                method.addBodyLine("orderByClause.forEach((k, v) -> {");
                 method.addBodyLine("sb.append(',' + k + ' ' + v);");
                 method.addBodyLine("});");
                 method.addBodyLine("return sb.toString().replaceFirst(\",\", \"\");");

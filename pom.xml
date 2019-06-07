@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.revengemission.plugins</groupId>
     <artifactId>mybatis-plugins</artifactId>
-    <version>0.2.2</version>
+    <version>0.3</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>MyBatis Generator plugins</description>

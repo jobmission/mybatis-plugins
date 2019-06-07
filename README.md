@@ -25,7 +25,7 @@
 ````
 
 ````
-无xml动态mapper,针对所有表,需要修改generatorConfiguration　targetRuntime
+无xml动态mapper,针对所有表,需要修改generatorConfiguration　配置targetRuntime="MyBatis3DynamicSql"
 <plugin type="com.revengemission.plugins.mybatis.MyBatis3DynamicSQLPlugin"/>
 ````
 
@@ -39,9 +39,15 @@
 ````
 
 ````
-自定义语句,针对所有表,执行select和update
+自定义语句, 针对所有表, 执行select和update
 <plugin type="com.revengemission.plugins.mybatis.MybatisCustomSqlPlugin"/>
 ````
+
+````
+执行select语句,map传参数, 单独的mapper!!!
+<plugin type="com.revengemission.plugins.mybatis.MybatisCustomQueryPlugin"/>
+````
+
 
 ````
 自定义更新
@@ -96,15 +102,12 @@ value:[表字段名 字段java类型,表字段名 字段java类型...]，every_t
 ````
 
 ````
-生成TruncateTable语句
-<plugin type="com.revengemission.plugins.mybatis.MysqlTruncateTablePlugin">
-            <property name="category_entity" value=""/>
-            <property name="brand_entity" value=""/>
-</plugin>
+生成TruncateTable语句, 针对所有表
+<plugin type="com.revengemission.plugins.mybatis.MysqlTruncateTablePlugin"/>
 ````
 
 ````
-order by 语句，可以多字段排序,针对所有表
+强化example中order by 语句, 针对所有表, 可以多字段排序
 <plugin type="com.revengemission.plugins.mybatis.OrderByPlugin"/>
 ````
 
