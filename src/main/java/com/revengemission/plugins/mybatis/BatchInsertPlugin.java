@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class BatchInsertPlugin extends AbstractXmbgPlugin {
 
-    private static final String BATCH_INSERT = "batchInsert";
+    private static final String CLIENT_METHOD_NAME = "batchInsert";
 
     private static final String PROPERTY_PREFIX = "item.";
 
@@ -26,7 +26,7 @@ public class BatchInsertPlugin extends AbstractXmbgPlugin {
     @Override
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         String objectName = getEntityName(introspectedTable);
-        Method method = new Method(BATCH_INSERT);
+        Method method = new Method(CLIENT_METHOD_NAME);
         FullyQualifiedJavaType type = new FullyQualifiedJavaType("java.util.List<" + objectName + ">");
         method.addParameter(new Parameter(type, "list"));
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
@@ -36,9 +36,9 @@ public class BatchInsertPlugin extends AbstractXmbgPlugin {
 
     @Override
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
-        XmlElement insertXmlElement = new XmlElement("insert"); //$NON-NLS-1$
+        XmlElement insertXmlElement = new XmlElement("insert");
 
-        insertXmlElement.addAttribute(new Attribute("id", BATCH_INSERT)); //$NON-NLS-1$
+        insertXmlElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME));
         FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType("java.util.List");
         insertXmlElement.addAttribute(new Attribute("parameterType", parameterType.getFullyQualifiedName()));
 

@@ -11,7 +11,6 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,8 +21,7 @@ import java.util.Map;
  */
 public class MysqlTruncateTablePlugin extends AbstractXmbgPlugin {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MysqlTruncateTablePlugin.class);
-
+    private static final String CLIENT_METHOD_NAME = "truncateTable";
     Map<String, String> todo = new LinkedHashMap<>();
 
     @Override
@@ -42,7 +40,7 @@ public class MysqlTruncateTablePlugin extends AbstractXmbgPlugin {
     @Override
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
 
-        Method method = new Method("truncateTable");
+        Method method = new Method(CLIENT_METHOD_NAME);
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
         interfaze.addMethod(method);
         return true;
@@ -55,7 +53,7 @@ public class MysqlTruncateTablePlugin extends AbstractXmbgPlugin {
         String tableName = getTableName(introspectedTable);
 
         XmlElement selectElement = new XmlElement("update");
-        selectElement.addAttribute(new Attribute("id", "truncateTable"));
+        selectElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME));
         String tempString = "TRUNCATE TABLE " + tableName;
         selectElement.addElement(
                 new TextElement(tempString

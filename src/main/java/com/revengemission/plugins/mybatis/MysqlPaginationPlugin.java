@@ -9,14 +9,10 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 
 import java.util.List;
 
-/*
-
-*Mysql Limit 分页插件
-*
-* 仅作为插件样例保留！
-*
-*  http://www.mybatis.org/generator/reference/plugins.html
-* */
+/**
+ * Mysql Limit 分页插件
+ * 仅作为插件样例参考而保留！
+ */
 @Deprecated
 public class MysqlPaginationPlugin extends PluginAdapter {
 

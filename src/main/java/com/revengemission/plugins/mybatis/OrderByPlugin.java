@@ -10,12 +10,9 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 
 import java.util.List;
 
-/*
-*
-* Supplied Plugins
-*
- *       http://www.mybatis.org/generator/reference/plugins.html
-* */
+/**
+ * 增强order by 语句，预防注入
+ */
 public class OrderByPlugin extends PluginAdapter {
 
     @Override
@@ -139,7 +136,7 @@ public class OrderByPlugin extends PluginAdapter {
     protected String getEntityName(IntrospectedTable introspectedTable) {
         String objectName = introspectedTable.getTableConfiguration().getDomainObjectName();
 
-        if (objectName == null || objectName.equals("")) {
+        if (objectName == null || "".equals(objectName)) {
             objectName = tableNameToEntityName(getTableName(introspectedTable));
         }
         return objectName;

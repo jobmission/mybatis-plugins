@@ -13,9 +13,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by revenge mission on 18-6-17.
+ * Entity Model 类中field添加注解
  */
 public class MybatisModelFieldAnnotationPlugin extends AbstractXmbgPlugin {
+
+    private static final String EVERY_TABLE_NAME = "every_table";
+    private static final String EVERY_FIELD_NAME = "every_field";
 
     @Override
     public boolean validate(List<String> warnings) {
@@ -33,16 +36,16 @@ public class MybatisModelFieldAnnotationPlugin extends AbstractXmbgPlugin {
 
         Map<String, String> todo = new LinkedHashMap<>();
         properties.forEach((k, v) -> {
+            //截取property name，是因为字段上可能有多个注解，防止key重复覆盖
             String[] temp = StringUtils.trim(k.toString()).split(";");
             if (temp.length == 3) {
-                if (StringUtils.equalsIgnoreCase(currentTableName, temp[0]) || StringUtils.equalsIgnoreCase("every_table", temp[0])) {
-                    if (StringUtils.equalsIgnoreCase(temp[1], currentColumnName)) {
+                if (StringUtils.equalsIgnoreCase(currentTableName, temp[0]) || StringUtils.equalsIgnoreCase(EVERY_TABLE_NAME, temp[0])) {
+                    if (StringUtils.equalsIgnoreCase(temp[1], currentColumnName) || StringUtils.equalsIgnoreCase(temp[1], EVERY_FIELD_NAME)) {
                         todo.put(temp[2], StringUtils.trim(v.toString()));
                     }
                 }
             }
         });
-
 
         todo.forEach((k, v) -> {
             topLevelClass.addImportedType(new FullyQualifiedJavaType(k));

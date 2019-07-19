@@ -2,25 +2,21 @@ package com.revengemission.plugins.mybatis;
 
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-/*
-* 批量更新
-* */
+/**
+ * 批量更新
+ */
 public class BatchUpdatePlugin extends AbstractXmbgPlugin {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AbstractXmbgPlugin.class);
-
-    private static final String BATCH_UPDATE = "batchUpdate";
+    private static final String CLIENT_METHOD_NAME = "batchUpdate";
 
     private static final String PROPERTY_PREFIX = "item.";
 
@@ -43,7 +39,7 @@ public class BatchUpdatePlugin extends AbstractXmbgPlugin {
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         String objectName = getEntityName(introspectedTable);
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
-        Method method = new Method(BATCH_UPDATE);
+        Method method = new Method(CLIENT_METHOD_NAME);
         FullyQualifiedJavaType type = new FullyQualifiedJavaType("java.util.List<" + objectName + ">");
         method.addParameter(new Parameter(type, "list"));
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
@@ -58,7 +54,7 @@ public class BatchUpdatePlugin extends AbstractXmbgPlugin {
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
 
         XmlElement update = new XmlElement("update");
-        update.addAttribute(new Attribute("id", BATCH_UPDATE));
+        update.addAttribute(new Attribute("id", CLIENT_METHOD_NAME));
 
         String parameterType = "java.util.List";
 
@@ -72,7 +68,7 @@ public class BatchUpdatePlugin extends AbstractXmbgPlugin {
 
         generateTextBlockAppendTableName("update ", introspectedTable, foreach);
 
-        TextElement setElement = new TextElement("set"); //$NON-NLS-1$
+        TextElement setElement = new TextElement("set");
         foreach.addElement(setElement);
 
 //        version = version + 1
