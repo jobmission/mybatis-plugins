@@ -11,19 +11,12 @@ import org.mybatis.generator.api.dom.xml.Element;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
-import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractXmbgPlugin extends PluginAdapter {
-
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AbstractXmbgPlugin.class);
-
-  /*---------------------
-   * Generate Helper Method For Xml Mapper
-   *---------------------*/
 
     protected void generateTextBlock(String text, XmlElement parent) {
         parent.addElement(new TextElement(text));
@@ -329,7 +322,6 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                     final Integer tempIndex = i;
                     todo.forEach((k, v) -> {
                         if (StringUtils.contains(element1.getContent(), k)) {
-                            logger.info("match ===============" + element1.getContent());
                             if (StringUtils.indexOf(element1.getContent(), ",") > 0) {
                                 tobeReplaced.put(tempIndex, new TextElement(v + ","));
                             } else {

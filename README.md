@@ -31,7 +31,7 @@
 
 ````
 自定义查询,可连表，可返回单值
-<plugin type="com.revengemission.plugins.mybatis.MySQLCustomSelectPlugin">
+<plugin type="com.revengemission.plugins.mybatis.MybatisCustomSelectPlugin">
             <property
                     name="user_account_entity;selectUniqueByUsername"
                     value="single-row;String username;select * from user_account_entity where username=#{username}"/>
@@ -45,7 +45,7 @@
 
 ````
 执行select语句,map传参数, 单独的mapper!!!
-<plugin type="com.revengemission.plugins.mybatis.MybatisCustomQueryPlugin"/>
+<plugin type="com.revengemission.plugins.mybatis.MybatisCustomQueryMapperPlugin"/>
 ````
 
 
@@ -82,7 +82,7 @@ value:[注解内容]
 
 ````
 修改mybatis-generator-core生成的update语句，如version=version+1
-<plugin type="com.revengemission.plugins.mybatis.MySQLModifyUpdateSqlPlugin">
+<plugin type="com.revengemission.plugins.mybatis.MybatisModifyUpdateSqlPlugin">
             <property name="last_modified = #{lastModified,jdbcType=TIMESTAMP}"
                       value="  last_modified= now() "/>
             <property name="version = #{version,jdbcType=INTEGER}" value="  version = version+1"/>
@@ -91,14 +91,8 @@ value:[注解内容]
 ````
 
 ````
-根据字段组合查询唯一记录，返回单行
-name:[表名;mapper方法名]
-value:[表字段名 字段java类型,表字段名 字段java类型...]，every_table所有表
-<plugin type="com.revengemission.plugins.mybatis.MybatisSelectOneByColumnsPlugin">
-            <property
-                    name="category_entity;selectUniqueByCode"
-                    value="code String,shop_id long"/>
-</plugin>
+根据字段组合查询唯一记录，返回单对象
+<plugin type="com.revengemission.plugins.mybatis.MybatisSelectUniqueByExample"/>
 ````
 
 ````

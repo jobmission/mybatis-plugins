@@ -12,7 +12,6 @@ import java.util.List;
 /**
  * MyBatis Dynamic SQL
  * http://www.mybatis.org/mybatis-dynamic-sql/docs/introduction.html
- * <p>
  * targetRuntime="MyBatis3DynamicSQL"
  */
 public class MyBatis3DynamicSQLPlugin extends AbstractXmbgPlugin {
@@ -26,13 +25,13 @@ public class MyBatis3DynamicSQLPlugin extends AbstractXmbgPlugin {
     private String calculateClassName(IntrospectedTable introspectedTable) {
         FullyQualifiedJavaType mapperType = new FullyQualifiedJavaType(introspectedTable.getMyBatis3JavaMapperType());
         FullyQualifiedJavaType recordType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        return mapperType.getPackageName() + "." + recordType.getShortNameWithoutTypeArguments() + "FieldHelper"; //$NON-NLS-1$ //$NON-NLS-2$
+        return mapperType.getPackageName() + "." + recordType.getShortNameWithoutTypeArguments() + "FieldHelper";
     }
 
     private String calculateSupportClassName(IntrospectedTable introspectedTable) {
         FullyQualifiedJavaType mapperType = new FullyQualifiedJavaType(introspectedTable.getMyBatis3JavaMapperType());
         FullyQualifiedJavaType recordType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        return mapperType.getPackageName() + "." + recordType.getShortNameWithoutTypeArguments() + "DynamicSqlSupport"; //$NON-NLS-1$ //$NON-NLS-2$
+        return mapperType.getPackageName() + "." + recordType.getShortNameWithoutTypeArguments() + "DynamicSqlSupport";
     }
 
     @Override
@@ -91,12 +90,12 @@ public class MyBatis3DynamicSQLPlugin extends AbstractXmbgPlugin {
         TopLevelClass topLevelClass = new TopLevelClass(calculateClassName(introspectedTable));
         topLevelClass.setVisibility(JavaVisibility.PUBLIC);
         topLevelClass.setFinal(true);
-        topLevelClass.addImportedType(new FullyQualifiedJavaType("org.apache.commons.lang3.StringUtils")); //$NON-NLS-1$
-        topLevelClass.addImportedType(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.SortSpecification")); //$NON-NLS-1$
-        topLevelClass.addImportedType(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.SqlColumn")); //$NON-NLS-1$
-        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.HashMap")); //$NON-NLS-1$
-        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.Map")); //$NON-NLS-1$
-        topLevelClass.addStaticImport(calculateSupportClassName(introspectedTable) + ".*"); //$NON-NLS-1$
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("org.apache.commons.lang3.StringUtils"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.SortSpecification"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.SqlColumn"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.HashMap"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.Map"));
+        topLevelClass.addStaticImport(calculateSupportClassName(introspectedTable) + ".*");
         topLevelClass.addMethod(getSortField);
         topLevelClass.addMethod(existField);
 

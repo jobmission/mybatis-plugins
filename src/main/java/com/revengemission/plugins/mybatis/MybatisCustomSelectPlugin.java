@@ -8,21 +8,15 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/*
-*
-* Supplied Plugins
- *       http://www.mybatis.org/generator/reference/plugins.html
-*
-* */
+/**
+ * 自定义查询，指定类型
+ */
 public class MybatisCustomSelectPlugin extends AbstractXmbgPlugin {
-
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MybatisCustomSelectPlugin.class);
 
     Map<String, String> todo = new LinkedHashMap<>();
 
@@ -45,6 +39,7 @@ public class MybatisCustomSelectPlugin extends AbstractXmbgPlugin {
         return true;
     }
 
+    @Override
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         String objectName = getEntityName(introspectedTable);
         todo.forEach((k, v) -> {
@@ -91,8 +86,8 @@ public class MybatisCustomSelectPlugin extends AbstractXmbgPlugin {
     private Map<String, String> getCustomerMapperParameters(String parameterString) {
         Map<String, String> result = new LinkedHashMap<>();
         String[] fields = parameterString.split(",");
-        for (int i = 0; i < fields.length; i++) {
-            String[] parameter = fields[i].split(" ");
+        for (String field : fields) {
+            String[] parameter = field.split(" ");
             if (parameter.length == 2) {
                 result.put(parameter[1], parameter[0]);
             }

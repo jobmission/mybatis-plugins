@@ -14,6 +14,8 @@ import java.util.List;
  */
 public class BatchLogicDeletePlugin extends AbstractXmbgPlugin {
 
+    private static final String CLIENT_METHOD_NAME = "deleteLogicByIds";
+
     @Override
     public boolean validate(List<String> warnings) {
         return true;
@@ -21,7 +23,7 @@ public class BatchLogicDeletePlugin extends AbstractXmbgPlugin {
 
     @Override
     public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        Method method = new Method("deleteLogicByIds");
+        Method method = new Method(CLIENT_METHOD_NAME);
         method.addParameter(new Parameter(FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "deleted", "@Param(\"deleted\")"));
         method.addParameter(new Parameter(new FullyQualifiedJavaType("Integer[]"), "ids", "@Param(\"ids\")"));
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
@@ -36,7 +38,7 @@ public class BatchLogicDeletePlugin extends AbstractXmbgPlugin {
         XmlElement parentElement = document.getRootElement();
 
         XmlElement deleteLogicByIdsElement = new XmlElement("update");
-        deleteLogicByIdsElement.addAttribute(new Attribute("id", "deleteLogicByIds"));
+        deleteLogicByIdsElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME));
 
         deleteLogicByIdsElement.addElement(
                 new TextElement(

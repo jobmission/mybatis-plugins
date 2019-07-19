@@ -14,14 +14,10 @@ import org.mybatis.generator.codegen.XmlConstants;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- *
- * 生成单独的mapper文件
- * Supplied Plugins
- *       http://www.mybatis.org/generator/reference/plugins.html
- *
- * */
-public class MybatisCustomQueryPlugin extends AbstractXmbgPlugin {
+/**
+ * 自定义查询，生成单独的mapper文件
+ */
+public class MybatisCustomQueryMapperPlugin extends AbstractXmbgPlugin {
 
     String mapperName = "CustomQueryMapper";
     String queryForMapMethodName = "queryForMap";
@@ -119,9 +115,9 @@ public class MybatisCustomQueryPlugin extends AbstractXmbgPlugin {
         root.addElement(queryForObjectElement);
 
         GeneratedXmlFile gxf = new GeneratedXmlFile(document, properties
-                .getProperty("fileName", "CustomerQueryMapper.xml"), //$NON-NLS-1$ //$NON-NLS-2$
-                context.getSqlMapGeneratorConfiguration().getTargetPackage(), //$NON-NLS-1$
-                context.getSqlMapGeneratorConfiguration().getTargetProject(), //$NON-NLS-1$
+                .getProperty("fileName", "CustomerQueryMapper.xml"),
+                context.getSqlMapGeneratorConfiguration().getTargetPackage(),
+                context.getSqlMapGeneratorConfiguration().getTargetProject(),
                 false, context.getXmlFormatter());
 
         List<GeneratedXmlFile> answer = new ArrayList<>(1);

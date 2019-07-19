@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by revenge mission on 18-6-17.
+ * Entity Model类上添加注解
  */
 public class MybatisModelAnnotationPlugin extends AbstractXmbgPlugin {
 
@@ -32,7 +32,7 @@ public class MybatisModelAnnotationPlugin extends AbstractXmbgPlugin {
                 if (todo.containsKey(temp[0])) {
                     todo.get(temp[0]).put(temp[1], StringUtils.trim(v.toString()));
                 } else {
-                    Map<String, String> annotationMap = new HashMap<String, String>();
+                    Map<String, String> annotationMap = new HashMap<>(16);
                     annotationMap.put(temp[1], StringUtils.trim(v.toString()));
                     todo.put(temp[0], annotationMap);
                 }

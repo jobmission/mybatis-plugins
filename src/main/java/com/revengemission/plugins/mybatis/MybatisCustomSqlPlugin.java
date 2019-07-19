@@ -15,7 +15,6 @@ import java.util.List;
  */
 public class MybatisCustomSqlPlugin extends AbstractXmbgPlugin {
 
-
     @Override
     public boolean validate(List<String> warnings) {
         return true;

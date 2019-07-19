@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by revenge mission on 18-6-17.
+ * Entity Model类中field添加注解
  */
 public class MybatisModelFieldAnnotationPlugin extends AbstractXmbgPlugin {
 

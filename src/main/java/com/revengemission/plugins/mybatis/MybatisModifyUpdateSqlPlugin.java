@@ -1,24 +1,17 @@
 package com.revengemission.plugins.mybatis;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/*
-* Supplied Plugins
-*
- *       http://www.mybatis.org/generator/reference/plugins.html
-*
-* */
+/**
+ * 修改自动生成的update语句
+ */
 public class MybatisModifyUpdateSqlPlugin extends AbstractXmbgPlugin {
-
-    private static final org.slf4j.Logger log= LoggerFactory.getLogger(MybatisModifyUpdateSqlPlugin.class);
 
     Map<String, String> todo = new LinkedHashMap<>();
 
