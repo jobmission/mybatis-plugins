@@ -1,19 +1,16 @@
 package com.revengemission.plugins.mybatis;
 
 
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.api.dom.xml.XmlElement;
 
 import java.util.List;
 
 /**
  * 增强order by 语句，预防注入
  */
-public class OrderByPlugin extends PluginAdapter {
+public class OrderByPlugin extends AbstractXmbgPlugin {
 
     @Override
     public boolean validate(List<String> list) {
@@ -29,7 +26,7 @@ public class OrderByPlugin extends PluginAdapter {
         FullyQualifiedJavaType listWrapper = new FullyQualifiedJavaType("List<String>");
 
         for (Field field : topLevelClass.getFields()) {
-            if (StringUtils.equals(field.getName(), "orderByClause")) {
+            if ("orderByClause".equals(field.getName())) {
                 topLevelClass.getFields().remove(field);
                 break;
             }
@@ -66,14 +63,14 @@ public class OrderByPlugin extends PluginAdapter {
 
 
         for (Method method : topLevelClass.getMethods()) {
-            if (StringUtils.equals(method.getName(), "setOrderByClause")) {
+            if ("setOrderByClause".equals(method.getName())) {
                 topLevelClass.getMethods().remove(method);
                 break;
             }
         }
 
         for (Method method : topLevelClass.getMethods()) {
-            if (StringUtils.equals(method.getName(), "getOrderByClause")) {
+            if ("getOrderByClause".equals(method.getName())) {
                 method.getBodyLines().clear();
                 method.addBodyLine("if (orderByClause != null && orderByClause.size() > 0) {");
                 method.addBodyLine("StringBuffer sb = new StringBuffer();");
@@ -87,7 +84,11 @@ public class OrderByPlugin extends PluginAdapter {
 
             }
 
-            if (StringUtils.equals(method.getName(), getEntityName(introspectedTable) + "Example")) {
+            //获取构造函数
+            if (method.isConstructor()) {
+///                System.out.println("类名：" + topLevelClass.getType().getShortName());
+                method.getBodyLines().clear();
+                method.addBodyLine("oredCriteria = new ArrayList<>();");
                 method.addBodyLine("tableFields = new ArrayList<>();");
                 for (IntrospectedColumn introspectedColumn : introspectedTable.getAllColumns()) {
                     method.addBodyLine("tableFields.add(\"" + introspectedColumn.getActualColumnName() + "\");");
@@ -97,48 +98,5 @@ public class OrderByPlugin extends PluginAdapter {
         return true;
     }
 
-    @Override
-    public boolean sqlMapSelectByExampleWithoutBLOBsElementGenerated(XmlElement element,
-                                                                     IntrospectedTable introspectedTable) {
-        return true;
-    }
 
-
-    @Override
-    public boolean sqlMapSelectByExampleWithBLOBsElementGenerated(XmlElement element,
-                                                                  IntrospectedTable introspectedTable) {
-
-        return true;
-    }
-
-    private String tableNameToEntityName(String tableName) {
-        StringBuilder result = new StringBuilder();
-        if (tableName == null || tableName.isEmpty()) {
-            return "";
-        } else if (!tableName.contains("_")) {
-            return tableName;
-        }
-        String camels[] = tableName.split("_");
-        for (String camel : camels) {
-            if (camel.isEmpty()) {
-                continue;
-            }
-            result.append(camel.substring(0, 1).toUpperCase());
-            result.append(camel.substring(1));
-        }
-        return result.toString();
-    }
-
-    protected String getTableName(IntrospectedTable introspectedTable) {
-        return introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
-    }
-
-    protected String getEntityName(IntrospectedTable introspectedTable) {
-        String objectName = introspectedTable.getTableConfiguration().getDomainObjectName();
-
-        if (objectName == null || "".equals(objectName)) {
-            objectName = tableNameToEntityName(getTableName(introspectedTable));
-        }
-        return objectName;
-    }
 }

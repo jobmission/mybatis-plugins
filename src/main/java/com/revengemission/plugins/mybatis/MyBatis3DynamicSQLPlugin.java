@@ -77,7 +77,7 @@ public class MyBatis3DynamicSQLPlugin extends AbstractXmbgPlugin {
             stringBuffer.append("        allColumns.put(\"" + field.getJavaProperty() + "\", " + field.getJavaProperty() + ");\n");
         }
         stringBuffer.append("        if (allColumns.containsKey(sortField)) {\n");
-        stringBuffer.append("            if (StringUtils.equalsIgnoreCase(\"asc\", sortOrder)) {\n");
+        stringBuffer.append("            if (\"asc\".equalsIgnoreCase(sortOrder))) {\n");
         stringBuffer.append("                return allColumns.get(sortField);\n");
         stringBuffer.append("            } else {\n");
         stringBuffer.append("                return allColumns.get(sortField).descending();\n");
@@ -90,7 +90,6 @@ public class MyBatis3DynamicSQLPlugin extends AbstractXmbgPlugin {
         TopLevelClass topLevelClass = new TopLevelClass(calculateClassName(introspectedTable));
         topLevelClass.setVisibility(JavaVisibility.PUBLIC);
         topLevelClass.setFinal(true);
-        topLevelClass.addImportedType(new FullyQualifiedJavaType("org.apache.commons.lang3.StringUtils"));
         topLevelClass.addImportedType(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.SortSpecification"));
         topLevelClass.addImportedType(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.SqlColumn"));
         topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.HashMap"));

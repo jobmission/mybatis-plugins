@@ -1,7 +1,6 @@
 package com.revengemission.plugins.mybatis;
 
 
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -164,8 +163,8 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                     TextElement element1 = (TextElement) element.getElements().get(i);
                     final Integer tempIndex = i;
                     todo.forEach((k, v) -> {
-                        if (StringUtils.contains(element1.getContent(), k)) {
-                            if (StringUtils.indexOf(element1.getContent(), ",") > 0) {
+                        if (element1.getContent().indexOf(k) >= 0) {
+                            if (element1.getContent().indexOf(",") > 0) {
                                 tobeReplaced.put(tempIndex, new TextElement(v + ","));
                             } else {
                                 tobeReplaced.put(tempIndex, new TextElement(v));
@@ -231,20 +230,20 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         return result.toString();
     }
 
-    protected String getTableName(IntrospectedTable introspectedTable) {
+    String getTableName(IntrospectedTable introspectedTable) {
         return introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
     }
 
-    protected String getEntityName(IntrospectedTable introspectedTable) {
+    String getEntityName(IntrospectedTable introspectedTable) {
         String objectName = introspectedTable.getTableConfiguration().getDomainObjectName();
 
-        if (StringUtils.isEmpty(objectName)) {
+        if (objectName == null || objectName.trim() == "") {
             objectName = tableNameToEntityName(getTableName(introspectedTable));
         }
         return objectName;
     }
 
-    protected String getTableColumnName(IntrospectedColumn introspectedColumn) {
+    String getTableColumnName(IntrospectedColumn introspectedColumn) {
         return introspectedColumn.getActualColumnName();
     }
 }

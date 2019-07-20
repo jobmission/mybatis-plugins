@@ -1,7 +1,6 @@
 package com.revengemission.plugins.mybatis;
 
 
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
@@ -16,9 +15,9 @@ import java.util.*;
 /**
  * 批量更新
  */
-public class BatchUpdatePlugin extends AbstractXmbgPlugin {
+public class BatchUpdateByPrimaryKeyPlugin extends AbstractXmbgPlugin {
 
-    private static final String CLIENT_METHOD_NAME = "batchUpdate";
+    private static final String CLIENT_METHOD_NAME = "batchUpdateByPrimaryKey";
 
     private static final String PROPERTY_PREFIX = "item.";
 
@@ -28,7 +27,7 @@ public class BatchUpdatePlugin extends AbstractXmbgPlugin {
     public void initialized(IntrospectedTable introspectedTable) {
         todo.clear();
         properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
+            todo.put(k.toString().trim(), v.toString().trim());
         });
     }
 
@@ -93,11 +92,11 @@ public class BatchUpdatePlugin extends AbstractXmbgPlugin {
             IntrospectedColumn introspectedColumn = columns.get(i);
             sb.setLength(0);
 
-            if (StringUtils.equals(introspectedColumn.getActualColumnName(), "version")) {
+            if ("version".equalsIgnoreCase(introspectedColumn.getActualColumnName())) {
                 sb.append("  version = version + 1");
-            } else if (StringUtils.equals(introspectedColumn.getActualColumnName(), "last_modified")) {
+            } else if ("last_modified".equalsIgnoreCase(introspectedColumn.getActualColumnName())) {
                 sb.append("  last_modified = now()");
-            } else if (StringUtils.equals(introspectedColumn.getActualColumnName(), "modified_date")) {
+            } else if ("modified_date".equalsIgnoreCase(introspectedColumn.getActualColumnName())) {
                 sb.append("  modified_date = now()");
             } else {
                 sb.append("  ");
