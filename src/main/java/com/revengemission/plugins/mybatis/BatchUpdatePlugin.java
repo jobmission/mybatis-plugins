@@ -2,12 +2,14 @@ package com.revengemission.plugins.mybatis;
 
 
 import org.apache.commons.lang3.StringUtils;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 
 import java.util.*;
 
@@ -83,5 +85,34 @@ public class BatchUpdatePlugin extends AbstractXmbgPlugin {
         return true;
     }
 
+
+    protected void generateParameterForSet(String fieldPrefix, List<IntrospectedColumn> columns, XmlElement dynamicElement) {
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < columns.size(); i++) {
+            IntrospectedColumn introspectedColumn = columns.get(i);
+            sb.setLength(0);
+
+            if (StringUtils.equals(introspectedColumn.getActualColumnName(), "version")) {
+                sb.append("  version = version + 1");
+            } else if (StringUtils.equals(introspectedColumn.getActualColumnName(), "last_modified")) {
+                sb.append("  last_modified = now()");
+            } else if (StringUtils.equals(introspectedColumn.getActualColumnName(), "modified_date")) {
+                sb.append("  modified_date = now()");
+            } else {
+                sb.append("  ");
+                sb.append(MyBatis3FormattingUtilities.getAliasedEscapedColumnName(introspectedColumn));
+                sb.append(" = ");
+                sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn, fieldPrefix));
+            }
+            if (i != columns.size() - 1) {
+                sb.append(',');
+            }
+            TextElement tempElement = new TextElement(sb.toString());
+            dynamicElement.addElement(tempElement);
+        }
+
+
+    }
 
 }
