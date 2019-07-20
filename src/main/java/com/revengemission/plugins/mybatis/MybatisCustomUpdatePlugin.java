@@ -1,6 +1,5 @@
 package com.revengemission.plugins.mybatis;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Attribute;
@@ -24,10 +23,10 @@ public class MybatisCustomUpdatePlugin extends AbstractXmbgPlugin {
         todo.clear();
         String currentTableName = getTableName(introspectedTable);
         properties.forEach((k, v) -> {
-            String[] temp = StringUtils.split(StringUtils.trim(k.toString()), ";");
+            String[] temp = k.toString().trim().split(";");
             if (temp.length == 2) {
-                if (StringUtils.equalsIgnoreCase(currentTableName, temp[0])) {
-                    todo.put(StringUtils.trim(temp[1]), StringUtils.trim(v.toString()));
+                if (currentTableName.equalsIgnoreCase(temp[0])) {
+                    todo.put(temp[1].trim(), v.toString().trim());
                 }
             }
         });

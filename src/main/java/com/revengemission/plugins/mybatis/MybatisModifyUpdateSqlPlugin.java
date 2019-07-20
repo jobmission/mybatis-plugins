@@ -1,6 +1,5 @@
 package com.revengemission.plugins.mybatis;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 
@@ -19,7 +18,7 @@ public class MybatisModifyUpdateSqlPlugin extends AbstractXmbgPlugin {
     public void initialized(IntrospectedTable introspectedTable) {
         todo.clear();
         properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
+            todo.put(k.toString().trim(), v.toString().trim());
         });
     }
 

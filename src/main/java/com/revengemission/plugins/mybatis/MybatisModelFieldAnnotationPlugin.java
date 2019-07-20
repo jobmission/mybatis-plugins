@@ -1,6 +1,5 @@
 package com.revengemission.plugins.mybatis;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.Plugin;
@@ -37,11 +36,11 @@ public class MybatisModelFieldAnnotationPlugin extends AbstractXmbgPlugin {
         Map<String, String> todo = new LinkedHashMap<>();
         properties.forEach((k, v) -> {
             //截取property name，是因为字段上可能有多个注解，防止key重复覆盖
-            String[] temp = StringUtils.trim(k.toString()).split(";");
+            String[] temp = k.toString().trim().split(";");
             if (temp.length == 3) {
-                if (StringUtils.equalsIgnoreCase(currentTableName, temp[0]) || StringUtils.equalsIgnoreCase(EVERY_TABLE_NAME, temp[0])) {
-                    if (StringUtils.equalsIgnoreCase(temp[1], currentColumnName) || StringUtils.equalsIgnoreCase(temp[1], EVERY_FIELD_NAME)) {
-                        todo.put(temp[2], StringUtils.trim(v.toString()));
+                if (currentTableName.equalsIgnoreCase(temp[0]) || EVERY_TABLE_NAME.equalsIgnoreCase(temp[0])) {
+                    if (currentColumnName.equalsIgnoreCase(temp[1]) || EVERY_FIELD_NAME.equalsIgnoreCase(temp[1])) {
+                        todo.put(temp[2], v.toString().trim());
                     }
                 }
             }

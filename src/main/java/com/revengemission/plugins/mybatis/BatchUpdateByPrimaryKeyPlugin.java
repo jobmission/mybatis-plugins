@@ -1,22 +1,23 @@
 package com.revengemission.plugins.mybatis;
 
 
-import org.apache.commons.lang3.StringUtils;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 
 import java.util.*;
 
 /**
  * 批量更新
  */
-public class BatchUpdatePlugin extends AbstractXmbgPlugin {
+public class BatchUpdateByPrimaryKeyPlugin extends AbstractXmbgPlugin {
 
-    private static final String CLIENT_METHOD_NAME = "batchUpdate";
+    private static final String CLIENT_METHOD_NAME = "batchUpdateByPrimaryKey";
 
     private static final String PROPERTY_PREFIX = "item.";
 
@@ -26,7 +27,7 @@ public class BatchUpdatePlugin extends AbstractXmbgPlugin {
     public void initialized(IntrospectedTable introspectedTable) {
         todo.clear();
         properties.forEach((k, v) -> {
-            todo.put(StringUtils.trim(k.toString()), StringUtils.trim(v.toString()));
+            todo.put(k.toString().trim(), v.toString().trim());
         });
     }
 
@@ -83,5 +84,34 @@ public class BatchUpdatePlugin extends AbstractXmbgPlugin {
         return true;
     }
 
+
+    protected void generateParameterForSet(String fieldPrefix, List<IntrospectedColumn> columns, XmlElement dynamicElement) {
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < columns.size(); i++) {
+            IntrospectedColumn introspectedColumn = columns.get(i);
+            sb.setLength(0);
+
+            if ("version".equalsIgnoreCase(introspectedColumn.getActualColumnName())) {
+                sb.append("  version = version + 1");
+            } else if ("last_modified".equalsIgnoreCase(introspectedColumn.getActualColumnName())) {
+                sb.append("  last_modified = now()");
+            } else if ("modified_date".equalsIgnoreCase(introspectedColumn.getActualColumnName())) {
+                sb.append("  modified_date = now()");
+            } else {
+                sb.append("  ");
+                sb.append(MyBatis3FormattingUtilities.getAliasedEscapedColumnName(introspectedColumn));
+                sb.append(" = ");
+                sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn, fieldPrefix));
+            }
+            if (i != columns.size() - 1) {
+                sb.append(',');
+            }
+            TextElement tempElement = new TextElement(sb.toString());
+            dynamicElement.addElement(tempElement);
+        }
+
+
+    }
 
 }

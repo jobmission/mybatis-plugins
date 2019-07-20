@@ -1,6 +1,5 @@
 package com.revengemission.plugins.mybatis;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -30,13 +29,13 @@ public class MybatisModelAnnotationPlugin extends AbstractXmbgPlugin {
         Map<String, Map<String, String>> todo = new LinkedHashMap<>();
         properties.forEach((k, v) -> {
             //截取property name，是因为类上可能有多个注解，防止key重复覆盖
-            String[] temp = StringUtils.trim(k.toString()).split(";");
+            String[] temp = k.toString().trim().split(";");
             if (temp.length == 2) {
                 if (todo.containsKey(temp[0])) {
-                    todo.get(temp[0]).put(temp[1], StringUtils.trim(v.toString()));
+                    todo.get(temp[0]).put(temp[1], v.toString().trim());
                 } else {
                     Map<String, String> annotationMap = new HashMap<>(16);
-                    annotationMap.put(temp[1], StringUtils.trim(v.toString()));
+                    annotationMap.put(temp[1], v.toString().trim());
                     todo.put(temp[0], annotationMap);
                 }
             }
@@ -44,7 +43,7 @@ public class MybatisModelAnnotationPlugin extends AbstractXmbgPlugin {
 
 
         todo.forEach((k, v) -> {
-            if (StringUtils.equalsIgnoreCase(currentTableName, k) || StringUtils.equalsIgnoreCase(EVERY_TABLE_NAME, k)) {
+            if (currentTableName.equalsIgnoreCase(k) || EVERY_TABLE_NAME.equalsIgnoreCase(k)) {
                 v.forEach((annotationClass, annotationValue) -> {
                     topLevelClass.addImportedType(new FullyQualifiedJavaType(annotationClass));
                     topLevelClass.addAnnotation(annotationValue);
