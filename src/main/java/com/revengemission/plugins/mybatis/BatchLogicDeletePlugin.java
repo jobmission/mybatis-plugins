@@ -10,7 +10,7 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import java.util.List;
 
 /**
- * 逻辑删除
+ * 逻辑删除,表中需要有 deleted 字段
  */
 public class BatchLogicDeletePlugin extends AbstractXmbgPlugin {
 
@@ -41,10 +41,10 @@ public class BatchLogicDeletePlugin extends AbstractXmbgPlugin {
         deleteLogicByIdsElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME));
 
         deleteLogicByIdsElement.addElement(
-                new TextElement(
-                        "update " + tableName + " set deleted = #{deleted,jdbcType=INTEGER} where id in "
-                                + " <foreach item=\"item\" index=\"index\" collection=\"ids\" open=\"(\" separator=\",\" close=\")\">#{item}</foreach> "
-                ));
+            new TextElement(
+                "update " + tableName + " set deleted = #{deleted,jdbcType=INTEGER} where id in "
+                    + " <foreach item=\"item\" index=\"index\" collection=\"ids\" open=\"(\" separator=\",\" close=\")\">#{item}</foreach> "
+            ));
 
         parentElement.addElement(deleteLogicByIdsElement);
 

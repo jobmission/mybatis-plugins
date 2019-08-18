@@ -40,7 +40,9 @@
 
 ````
 自定义查询,map传参数, 单独的mapper!!!
-<plugin type="com.revengemission.plugins.mybatis.MybatisCustomQueryMapperPlugin"/>
+<plugin type="com.revengemission.plugins.mybatis.MybatisGenericMapperPlugin">
+    <property  name="withMapperAnnotation" value="true"/>
+</plugin>
 ````
 
 
