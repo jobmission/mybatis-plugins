@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 自定义查询，指定类型
+ * 自定义查询，指定返回类型
  */
 public class MybatisCustomSelectPlugin extends AbstractXmbgPlugin {
 
@@ -133,8 +133,8 @@ public class MybatisCustomSelectPlugin extends AbstractXmbgPlugin {
 
 
             selectElement.addElement(
-                    new TextElement(tempString
-                    ));
+                new TextElement(tempString
+                ));
             XmlElement parentElement = document.getRootElement();
             parentElement.addElement(selectElement);
         });
