@@ -2,25 +2,29 @@ package com.revengemission.plugins.mybatis;
 
 
 import org.mybatis.generator.api.GeneratedJavaFile;
-import org.mybatis.generator.api.GeneratedXmlFile;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.JavaFormatter;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.api.dom.xml.Attribute;
-import org.mybatis.generator.api.dom.xml.Document;
-import org.mybatis.generator.api.dom.xml.TextElement;
-import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.mybatis.generator.codegen.XmlConstants;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * 自定义查询、更新，生成单独的mapper文件
+ * 自定义查询、更新，生成单独的 mapper 文件
  * 在启用Mybatis cache的情况下，会有缓存不同步问题，此时建议使用【MybatisCustomSqlPlugin】
  */
 public class MybatisGenericMapperPlugin extends AbstractXmbgPlugin {
+
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(MybatisGenericMapperPlugin.class);
 
     private String mapperName = "GenericMapper";
     private String queryForMapMethodName = "queryForMap";
@@ -28,6 +32,8 @@ public class MybatisGenericMapperPlugin extends AbstractXmbgPlugin {
     private String queryForObjectMethodName = "queryForObject";
     private String updateMethodName = "update";
     private boolean withMapperAnnotation = true;
+    private String pluginPackageRelativePath = "com/revengemission/plugins/mybatis/";
+
 
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
@@ -37,6 +43,10 @@ public class MybatisGenericMapperPlugin extends AbstractXmbgPlugin {
                 break;
             }
         }
+
+        createJavaFile("DynamicSqlSourceX");
+        createJavaFile("XMLScriptBuilderX");
+        createJavaFile("MatchAnyLangDriver");
     }
 
     @Override
@@ -48,7 +58,7 @@ public class MybatisGenericMapperPlugin extends AbstractXmbgPlugin {
     public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles() {
         FullyQualifiedJavaType mapTypeString = new FullyQualifiedJavaType("Map<String, Object>");
         FullyQualifiedJavaType listMapTypeString = new FullyQualifiedJavaType("List<Map<String, Object>>");
-        FullyQualifiedJavaType paramType = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param");
+///        FullyQualifiedJavaType paramType = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param");
         JavaFormatter javaFormatter = context.getJavaFormatter();
         FullyQualifiedJavaType interfaceType = new FullyQualifiedJavaType(context.getJavaClientGeneratorConfiguration().getTargetPackage() + "." + mapperName);
         Interface anInterface = new Interface(interfaceType);
@@ -60,34 +70,47 @@ public class MybatisGenericMapperPlugin extends AbstractXmbgPlugin {
             anInterface.addImportedType(mapperJavaType);
             anInterface.addAnnotation("@Mapper");
         }
-        anInterface.addImportedType(paramType);
+///        anInterface.addImportedType(paramType);
         anInterface.addImportedType(FullyQualifiedJavaType.getNewListInstance());
 
+        FullyQualifiedJavaType langJavaType = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Lang");
+        anInterface.addImportedType(langJavaType);
 
-        Method queryForMapMetho = new Method(queryForMapMethodName);
-        String sqlAnnotation = "@Param(\"sql\")";
-        queryForMapMetho.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", sqlAnnotation));
-        String mapAnnotation = "@Param(\"paramsMap\")";
-        queryForMapMetho.addParameter(new Parameter(mapTypeString, "paramsMap", mapAnnotation));
-        queryForMapMetho.setReturnType(mapTypeString);
-        anInterface.addMethod(queryForMapMetho);
+        FullyQualifiedJavaType selectJavaType = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Select");
+        anInterface.addImportedType(selectJavaType);
+
+        FullyQualifiedJavaType updateJavaType = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Update");
+        anInterface.addImportedType(updateJavaType);
+
+        Method queryForMapMethod = new Method(queryForMapMethodName);
+        queryForMapMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
+        queryForMapMethod.setReturnType(mapTypeString);
+        queryForMapMethod.addAnnotation("@Select(\"<match_any>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</match_any>\")");
+        queryForMapMethod.addAnnotation("@Lang(MatchAnyLangDriver.class)");
+        anInterface.addMethod(queryForMapMethod);
 
         Method queryForListMethod = new Method(queryForListMethodName);
-        queryForListMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", sqlAnnotation));
-        queryForListMethod.addParameter(new Parameter(mapTypeString, "paramsMap", mapAnnotation));
+        queryForListMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
         queryForListMethod.setReturnType(listMapTypeString);
+        queryForListMethod.addAnnotation("@Select(\"<match_any>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</match_any>\")");
+        queryForListMethod.addAnnotation("@Lang(MatchAnyLangDriver.class)");
         anInterface.addMethod(queryForListMethod);
 
         Method queryForObjectMethod = new Method(queryForObjectMethodName);
-        queryForObjectMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", sqlAnnotation));
-        queryForObjectMethod.addParameter(new Parameter(mapTypeString, "paramsMap", mapAnnotation));
+        queryForObjectMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
         queryForObjectMethod.setReturnType(FullyQualifiedJavaType.getObjectInstance());
+        queryForObjectMethod.addAnnotation("@Select(\"<match_any>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</match_any>\")");
+        queryForObjectMethod.addAnnotation("@Lang(MatchAnyLangDriver.class)");
         anInterface.addMethod(queryForObjectMethod);
 
         Method updateMethod = new Method(updateMethodName);
-        updateMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", sqlAnnotation));
-        updateMethod.addParameter(new Parameter(mapTypeString, "paramsMap", mapAnnotation));
+///        String sqlAnnotation = "@Param(\"sql\")";
+///        String mapAnnotation = "@Param(\"paramsMap\")";
+///        updateMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", sqlAnnotation));
+        updateMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
         updateMethod.setReturnType(FullyQualifiedJavaType.getIntInstance());
+        updateMethod.addAnnotation("@Update(\"<match_any>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</match_any>\")");
+        updateMethod.addAnnotation("@Lang(MatchAnyLangDriver.class)");
         anInterface.addMethod(updateMethod);
 
         GeneratedJavaFile generatedJavaFile = new GeneratedJavaFile(anInterface, context.getJavaClientGeneratorConfiguration().getTargetProject(), javaFormatter);
@@ -97,6 +120,7 @@ public class MybatisGenericMapperPlugin extends AbstractXmbgPlugin {
         return answer;
     }
 
+    /*
     @Override
     public List<GeneratedXmlFile> contextGenerateAdditionalXmlFiles() {
         Document document = new Document(
@@ -161,6 +185,39 @@ public class MybatisGenericMapperPlugin extends AbstractXmbgPlugin {
         answer.add(gxf);
 
         return answer;
+    }
+*/
+
+    /**
+     * 根据txt文件生成java文件
+     *
+     * @param txtFileName txt文件名和java文件名
+     */
+    void createJavaFile(String txtFileName) {
+        String currentPath = System.getProperty("user.dir");
+        String targetProject = context.getJavaClientGeneratorConfiguration().getTargetProject();
+        String targetPackage = context.getJavaClientGeneratorConfiguration().getTargetPackage();
+        Path targetClassFilePath = Paths.get(currentPath, targetProject, targetPackage.replace(".", File.separator));
+        log.info("targetClassFilePath:" + targetClassFilePath.toString());
+        try {
+            StringBuffer buffer = new StringBuffer();
+            String line = "";
+            BufferedReader in = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(pluginPackageRelativePath + txtFileName + ".txt")));
+            while ((line = in.readLine()) != null) {
+                buffer.append(line);
+                buffer.append("\r\n");
+            }
+            String input = buffer.toString();
+
+            Files.write(Paths.get(targetClassFilePath.toString(), txtFileName + ".java"), ("package " + context.getJavaClientGeneratorConfiguration().getTargetPackage() + ";\r\n").getBytes("UTF-8"), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+            Files.write(Paths.get(targetClassFilePath.toString(), txtFileName + ".java"), input.getBytes("UTF-8"), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("读取、写入文件错误：", e);
+        }
+
     }
 
 
