@@ -115,7 +115,7 @@ public class MybatisGenericMapperPlugin extends AbstractXmbgPlugin {
 
         GeneratedJavaFile generatedJavaFile = new GeneratedJavaFile(anInterface, context.getJavaClientGeneratorConfiguration().getTargetProject(), javaFormatter);
 
-        List<GeneratedJavaFile> answer = new ArrayList<>(1);
+        List<GeneratedJavaFile> answer = new ArrayList<>(16);
         answer.add(generatedJavaFile);
         return answer;
     }
@@ -181,7 +181,7 @@ public class MybatisGenericMapperPlugin extends AbstractXmbgPlugin {
             context.getSqlMapGeneratorConfiguration().getTargetProject(),
             false, context.getXmlFormatter());
 
-        List<GeneratedXmlFile> answer = new ArrayList<>(1);
+        List<GeneratedXmlFile> answer = new ArrayList<>(16);
         answer.add(gxf);
 
         return answer;
