@@ -139,13 +139,6 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         }
     }
 
-
-    /**
-     * 首字母转小写
-     *
-     * @param s
-     * @return
-     */
     public String lowerCaseFirstChar(String s) {
         if (Character.isLowerCase(s.charAt(0))) {
             return s;
