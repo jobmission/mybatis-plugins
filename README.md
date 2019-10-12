@@ -8,7 +8,20 @@
 #### 3、MyBatis Generator 插件定制官方教程
 [MyBatis Generator插件定制官方教程](http://www.mybatis.org/generator/reference/pluggingIn.html)
 #### 4、本系列插件使用方法
+````
+mybatis-generator-maven-plugin 中添加依赖
 
+<dependency>
+    <groupId>com.revengemission.plugins</groupId>
+    <artifactId>mybatis-plugins</artifactId>
+    <version>LATEST VERSION</version>
+</dependency>
+
+在 generatorConfig.xml 中配置插件
+
+执行 mvn mybatis-generator:generate -X
+
+````
 ````
 批量插入,针对所有表生成方法
 <plugin type="com.revengemission.plugins.mybatis.BatchInsertPlugin"/>
@@ -39,7 +52,7 @@
 ````
 
 ````
-自定义查询,map传参数, 单独的mapper!!!
+自定义查询,map传参数, 单独的mapper
 <plugin type="com.revengemission.plugins.mybatis.MybatisGenericMapperPlugin">
     <property  name="withMapperAnnotation" value="true"/>
 </plugin>
