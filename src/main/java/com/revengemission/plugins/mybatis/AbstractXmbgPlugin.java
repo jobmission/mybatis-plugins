@@ -230,7 +230,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
     String getEntityName(IntrospectedTable introspectedTable) {
         String objectName = introspectedTable.getTableConfiguration().getDomainObjectName();
 
-        if (objectName == null || objectName.trim() == "") {
+        if (objectName == null || "".equals(objectName.trim())) {
             objectName = tableNameToEntityName(getTableName(introspectedTable));
         }
         return objectName;
