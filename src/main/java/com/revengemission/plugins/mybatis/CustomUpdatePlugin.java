@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * 自定义更新
  */
-public class MybatisCustomUpdatePlugin extends AbstractXmbgPlugin {
+public class CustomUpdatePlugin extends AbstractXmbgPlugin {
 
     Map<String, String> todo = new LinkedHashMap<>();
 

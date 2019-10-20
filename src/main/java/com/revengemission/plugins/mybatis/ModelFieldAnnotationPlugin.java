@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Entity Model 类中field添加注解
  */
-public class MybatisModelFieldAnnotationPlugin extends AbstractXmbgPlugin {
+public class ModelFieldAnnotationPlugin extends AbstractXmbgPlugin {
 
     private static final String EVERY_TABLE_NAME = "every_table";
     private static final String EVERY_FIELD_NAME = "every_field";

@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * 修改自动生成的update语句
  */
-public class MybatisModifyUpdateSqlPlugin extends AbstractXmbgPlugin {
+public class ModifyUpdateSqlPlugin extends AbstractXmbgPlugin {
 
     Map<String, String> todo = new LinkedHashMap<>();
 

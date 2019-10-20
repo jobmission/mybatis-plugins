@@ -39,7 +39,7 @@ mybatis-generator-maven-plugin 中添加依赖
 
 ````
 自定义查询,可连表，可返回单值
-<plugin type="com.revengemission.plugins.mybatis.MybatisCustomSelectPlugin">
+<plugin type="com.revengemission.plugins.mybatis.CustomSelectPlugin">
             <property
                     name="user_account_entity;selectUniqueByUsername"
                     value="single-row;String username;select * from user_account_entity where username=#{username}"/>
@@ -48,12 +48,12 @@ mybatis-generator-maven-plugin 中添加依赖
 
 ````
 执行自定义查询和更新语句, 针对所有表生成方法
-<plugin type="com.revengemission.plugins.mybatis.MybatisCustomSqlPlugin"/>
+<plugin type="com.revengemission.plugins.mybatis.CustomSqlPlugin"/>
 ````
 
 ````
 自定义查询,map传参数, 单独的mapper
-<plugin type="com.revengemission.plugins.mybatis.MybatisGenericMapperPlugin">
+<plugin type="com.revengemission.plugins.mybatis.GenericMapperPlugin">
     <property  name="withMapperAnnotation" value="true"/>
 </plugin>
 ````
@@ -61,7 +61,7 @@ mybatis-generator-maven-plugin 中添加依赖
 
 ````
 自定义更新方法
-<plugin type="com.revengemission.plugins.mybatis.MybatisCustomUpdatePlugin">
+<plugin type="com.revengemission.plugins.mybatis.CustomUpdatePlugin">
             <property
                     name="user_account_entity;updateByUsername"
                     value="long id,String username;update user_account_entity set username=#{username} where id=#{id}"/>
@@ -72,7 +72,7 @@ mybatis-generator-maven-plugin 中添加依赖
 mybatis model上添加注解
 name:[表名;完整包名加类名]，如果所有表的model都加注解则name:[every_table;完整包名加类名]
 value:[注解内容]
-<plugin type="com.revengemission.plugins.mybatis.MybatisModelAnnotationPlugin">
+<plugin type="com.revengemission.plugins.mybatis.ModelAnnotationPlugin">
             <property
                     name="user_entity;com.fasterxml.jackson.annotation.JsonInclude"
                     value="@JsonInclude(JsonInclude.Include.NON_NULL)"/>
@@ -83,7 +83,7 @@ value:[注解内容]
 mybatis model field上添加注解
 name:[表名;字段名;完整包名加类名]，如果所有表的model都加注解则name:[every_table;字段名;完整包名加类名]
 value:[注解内容]
-<plugin type="com.revengemission.plugins.mybatis.MybatisModelFieldAnnotationPlugin">
+<plugin type="com.revengemission.plugins.mybatis.ModelFieldAnnotationPlugin">
             <property
                     name="user_entity;column_name;com.fasterxml.jackson.annotation.JsonIgnore"
                     value="@JsonIgnore"/>
@@ -92,7 +92,7 @@ value:[注解内容]
 
 ````
 修改mybatis-generator-core生成的update语句，如version=version+1
-<plugin type="com.revengemission.plugins.mybatis.MybatisModifyUpdateSqlPlugin">
+<plugin type="com.revengemission.plugins.mybatis.ModifyUpdateSqlPlugin">
             <property name="last_modified = #{lastModified,jdbcType=TIMESTAMP}"
                       value="  last_modified= now() "/>
             <property name="version = #{version,jdbcType=INTEGER}" value="  version = version+1"/>
@@ -102,7 +102,7 @@ value:[注解内容]
 
 ````
 根据字段组合查询唯一记录，返回单对象，针对所有表
-<plugin type="com.revengemission.plugins.mybatis.MybatisSelectUniqueByExample"/>
+<plugin type="com.revengemission.plugins.mybatis.SelectUniqueByExample"/>
 ````
 
 ````

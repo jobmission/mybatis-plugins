@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 自定义sql
  */
-public class MybatisCustomSqlPlugin extends AbstractXmbgPlugin {
+public class CustomSqlPlugin extends AbstractXmbgPlugin {
 
     @Override
     public boolean validate(List<String> warnings) {
