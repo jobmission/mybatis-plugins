@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * 根据Example查询单条记录
  */
-public class SelectUniqueByExample extends AbstractXmbgPlugin {
+public class SelectUniqueByExamplePlugin extends AbstractXmbgPlugin {
 
     private static final String CLIENT_METHOD_NAME = "selectUniqueByExample";
 

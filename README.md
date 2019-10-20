@@ -102,7 +102,7 @@ value:[注解内容]
 
 ````
 根据字段组合查询唯一记录，返回单对象，针对所有表
-<plugin type="com.revengemission.plugins.mybatis.SelectUniqueByExample"/>
+<plugin type="com.revengemission.plugins.mybatis.SelectUniqueByExamplePlugin"/>
 ````
 
 ````
@@ -113,6 +113,11 @@ value:[注解内容]
 ````
 增强example中order by 语句，防止注入，可以多字段排序，针对所有表
 <plugin type="com.revengemission.plugins.mybatis.OrderByPlugin"/>
+````
+
+````
+增强example,如where中添加find_in_set语句等，针对所有表
+<plugin type="com.revengemission.plugins.mybatis.ExampleAdditionalConditionPlugin"/>
 ````
 
 
