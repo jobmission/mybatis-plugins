@@ -21,9 +21,11 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
     public boolean modelExampleClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
 
         topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.Map"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.Set"));
         topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.LinkedHashMap"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.HashSet"));
         FullyQualifiedJavaType mapWrapper = new FullyQualifiedJavaType("Map<String,String>");
-        FullyQualifiedJavaType listWrapper = new FullyQualifiedJavaType("List<String>");
+        FullyQualifiedJavaType setWrapper = new FullyQualifiedJavaType("Set<String>");
 
         for (Field field : topLevelClass.getFields()) {
             if ("orderByClause".equals(field.getName())) {
@@ -41,8 +43,28 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
         Field tableFields = new Field();
         tableFields.setName("tableFields");
         tableFields.setVisibility(JavaVisibility.PRIVATE);
-        tableFields.setType(listWrapper);
+        tableFields.setType(setWrapper);
         topLevelClass.addField(tableFields);
+
+        Method underlineName = new Method();
+        underlineName.setVisibility(JavaVisibility.PRIVATE);
+        underlineName.setName("underlineName");
+        Parameter nameParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "name", false);
+        underlineName.addParameter(nameParameter);
+        underlineName.addBodyLine("StringBuilder result = new StringBuilder();");
+        underlineName.addBodyLine("if (name != null && name.length() > 0) {");
+        underlineName.addBodyLine("result.append(name, 0, 1);");
+        underlineName.addBodyLine("for (int i = 1; i < name.length(); i++) {");
+        underlineName.addBodyLine("String s = name.substring(i, i + 1);");
+        underlineName.addBodyLine("if (s.equals(s.toUpperCase()) && !Character.isDigit(s.charAt(0))) {");
+        underlineName.addBodyLine("result.append(\"_\");");
+        underlineName.addBodyLine("}");
+        underlineName.addBodyLine("result.append(s.toLowerCase());");
+        underlineName.addBodyLine("}");
+        underlineName.addBodyLine("}");
+        underlineName.addBodyLine("return result.toString();");
+        underlineName.setReturnType(FullyQualifiedJavaType.getStringInstance());
+        topLevelClass.addMethod(underlineName);
 
         Method addOrderBy = new Method();
         addOrderBy.setVisibility(JavaVisibility.PUBLIC);
@@ -51,12 +73,25 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
         Parameter orderParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "sortOrder", false);
         addOrderBy.addParameter(filedParameter);
         addOrderBy.addParameter(orderParameter);
-        addOrderBy.addBodyLine("if (tableFields.contains(fieldName) && (\"asc\".equalsIgnoreCase(sortOrder)) || \"desc\".equalsIgnoreCase(sortOrder)) {");
+        addOrderBy.addBodyLine("boolean findFieldName = false;");
+        addOrderBy.addBodyLine("if (tableFields.contains(fieldName)) {");
+        addOrderBy.addBodyLine("findFieldName = true;");
+        addOrderBy.addBodyLine("} else {");
+        addOrderBy.addBodyLine("fieldName = underlineName(fieldName);");
+        addOrderBy.addBodyLine("if (tableFields.contains(fieldName)) {");
+        addOrderBy.addBodyLine("findFieldName = true;");
+        addOrderBy.addBodyLine("}");
+        addOrderBy.addBodyLine("}");
+        addOrderBy.addBodyLine("if (findFieldName) {");
+        addOrderBy.addBodyLine("String sortDirection = \"desc\";");
+        addOrderBy.addBodyLine("if ((\"asc\".equalsIgnoreCase(sortOrder))) {");
+        addOrderBy.addBodyLine("sortDirection = \"asc\";");
+        addOrderBy.addBodyLine("}");
         addOrderBy.addBodyLine("if (orderByClause != null) {");
-        addOrderBy.addBodyLine("orderByClause.put(fieldName, sortOrder);");
+        addOrderBy.addBodyLine("orderByClause.put(fieldName, sortDirection);");
         addOrderBy.addBodyLine("} else {");
         addOrderBy.addBodyLine("orderByClause = new LinkedHashMap<>();");
-        addOrderBy.addBodyLine("orderByClause.put(fieldName, sortOrder);");
+        addOrderBy.addBodyLine("orderByClause.put(fieldName, sortDirection);");
         addOrderBy.addBodyLine("}");
         addOrderBy.addBodyLine("}");
         topLevelClass.addMethod(addOrderBy);
@@ -86,10 +121,9 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
 
             //获取构造函数
             if (method.isConstructor()) {
-///                System.out.println("类名：" + topLevelClass.getType().getShortName());
                 method.getBodyLines().clear();
                 method.addBodyLine("oredCriteria = new ArrayList<>();");
-                method.addBodyLine("tableFields = new ArrayList<>();");
+                method.addBodyLine("tableFields = new HashSet<>();");
                 for (IntrospectedColumn introspectedColumn : introspectedTable.getAllColumns()) {
                     method.addBodyLine("tableFields.add(\"" + introspectedColumn.getActualColumnName() + "\");");
                 }

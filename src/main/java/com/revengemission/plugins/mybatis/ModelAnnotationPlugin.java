@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Entity Model 类上添加注解，可添加多个注解
  */
-public class MybatisModelAnnotationPlugin extends AbstractXmbgPlugin {
+public class ModelAnnotationPlugin extends AbstractXmbgPlugin {
 
     private static final String EVERY_TABLE_NAME = "every_table";
 

@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * 自定义查询，指定返回类型
  */
-public class MybatisCustomSelectPlugin extends AbstractXmbgPlugin {
+public class CustomSelectPlugin extends AbstractXmbgPlugin {
 
     Map<String, String> todo = new LinkedHashMap<>();
 

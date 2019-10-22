@@ -22,9 +22,9 @@ import java.util.Map;
  * 自定义查询、更新，生成单独的 mapper 文件
  * 在启用Mybatis cache的情况下，会有缓存不同步问题，此时建议使用【MybatisCustomSqlPlugin】
  */
-public class MybatisGenericMapperPlugin extends AbstractXmbgPlugin {
+public class GenericMapperPlugin extends AbstractXmbgPlugin {
 
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(MybatisGenericMapperPlugin.class);
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(GenericMapperPlugin.class);
 
     private String mapperName = "GenericMapper";
     private String queryForMapMethodName = "queryForMap";

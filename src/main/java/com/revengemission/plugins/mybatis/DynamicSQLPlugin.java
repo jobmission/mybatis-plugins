@@ -14,7 +14,7 @@ import java.util.List;
  * http://www.mybatis.org/mybatis-dynamic-sql/docs/introduction.html
  * targetRuntime="MyBatis3DynamicSQL"
  */
-public class MyBatis3DynamicSQLPlugin extends AbstractXmbgPlugin {
+public class DynamicSQLPlugin extends AbstractXmbgPlugin {
 
     @Override
     public boolean validate(List<String> warnings) {

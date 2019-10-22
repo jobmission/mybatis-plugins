@@ -27,6 +27,7 @@ public class DynamicSqlSourceX implements SqlSource {
         this.customizedFlag = customizedFlag;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public BoundSql getBoundSql(Object parameterObject) {
         Map<String, String> parames = (Map) parameterObject;
