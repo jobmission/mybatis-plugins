@@ -1,6 +1,5 @@
 package com.revengemission.plugins.mybatis;
 
-
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Attribute;
@@ -88,18 +87,18 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
                 andFindInSetMethod.setReturnType(new FullyQualifiedJavaType("Criteria"));
                 innerClass.addMethod(andFindInSetMethod);
 
-                Method andKeyValueMethod = new Method();
-                andKeyValueMethod.setVisibility(JavaVisibility.PUBLIC);
-                andKeyValueMethod.setName("andKeyValue");
-                Parameter searchKeyParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "searchKey", false);
-                andKeyValueMethod.addParameter(searchKeyParameter);
-                andKeyValueMethod.addParameter(searchValueParameter);
+                Method andConditionValueMethod = new Method();
+                andConditionValueMethod.setVisibility(JavaVisibility.PUBLIC);
+                andConditionValueMethod.setName("andConditionValue");
+                Parameter searchKeyParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "searchCondition", false);
+                andConditionValueMethod.addParameter(searchKeyParameter);
+                andConditionValueMethod.addParameter(searchValueParameter);
 
-                andKeyValueMethod.addBodyLine("addCriterion(3, searchKey, searchValue);");
-                andKeyValueMethod.addBodyLine("return (Criteria) this;");
+                andConditionValueMethod.addBodyLine("addCriterion(3, searchCondition, searchValue);");
+                andConditionValueMethod.addBodyLine("return (Criteria) this;");
 
-                andKeyValueMethod.setReturnType(new FullyQualifiedJavaType("Criteria"));
-                innerClass.addMethod(andKeyValueMethod);
+                andConditionValueMethod.setReturnType(new FullyQualifiedJavaType("Criteria"));
+                innerClass.addMethod(andConditionValueMethod);
 
             }
         }
@@ -123,7 +122,7 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
             XmlElement keyValueElement = new XmlElement("when");
             keyValueElement.addAttribute(new Attribute("test", "criterion.additionalCondition == 3"));
 
-            String keyValueContent = "and ${criterion.value} = #{criterion.secondValue}";
+            String keyValueContent = "and ${criterion.value} #{criterion.secondValue}";
             keyValueElement.addElement(new TextElement(keyValueContent));
 
             chooseChild.addElement(keyValueElement);
