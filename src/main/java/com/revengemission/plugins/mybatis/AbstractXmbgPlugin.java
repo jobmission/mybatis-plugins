@@ -239,4 +239,16 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
     String getTableColumnName(IntrospectedColumn introspectedColumn) {
         return introspectedColumn.getActualColumnName();
     }
+
+    XmlElement findFirstMatchedElement(XmlElement element, String elementName) {
+        for (int i = 0; i < element.getElements().size(); i++) {
+            XmlElement child = (XmlElement) element.getElements().get(i);
+            if (child.getName().equalsIgnoreCase(elementName)) {
+                return child;
+            } else {
+                return findFirstMatchedElement(child, elementName);
+            }
+        }
+        return null;
+    }
 }

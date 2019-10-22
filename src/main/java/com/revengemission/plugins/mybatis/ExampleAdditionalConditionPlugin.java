@@ -7,8 +7,10 @@ import org.mybatis.generator.api.dom.java.*;
 import java.util.List;
 
 /**
- * 增强example,如添加find_in_set语句等
+ * 增强example,如添加find_in_set、json查询语句等，注意未处理注入问题
+ * 参照ExampleCriterionExtendPlugin 扩展新功能
  */
+@Deprecated
 public class ExampleAdditionalConditionPlugin extends AbstractXmbgPlugin {
 
     @Override
@@ -35,7 +37,6 @@ public class ExampleAdditionalConditionPlugin extends AbstractXmbgPlugin {
                 break;
             }
         }
-
 
         return true;
     }
