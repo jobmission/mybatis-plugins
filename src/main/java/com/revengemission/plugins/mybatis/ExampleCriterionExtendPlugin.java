@@ -48,13 +48,16 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
                 criterionConstruct.setConstructor(true);
                 criterionConstruct.setName("Criterion");
                 Parameter additionalConditionParameter = new Parameter(FullyQualifiedJavaType.getIntInstance(), "additionalCondition", false);
+                Parameter functionNameParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "functionName", false);
                 Parameter valueParameter = new Parameter(FullyQualifiedJavaType.getObjectInstance(), "value", false);
                 Parameter secondValueParameter = new Parameter(FullyQualifiedJavaType.getObjectInstance(), "secondValue", false);
                 criterionConstruct.addParameter(additionalConditionParameter);
+                criterionConstruct.addParameter(functionNameParameter);
                 criterionConstruct.addParameter(valueParameter);
                 criterionConstruct.addParameter(secondValueParameter);
                 criterionConstruct.addBodyLine("super();");
                 criterionConstruct.addBodyLine("this.additionalCondition = additionalCondition;");
+                criterionConstruct.addBodyLine("this.condition = functionName;");
                 criterionConstruct.addBodyLine("this.value = value;");
                 criterionConstruct.addBodyLine("this.secondValue = secondValue;");
                 innerClass.addMethod(criterionConstruct);
@@ -65,12 +68,14 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
                 addCriterion.setName("addCriterion");
                 addCriterion.setVisibility(JavaVisibility.PROTECTED);
                 Parameter additionalConditionParameter = new Parameter(FullyQualifiedJavaType.getIntInstance(), "additionalCondition", false);
-                Parameter valueParameter = new Parameter(FullyQualifiedJavaType.getObjectInstance(), "fieldName", false);
-                Parameter secondValueParameter = new Parameter(FullyQualifiedJavaType.getObjectInstance(), "searchValue", false);
+                Parameter functionNameParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "functionName", false);
+                Parameter valueParameter = new Parameter(FullyQualifiedJavaType.getObjectInstance(), "value", false);
+                Parameter secondValueParameter = new Parameter(FullyQualifiedJavaType.getObjectInstance(), "secondValue", false);
                 addCriterion.addParameter(additionalConditionParameter);
+                addCriterion.addParameter(functionNameParameter);
                 addCriterion.addParameter(valueParameter);
                 addCriterion.addParameter(secondValueParameter);
-                addCriterion.addBodyLine("criteria.add(new Criterion(additionalCondition, fieldName, searchValue));");
+                addCriterion.addBodyLine("criteria.add(new Criterion(additionalCondition, functionName, value, secondValue));");
                 innerClass.addMethod(addCriterion);
 
                 Method andFindInSetMethod = new Method();
@@ -80,25 +85,34 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
                 Parameter searchValueParameter = new Parameter(FullyQualifiedJavaType.getObjectInstance(), "searchValue", false);
                 andFindInSetMethod.addParameter(fieldNameParameter);
                 andFindInSetMethod.addParameter(searchValueParameter);
-
-                andFindInSetMethod.addBodyLine("addCriterion(1, fieldName, searchValue);");
+                andFindInSetMethod.addBodyLine("addCriterion(1, \"find_in_set\", fieldName, searchValue);");
                 andFindInSetMethod.addBodyLine("return (Criteria) this;");
-
                 andFindInSetMethod.setReturnType(new FullyQualifiedJavaType("Criteria"));
                 innerClass.addMethod(andFindInSetMethod);
 
                 Method andConditionValueMethod = new Method();
                 andConditionValueMethod.setVisibility(JavaVisibility.PUBLIC);
                 andConditionValueMethod.setName("andConditionValue");
-                Parameter searchKeyParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "searchCondition", false);
-                andConditionValueMethod.addParameter(searchKeyParameter);
+                Parameter searchConditionParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "searchCondition", false);
+                andConditionValueMethod.addParameter(searchConditionParameter);
                 andConditionValueMethod.addParameter(searchValueParameter);
-
-                andConditionValueMethod.addBodyLine("addCriterion(3, searchCondition, searchValue);");
+                andConditionValueMethod.addBodyLine("addCriterion(3, \"conditionValue\", searchCondition, searchValue);");
                 andConditionValueMethod.addBodyLine("return (Criteria) this;");
-
                 andConditionValueMethod.setReturnType(new FullyQualifiedJavaType("Criteria"));
                 innerClass.addMethod(andConditionValueMethod);
+
+                Method andFunctionP2Method = new Method();
+                andFunctionP2Method.setVisibility(JavaVisibility.PUBLIC);
+                andFunctionP2Method.setName("andFunctionP2");
+                Parameter functionParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "functionName", false);
+                Parameter searchKeyParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "searchKey", false);
+                andFunctionP2Method.addParameter(functionParameter);
+                andFunctionP2Method.addParameter(searchKeyParameter);
+                andFunctionP2Method.addParameter(searchValueParameter);
+                andFunctionP2Method.addBodyLine("addCriterion(5, functionName, searchKey, searchValue);");
+                andFunctionP2Method.addBodyLine("return (Criteria) this;");
+                andFunctionP2Method.setReturnType(new FullyQualifiedJavaType("Criteria"));
+                innerClass.addMethod(andFunctionP2Method);
 
             }
         }
@@ -113,19 +127,18 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
         if (chooseChild != null) {
             XmlElement whenFindInSetElement = new XmlElement("when");
             whenFindInSetElement.addAttribute(new Attribute("test", "criterion.additionalCondition == 1"));
-
-            String findInSetContent = "and find_in_set (#{criterion.secondValue}, ${criterion.value})";
-            whenFindInSetElement.addElement(new TextElement(findInSetContent));
-
+            whenFindInSetElement.addElement(new TextElement("and find_in_set (#{criterion.secondValue}, ${criterion.value})"));
             chooseChild.addElement(whenFindInSetElement);
 
             XmlElement keyValueElement = new XmlElement("when");
             keyValueElement.addAttribute(new Attribute("test", "criterion.additionalCondition == 3"));
-
-            String keyValueContent = "and ${criterion.value} #{criterion.secondValue}";
-            keyValueElement.addElement(new TextElement(keyValueContent));
-
+            keyValueElement.addElement(new TextElement("and ${criterion.value} #{criterion.secondValue}"));
             chooseChild.addElement(keyValueElement);
+
+            XmlElement functionElement = new XmlElement("when");
+            functionElement.addAttribute(new Attribute("test", "criterion.additionalCondition == 5"));
+            functionElement.addElement(new TextElement("and ${criterion.condition} (${criterion.value}, #{criterion.secondValue})"));
+            chooseChild.addElement(functionElement);
 
         }
 
