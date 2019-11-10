@@ -40,25 +40,32 @@ public class SelectUniqueByExamplePlugin extends AbstractXmbgPlugin {
         XmlElement selectElement = new XmlElement("select");
         selectElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME));
         selectElement.addAttribute(new Attribute("parameterType", introspectedTable.getExampleType()));
+        selectElement.addElement(new TextElement("select"));
 
         if (introspectedTable.getBLOBColumns().size() > 0) {
             selectElement.addAttribute(new Attribute("resultMap", "ResultMapWithBLOBs"));
-            TextElement textElement = new TextElement(
-                    "select <include refid=\"Base_Column_List\" />\n" +
-                            "    ,\n" +
-                            "    <include refid=\"Blob_Column_List\" />\n\t from " + tableName + " \n\t" +
-                            "    <include refid=\"Example_Where_Clause\" />"
-            );
 
-            selectElement.addElement(textElement);
+            XmlElement includeBaseElement = new XmlElement("include");
+            includeBaseElement.addAttribute(new Attribute("refid", "Base_Column_List"));
+            selectElement.addElement(includeBaseElement);
+
+            selectElement.addElement(new TextElement(","));
+
+            XmlElement includeBlobElement = new XmlElement("include");
+            includeBlobElement.addAttribute(new Attribute("refid", "Blob_Column_List"));
+            selectElement.addElement(includeBlobElement);
+
+            selectElement.addElement(new TextElement("from " + tableName));
+            selectElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
+
         } else {
             selectElement.addAttribute(new Attribute("resultMap", "BaseResultMap"));
-            TextElement textElement = new TextElement(
-                    "select <include refid=\"Base_Column_List\" />\n\t" +
-                            "from " + tableName + " \n\t" +
-                            "<include refid=\"Example_Where_Clause\" />"
-            );
-            selectElement.addElement(textElement);
+            XmlElement includeBaseElement = new XmlElement("include");
+            includeBaseElement.addAttribute(new Attribute("refid", "Base_Column_List"));
+            selectElement.addElement(includeBaseElement);
+
+            selectElement.addElement(new TextElement("from " + tableName));
+            selectElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
         }
 
         parentElement.addElement(selectElement);
