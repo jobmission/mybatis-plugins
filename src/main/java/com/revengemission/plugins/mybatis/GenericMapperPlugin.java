@@ -83,6 +83,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         anInterface.addImportedType(updateJavaType);
 
         Method queryForMapMethod = new Method(queryForMapMethodName);
+        queryForMapMethod.setAbstract(true);
         queryForMapMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
         queryForMapMethod.setReturnType(mapTypeString);
         queryForMapMethod.addAnnotation("@Select(\"<match_any>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</match_any>\")");
@@ -90,6 +91,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         anInterface.addMethod(queryForMapMethod);
 
         Method queryForListMethod = new Method(queryForListMethodName);
+        queryForListMethod.setAbstract(true);
         queryForListMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
         queryForListMethod.setReturnType(listMapTypeString);
         queryForListMethod.addAnnotation("@Select(\"<match_any>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</match_any>\")");
@@ -97,6 +99,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         anInterface.addMethod(queryForListMethod);
 
         Method queryForObjectMethod = new Method(queryForObjectMethodName);
+        queryForObjectMethod.setAbstract(true);
         queryForObjectMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
         queryForObjectMethod.setReturnType(FullyQualifiedJavaType.getObjectInstance());
         queryForObjectMethod.addAnnotation("@Select(\"<match_any>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</match_any>\")");
@@ -104,6 +107,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         anInterface.addMethod(queryForObjectMethod);
 
         Method updateMethod = new Method(updateMethodName);
+        updateMethod.setAbstract(true);
 ///        String sqlAnnotation = "@Param(\"sql\")";
 ///        String mapAnnotation = "@Param(\"paramsMap\")";
 ///        updateMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", sqlAnnotation));

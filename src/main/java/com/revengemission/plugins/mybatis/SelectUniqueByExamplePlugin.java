@@ -1,7 +1,10 @@
 package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.Interface;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
@@ -22,9 +25,10 @@ public class SelectUniqueByExamplePlugin extends AbstractXmbgPlugin {
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
 
         Method method = new Method(CLIENT_METHOD_NAME);
+        method.setAbstract(true);
         method.addParameter(new Parameter(new FullyQualifiedJavaType(introspectedTable.getExampleType()), "example"));
         method.setReturnType(new FullyQualifiedJavaType(getEntityName(introspectedTable)));
         interfaze.addMethod(method);

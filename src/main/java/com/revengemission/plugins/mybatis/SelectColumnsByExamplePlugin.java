@@ -26,23 +26,19 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
     @Override
     public boolean modelExampleClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
 
-        Field commaSeparatedColumnsField = new Field();
+        Field commaSeparatedColumnsField = new Field("commaSeparatedColumns", FullyQualifiedJavaType.getStringInstance());
         commaSeparatedColumnsField.setVisibility(JavaVisibility.PRIVATE);
-        commaSeparatedColumnsField.setName("commaSeparatedColumns");
-        commaSeparatedColumnsField.setType(FullyQualifiedJavaType.getStringInstance());
         topLevelClass.addField(commaSeparatedColumnsField);
 
-        Method setCommaSeparatedColumns = new Method();
+        Method setCommaSeparatedColumns = new Method("setCommaSeparatedColumns");
         setCommaSeparatedColumns.setVisibility(JavaVisibility.PUBLIC);
-        setCommaSeparatedColumns.setName("setCommaSeparatedColumns");
         setCommaSeparatedColumns.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "commaSeparatedColumns"));
         setCommaSeparatedColumns.addBodyLine("this.commaSeparatedColumns = commaSeparatedColumns;");
         topLevelClass.addMethod(setCommaSeparatedColumns);
 
-        Method getCommaSeparatedColumns = new Method();
+        Method getCommaSeparatedColumns = new Method("getCommaSeparatedColumns");
         getCommaSeparatedColumns.setVisibility(JavaVisibility.PUBLIC);
         getCommaSeparatedColumns.setReturnType(FullyQualifiedJavaType.getStringInstance());
-        getCommaSeparatedColumns.setName("getCommaSeparatedColumns");
         getCommaSeparatedColumns.addBodyLine("return commaSeparatedColumns;");
         topLevelClass.addMethod(getCommaSeparatedColumns);
 
@@ -50,14 +46,16 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
 
         Method method = new Method(CLIENT_METHOD_NAME);
+        method.setAbstract(true);
         method.addParameter(new Parameter(new FullyQualifiedJavaType(introspectedTable.getExampleType()), "example"));
         method.setReturnType(new FullyQualifiedJavaType("List<" + getEntityName(introspectedTable) + ">"));
         interfaze.addMethod(method);
 
         Method method2 = new Method(CLIENT_METHOD_NAME_IDS);
+        method2.setAbstract(true);
         method2.addParameter(new Parameter(new FullyQualifiedJavaType(introspectedTable.getExampleType()), "example"));
         method2.setReturnType(new FullyQualifiedJavaType("List<Long>"));
         interfaze.addMethod(method2);

@@ -25,9 +25,8 @@ public class ExampleAdditionalConditionPlugin extends AbstractXmbgPlugin {
         for (int i = 0; i < innerClasses.size(); i++) {
             InnerClass innerClass = innerClasses.get(i);
             if ("GeneratedCriteria".equals(innerClass.getType().getShortName())) {
-                Method andAdditionalCondition = new Method();
+                Method andAdditionalCondition = new Method("andAdditionalCondition");
                 andAdditionalCondition.setVisibility(JavaVisibility.PUBLIC);
-                andAdditionalCondition.setName("andAdditionalCondition");
                 Parameter nameParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "additionalCondition", false);
                 andAdditionalCondition.addParameter(nameParameter);
                 andAdditionalCondition.addBodyLine("addCriterion(additionalCondition);");

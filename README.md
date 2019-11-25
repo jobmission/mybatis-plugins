@@ -9,19 +9,42 @@
 [MyBatis Generator插件定制官方教程](http://www.mybatis.org/generator/reference/pluggingIn.html)
 #### 4、本系列插件使用方法
 ````
+mybatis-generator-maven-plugin 最低要求版本号1.4.0
+
 mybatis-generator-maven-plugin 中添加依赖
 
-<dependency>
-    <groupId>com.revengemission.plugins</groupId>
-    <artifactId>mybatis-plugins</artifactId>
-    <version>LATEST VERSION</version>
-</dependency>
+<plugin>
+    <groupId>org.mybatis.generator</groupId>
+    <artifactId>mybatis-generator-maven-plugin</artifactId>
+    <version>1.4.0</version>
+    
+    <dependencies>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.version}</version>
+        </dependency>
+    
+        <dependency>
+            <groupId>com.revengemission.plugins</groupId>
+            <artifactId>mybatis-plugins</artifactId>
+            <version>LATEST VERSION</version>
+        </dependency>
+    </dependencies>
+    
+    <configuration>
+        <overwrite>true</overwrite>
+        <verbose>true</verbose>
+    </configuration>
+</plugin>
+
 
 在 generatorConfig.xml 中配置插件
 
-执行 mvn mybatis-generator:generate -X
+然后执行 mvn mybatis-generator:generate -X
 
 ````
+## 插件列表
 ````
 批量插入,针对所有表生成方法
 <plugin type="com.revengemission.plugins.mybatis.BatchInsertPlugin"/>

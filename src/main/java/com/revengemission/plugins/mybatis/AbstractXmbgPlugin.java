@@ -5,8 +5,8 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.xml.Attribute;
-import org.mybatis.generator.api.dom.xml.Element;
 import org.mybatis.generator.api.dom.xml.TextElement;
+import org.mybatis.generator.api.dom.xml.VisitableElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 
@@ -26,7 +26,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
 
 
     protected void doIfNullCheck(String fieldPrefix, boolean ifNullCheck, XmlElement trimElement, StringBuilder sb, IntrospectedColumn introspectedColumn) {
-        Element content;
+        VisitableElement content;
         if (ifNullCheck) {
             content = wrapIfNullCheckForJavaProperty(fieldPrefix, new TextElement(sb.toString()), introspectedColumn);
         } else {
@@ -35,10 +35,9 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         trimElement.addElement(content);
     }
 
-    protected XmlElement wrapIfNullCheckForJavaProperty(String fieldPrefix, Element content, IntrospectedColumn introspectedColumn) {
+    protected XmlElement wrapIfNullCheckForJavaProperty(String fieldPrefix, TextElement content, IntrospectedColumn introspectedColumn) {
         StringBuilder sb = new StringBuilder();
         XmlElement isNotNullElement = new XmlElement("if");
-        sb.setLength(0);
         sb.append(introspectedColumn.getJavaProperty(fieldPrefix));
         sb.append(" != null");
         isNotNullElement.addAttribute(new Attribute("test", sb.toString()));
@@ -147,9 +146,9 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         }
     }
 
-    protected Element replaceElement(XmlElement element, Map<String, String> todo) {
+    protected VisitableElement replaceElement(XmlElement element, Map<String, String> todo) {
         if (todo != null && todo.size() > 0) {
-            Map<Integer, Element> tobeReplaced = new LinkedHashMap<>();
+            Map<Integer, VisitableElement> tobeReplaced = new LinkedHashMap<>();
 
             for (int i = 0; i < element.getElements().size(); i++) {
                 if (element.getElements().get(i) instanceof TextElement) {
@@ -240,13 +239,15 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         return introspectedColumn.getActualColumnName();
     }
 
-    XmlElement findFirstMatchedElement(XmlElement element, String elementName) {
+    XmlElement findFirstMatchedXmlElement(XmlElement element, String xmlElementTag) {
         for (int i = 0; i < element.getElements().size(); i++) {
-            XmlElement child = (XmlElement) element.getElements().get(i);
-            if (child.getName().equalsIgnoreCase(elementName)) {
-                return child;
-            } else {
-                return findFirstMatchedElement(child, elementName);
+            if (element.getElements().get(i) instanceof XmlElement) {
+                XmlElement child = (XmlElement) element.getElements().get(i);
+                if (child.getName().equalsIgnoreCase(xmlElementTag)) {
+                    return child;
+                } else {
+                    return findFirstMatchedXmlElement(child, xmlElementTag);
+                }
             }
         }
         return null;

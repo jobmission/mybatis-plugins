@@ -1,7 +1,10 @@
 package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.Interface;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
@@ -38,11 +41,12 @@ public class CustomUpdatePlugin extends AbstractXmbgPlugin {
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
         todo.forEach((k, v) -> {
             int firstSemicolon = v.indexOf(";");
             Map<String, String> result = getCustomerMapperParameters(v.substring(0, firstSemicolon));
             Method method = new Method(k);
+            method.setAbstract(true);
             result.forEach((key, value) -> {
                 FullyQualifiedJavaType type = new FullyQualifiedJavaType(value);
                 String annotation = "@Param(\"" + key + "\")";
@@ -82,8 +86,8 @@ public class CustomUpdatePlugin extends AbstractXmbgPlugin {
             String tempString = v.substring(lastSemicolon + 1);
 
             selectElement.addElement(
-                    new TextElement(tempString
-                    ));
+                new TextElement(tempString
+                ));
             XmlElement parentElement = document.getRootElement();
             parentElement.addElement(selectElement);
         });
