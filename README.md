@@ -51,8 +51,11 @@ mybatis-generator-maven-plugin 中添加依赖
 ````
 
 ````
-逻辑删除,针对所有表生成方法；表中需要有deleted字段
-<plugin type="com.revengemission.plugins.mybatis.BatchLogicDeletePlugin"/>
+逻辑删除,针对所有表生成方法,需配置逻辑删除字段和删除标示值
+<plugin type="com.revengemission.plugins.mybatis.LogicalDeletePlugin">
+     <property name="deletedFlagTableFiled" value="deleted"/>
+     <property name="deletedFlagValue" value="true"/>
+</plugin>
 ````
 
 ````
@@ -63,9 +66,7 @@ mybatis-generator-maven-plugin 中添加依赖
 ````
 自定义查询,可连表，可返回单值
 <plugin type="com.revengemission.plugins.mybatis.CustomSelectPlugin">
-            <property
-                    name="user_account_entity;selectUniqueByUsername"
-                    value="single-row;String username;select * from user_account_entity where username=#{username}"/>
+    <property name="user_account_entity;selectUniqueByUsername" value="single-row;String username;select * from user_account_entity where username=#{username}"/>
 </plugin>
 ````
 
@@ -85,9 +86,7 @@ mybatis-generator-maven-plugin 中添加依赖
 ````
 自定义更新方法
 <plugin type="com.revengemission.plugins.mybatis.CustomUpdatePlugin">
-            <property
-                    name="user_account_entity;updateByUsername"
-                    value="long id,String username;update user_account_entity set username=#{username} where id=#{id}"/>
+    <property name="user_account_entity;updateByUsername" value="long id,String username;update user_account_entity set username=#{username} where id=#{id}"/>
 </plugin>
 ````
 
@@ -96,9 +95,7 @@ mybatis model上添加注解
 name:[表名;完整包名加类名]，如果所有表的model都加注解则name:[every_table;完整包名加类名]
 value:[注解内容]
 <plugin type="com.revengemission.plugins.mybatis.ModelAnnotationPlugin">
-            <property
-                    name="user_entity;com.fasterxml.jackson.annotation.JsonInclude"
-                    value="@JsonInclude(JsonInclude.Include.NON_NULL)"/>
+    <property name="user_entity;com.fasterxml.jackson.annotation.JsonInclude" value="@JsonInclude(JsonInclude.Include.NON_NULL)"/>
 </plugin>
 ````
 
@@ -107,18 +104,15 @@ mybatis model field上添加注解
 name:[表名;字段名;完整包名加类名]，如果所有表的model都加注解则name:[every_table;字段名;完整包名加类名]
 value:[注解内容]
 <plugin type="com.revengemission.plugins.mybatis.ModelFieldAnnotationPlugin">
-            <property
-                    name="user_entity;column_name;com.fasterxml.jackson.annotation.JsonIgnore"
-                    value="@JsonIgnore"/>
+    <property name="user_entity;column_name;com.fasterxml.jackson.annotation.JsonIgnore" value="@JsonIgnore"/>
 </plugin>
 ````
 
 ````
 修改mybatis-generator-core生成的update语句，如version=version+1
 <plugin type="com.revengemission.plugins.mybatis.ModifyUpdateSqlPlugin">
-            <property name="last_modified = #{lastModified,jdbcType=TIMESTAMP}"
-                      value="  last_modified= now() "/>
-            <property name="version = #{version,jdbcType=INTEGER}" value="  version = version+1"/>
+    <property name="last_modified = #{lastModified,jdbcType=TIMESTAMP}" value=" last_modified= now() "/>
+    <property name="version = #{version,jdbcType=INTEGER}" value="  version = version+1"/>
 </plugin>
 
 ````
