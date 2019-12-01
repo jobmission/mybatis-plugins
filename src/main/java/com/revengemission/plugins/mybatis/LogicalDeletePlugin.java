@@ -22,7 +22,7 @@ public class LogicalDeletePlugin extends AbstractXmbgPlugin {
     private static final String CLIENT_METHOD_NAME_IDS = "logicalDeleteByIds";
 
     private String deletedFlagTableFiled = "deleted";
-    private Object deletedFlagValue = true;
+    private Object deletedFlagValue = 1;
 
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
