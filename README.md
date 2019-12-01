@@ -54,7 +54,7 @@ mybatis-generator-maven-plugin 中添加依赖
 逻辑删除,针对所有表生成方法,需配置逻辑删除字段和删除标示值
 <plugin type="com.revengemission.plugins.mybatis.LogicalDeletePlugin">
      <property name="deletedFlagTableFiled" value="deleted"/>
-     <property name="deletedFlagValue" value="true"/>
+     <property name="deletedFlagValue" value="1"/>
 </plugin>
 ````
 
