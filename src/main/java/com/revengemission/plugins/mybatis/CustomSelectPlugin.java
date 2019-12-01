@@ -2,7 +2,10 @@ package com.revengemission.plugins.mybatis;
 
 
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.Interface;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
@@ -39,7 +42,7 @@ public class CustomSelectPlugin extends AbstractXmbgPlugin {
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
         String objectName = getEntityName(introspectedTable);
         todo.forEach((k, v) -> {
             int firstSemicolon = v.indexOf(";");
@@ -48,6 +51,7 @@ public class CustomSelectPlugin extends AbstractXmbgPlugin {
 
             Map<String, String> result = getCustomerMapperParameters(v.substring(firstSemicolon + 1, lastSemicolon));
             Method method = new Method(k);
+            method.setAbstract(true);
             result.forEach((key, value) -> {
                 FullyQualifiedJavaType type = new FullyQualifiedJavaType(value);
                 String annotation = "@Param(\"" + key + "\")";

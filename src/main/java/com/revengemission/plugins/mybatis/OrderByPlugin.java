@@ -34,21 +34,16 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
             }
         }
 
-        Field orderByClause = new Field();
-        orderByClause.setName("orderByClause");
+        Field orderByClause = new Field("orderByClause", mapWrapper);
         orderByClause.setVisibility(JavaVisibility.PRIVATE);
-        orderByClause.setType(mapWrapper);
         topLevelClass.addField(orderByClause);
 
-        Field tableFields = new Field();
-        tableFields.setName("tableFields");
+        Field tableFields = new Field("tableFields", setWrapper);
         tableFields.setVisibility(JavaVisibility.PRIVATE);
-        tableFields.setType(setWrapper);
         topLevelClass.addField(tableFields);
 
-        Method underlineName = new Method();
+        Method underlineName = new Method("underlineName");
         underlineName.setVisibility(JavaVisibility.PRIVATE);
-        underlineName.setName("underlineName");
         Parameter nameParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "name", false);
         underlineName.addParameter(nameParameter);
         underlineName.addBodyLine("StringBuilder result = new StringBuilder();");
@@ -66,9 +61,8 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
         underlineName.setReturnType(FullyQualifiedJavaType.getStringInstance());
         topLevelClass.addMethod(underlineName);
 
-        Method addOrderBy = new Method();
+        Method addOrderBy = new Method("addOrderBy");
         addOrderBy.setVisibility(JavaVisibility.PUBLIC);
-        addOrderBy.setName("addOrderBy");
         Parameter filedParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "fieldName", false);
         Parameter orderParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "sortOrder", false);
         addOrderBy.addParameter(filedParameter);

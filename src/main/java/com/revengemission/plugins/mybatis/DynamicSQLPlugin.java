@@ -36,7 +36,7 @@ public class DynamicSQLPlugin extends AbstractXmbgPlugin {
 
     @Override
     public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles(
-            IntrospectedTable introspectedTable) {
+        IntrospectedTable introspectedTable) {
 
         List<GeneratedJavaFile> answer = new ArrayList<>();
 
@@ -99,20 +99,21 @@ public class DynamicSQLPlugin extends AbstractXmbgPlugin {
         topLevelClass.addMethod(existField);
 
         GeneratedJavaFile gjf = new GeneratedJavaFile(topLevelClass,
-                context.getJavaClientGeneratorConfiguration()
-                        .getTargetProject(),
-                context.getProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING),
-                context.getJavaFormatter());
+            context.getJavaClientGeneratorConfiguration()
+                .getTargetProject(),
+            context.getProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING),
+            context.getJavaFormatter());
         answer.add(gjf);
 
         return answer;
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
         String objectName = getEntityName(introspectedTable);
 
         Method selectUniqueByExample = new Method("selectUniqueByExample");
+        selectUniqueByExample.setAbstract(true);
         selectUniqueByExample.addAnnotation("@Generated(\"org.mybatis.generator.api.MyBatisGenerator\")");
         selectUniqueByExample.setDefault(true);
         selectUniqueByExample.setReturnType(new FullyQualifiedJavaType("QueryExpressionDSL<MyBatis3SelectModelAdapter<" + objectName + ">>"));

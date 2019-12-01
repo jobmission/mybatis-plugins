@@ -3,7 +3,10 @@ package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.Interface;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
@@ -37,10 +40,11 @@ public class BatchUpdateByPrimaryKeyPlugin extends AbstractXmbgPlugin {
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
         String objectName = getEntityName(introspectedTable);
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
         Method method = new Method(CLIENT_METHOD_NAME);
+        method.setAbstract(true);
         FullyQualifiedJavaType type = new FullyQualifiedJavaType("java.util.List<" + objectName + ">");
         method.addParameter(new Parameter(type, "list"));
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
