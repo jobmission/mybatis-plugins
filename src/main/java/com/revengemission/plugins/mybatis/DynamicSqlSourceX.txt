@@ -30,7 +30,7 @@ public class DynamicSqlSourceX implements SqlSource {
     @SuppressWarnings("unchecked")
     @Override
     public BoundSql getBoundSql(Object parameterObject) {
-        Map<String, String> parames = (Map) parameterObject;
+        Map<String, String> parames = (Map<String, String>) parameterObject;
         String scriptSql = "<script>" + parames.get("sql") + "</script>";
 
         DynamicContext context = new DynamicContext(configuration, parameterObject);
