@@ -32,11 +32,16 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
     private String queryForObjectMethodName = "queryForObject";
     private String updateMethodName = "update";
     private boolean withMapperAnnotation = true;
+    private String encoding = "UTF-8";
     private String pluginPackageRelativePath = "com/revengemission/plugins/mybatis/";
 
 
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
+        String javaFileEncoding = introspectedTable.getContext().getProperties().getProperty("javaFileEncoding");
+        if (javaFileEncoding != null && !javaFileEncoding.trim().isEmpty()) {
+            encoding = javaFileEncoding;
+        }
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             if ("withMapperAnnotation".equalsIgnoreCase(entry.getKey().toString().trim())) {
                 withMapperAnnotation = Boolean.parseBoolean(entry.getValue().toString().trim());
@@ -117,8 +122,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         updateMethod.addAnnotation("@Lang(MatchAnyLangDriver.class)");
         anInterface.addMethod(updateMethod);
 
-        GeneratedJavaFile generatedJavaFile = new GeneratedJavaFile(anInterface, context.getJavaClientGeneratorConfiguration().getTargetProject(), javaFormatter);
-
+        GeneratedJavaFile generatedJavaFile = new GeneratedJavaFile(anInterface, context.getJavaClientGeneratorConfiguration().getTargetProject(), encoding, javaFormatter);
         List<GeneratedJavaFile> answer = new ArrayList<>(16);
         answer.add(generatedJavaFile);
         return answer;
@@ -206,16 +210,16 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         try {
             StringBuffer buffer = new StringBuffer();
             String line = "";
-            BufferedReader in = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(pluginPackageRelativePath + txtFileName + ".txt")));
+            BufferedReader in = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(pluginPackageRelativePath + txtFileName + ".txt"), encoding));
             while ((line = in.readLine()) != null) {
                 buffer.append(line);
                 buffer.append("\r\n");
             }
             String input = buffer.toString();
 
-            Files.write(Paths.get(targetClassFilePath.toString(), txtFileName + ".java"), ("package " + context.getJavaClientGeneratorConfiguration().getTargetPackage() + ";\r\n").getBytes("UTF-8"), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(Paths.get(targetClassFilePath.toString(), txtFileName + ".java"), ("package " + context.getJavaClientGeneratorConfiguration().getTargetPackage() + ";\r\n").getBytes(encoding), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
-            Files.write(Paths.get(targetClassFilePath.toString(), txtFileName + ".java"), input.getBytes("UTF-8"), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            Files.write(Paths.get(targetClassFilePath.toString(), txtFileName + ".java"), input.getBytes(encoding), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 
         } catch (Exception e) {
             e.printStackTrace();
