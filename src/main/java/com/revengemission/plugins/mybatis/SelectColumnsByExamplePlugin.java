@@ -22,18 +22,24 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         return true;
     }
 
-
     @Override
     public boolean modelExampleClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
 
         Field commaSeparatedColumnsField = new Field("commaSeparatedColumns", FullyQualifiedJavaType.getStringInstance());
         commaSeparatedColumnsField.setVisibility(JavaVisibility.PRIVATE);
+        commaSeparatedColumnsField.addJavaDocLine("/**");
+        commaSeparatedColumnsField.addJavaDocLine(" * 期望返回部分字段，以逗号分割开");
+        commaSeparatedColumnsField.addJavaDocLine(" */");
+
         topLevelClass.addField(commaSeparatedColumnsField);
 
         Method setCommaSeparatedColumns = new Method("setCommaSeparatedColumns");
         setCommaSeparatedColumns.setVisibility(JavaVisibility.PUBLIC);
         setCommaSeparatedColumns.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "commaSeparatedColumns"));
         setCommaSeparatedColumns.addBodyLine("this.commaSeparatedColumns = commaSeparatedColumns;");
+        setCommaSeparatedColumns.addJavaDocLine("/**");
+        setCommaSeparatedColumns.addJavaDocLine(" * @param commaSeparatedColumns 期望返回部分字段，以逗号分割开");
+        setCommaSeparatedColumns.addJavaDocLine(" */");
         topLevelClass.addMethod(setCommaSeparatedColumns);
 
         Method getCommaSeparatedColumns = new Method("getCommaSeparatedColumns");
@@ -101,8 +107,6 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         parentElement.addElement(selectElement2);
 
         return super.sqlMapDocumentGenerated(document, introspectedTable);
-
     }
-
 
 }
