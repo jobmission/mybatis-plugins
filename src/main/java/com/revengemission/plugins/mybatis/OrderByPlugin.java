@@ -90,6 +90,33 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
         addOrderBy.addBodyLine("}");
         topLevelClass.addMethod(addOrderBy);
 
+        /**
+         * 重载addOrderBy
+         */
+        Method addOrderBy2 = new Method("addOrderBy");
+        addOrderBy2.setVisibility(JavaVisibility.PUBLIC);
+        addOrderBy2.addJavaDocLine("/**");
+        addOrderBy2.addJavaDocLine(" * 重载addOrderBy");
+        addOrderBy2.addJavaDocLine(" *");
+        addOrderBy2.addJavaDocLine(" * @param orderBys 排序子句，不要带 order by");
+        addOrderBy2.addJavaDocLine(" */");
+        Parameter orderByClauseParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "orderBys", false);
+        addOrderBy2.addParameter(orderByClauseParameter);
+
+        addOrderBy2.addBodyLine("if (orderBys == null || \"\".equals(orderBys.trim())) {");
+        addOrderBy2.addBodyLine("return;");
+        addOrderBy2.addBodyLine("}");
+
+        addOrderBy2.addBodyLine("String[] orders = orderBys.trim().split(\",\");");
+        addOrderBy2.addBodyLine("for (String order : orders) {");
+        addOrderBy2.addBodyLine("String[] fieldOrder = order.trim().split(\" \");");
+        addOrderBy2.addBodyLine("if (fieldOrder.length == 2) {");
+        addOrderBy2.addBodyLine("addOrderBy(fieldOrder[0], fieldOrder[1]);");
+        addOrderBy2.addBodyLine("}");
+        addOrderBy2.addBodyLine("}");
+
+        topLevelClass.addMethod(addOrderBy2);
+
 
         for (Method method : topLevelClass.getMethods()) {
             if ("setOrderByClause".equals(method.getName())) {
@@ -125,6 +152,4 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
         }
         return true;
     }
-
-
 }
