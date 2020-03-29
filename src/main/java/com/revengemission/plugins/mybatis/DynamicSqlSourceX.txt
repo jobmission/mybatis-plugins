@@ -1,30 +1,20 @@
 
-import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.parsing.XPathParser;
-import org.apache.ibatis.scripting.xmltags.DynamicContext;
-import org.apache.ibatis.scripting.xmltags.MixedSqlNode;
-import org.apache.ibatis.scripting.xmltags.SqlNode;
+import org.apache.ibatis.scripting.xmltags.XMLScriptBuilder;
 import org.apache.ibatis.session.Configuration;
 
 import java.util.Map;
 
 public class DynamicSqlSourceX implements SqlSource {
     private final Configuration configuration;
-    private SqlNode rootSqlNode;
-    /**
-     * 自定义SQL
-     */
-    private boolean customizedFlag;
 
 
-    public DynamicSqlSourceX(Configuration configuration, SqlNode rootSqlNode, boolean customizedFlag) {
+    public DynamicSqlSourceX(Configuration configuration) {
         this.configuration = configuration;
-        this.rootSqlNode = rootSqlNode;
-        this.customizedFlag = customizedFlag;
     }
 
     @SuppressWarnings("unchecked")
@@ -32,23 +22,10 @@ public class DynamicSqlSourceX implements SqlSource {
     public BoundSql getBoundSql(Object parameterObject) {
         Map<String, String> parames = (Map<String, String>) parameterObject;
         String scriptSql = "<script>" + parames.get("sql") + "</script>";
-
-        DynamicContext context = new DynamicContext(configuration, parameterObject);
-        if (customizedFlag) {
-            XPathParser parser = new XPathParser(scriptSql, false, configuration.getVariables(), new XMLMapperEntityResolver());
-            XNode xNode = parser.evalNode("/script");
-            XMLScriptBuilderX xmlScriptBuilder = new XMLScriptBuilderX(configuration, xNode);
-            SqlNode customSqlNode = new MixedSqlNode(xmlScriptBuilder.parseDynamicTags(xNode));
-            customSqlNode.apply(context);
-        } else {
-            rootSqlNode.apply(context);
-        }
-
-        SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
-        Class<?> parameterType = parameterObject == null ? Object.class : parameterObject.getClass();
-        SqlSource sqlSource = sqlSourceParser.parse(context.getSql(), parameterType, context.getBindings());
-        BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
-        context.getBindings().forEach(boundSql::setAdditionalParameter);
-        return boundSql;
+        parames.remove("sql");
+        XPathParser parser = new XPathParser(scriptSql, false, configuration.getVariables(), new XMLMapperEntityResolver());
+        XNode xNode = parser.evalNode("/script");
+        XMLScriptBuilder xmlScriptBuilder = new XMLScriptBuilder(configuration, xNode);
+        return xmlScriptBuilder.parseScriptNode().getBoundSql(parames);
     }
 }
