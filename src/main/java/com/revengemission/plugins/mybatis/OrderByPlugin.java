@@ -3,7 +3,12 @@ package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.Parameter;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 
 import java.util.List;
 
@@ -114,9 +119,30 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
         addOrderBy2.addBodyLine("addOrderBy(fieldOrder[0], fieldOrder[1]);");
         addOrderBy2.addBodyLine("}");
         addOrderBy2.addBodyLine("}");
-
         topLevelClass.addMethod(addOrderBy2);
 
+        /**
+         * 重载addOrderBy
+         */
+        Method addOrderBy3 = new Method("addOrderBy");
+        addOrderBy3.setVisibility(JavaVisibility.PUBLIC);
+        addOrderBy3.addJavaDocLine("/**");
+        addOrderBy3.addJavaDocLine(" * 重载addOrderBy");
+        addOrderBy3.addJavaDocLine(" *");
+        addOrderBy3.addJavaDocLine(" * @param orderBys 字段名,asc|desc");
+        addOrderBy3.addJavaDocLine(" */");
+        Parameter orderByClauseMapParameter = new Parameter(mapWrapper, "orderBys", false);
+        addOrderBy3.addParameter(orderByClauseMapParameter);
+
+        addOrderBy3.addBodyLine("if (orderBys == null || orderBys.size() == 0) {");
+        addOrderBy3.addBodyLine("return;");
+        addOrderBy3.addBodyLine("}");
+
+        addOrderBy3.addBodyLine("orderBys.forEach((k, v) -> {");
+        addOrderBy3.addBodyLine("addOrderBy(k.trim(), v);");
+        addOrderBy3.addBodyLine("});");
+
+        topLevelClass.addMethod(addOrderBy3);
 
         for (Method method : topLevelClass.getMethods()) {
             if ("setOrderByClause".equals(method.getName())) {
