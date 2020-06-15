@@ -1,7 +1,13 @@
 package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.InnerClass;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.Parameter;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
@@ -59,6 +65,20 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
                 innerClass.addMethod(criterionConstruct);
 
             } else if ("GeneratedCriteria".equals(innerClass.getType().getShortName())) {
+
+                // 当字段value为null时不抛出异常，跳过、忽略添加该条件
+                innerClass.getMethods().forEach(method -> {
+                    if ("addCriterion".equals(method.getName()) && method.getParameters().size() == 3) {
+                        for (int j = 0; j < method.getBodyLines().size(); j++) {
+                            if (method.getBodyLines().get(j).contains("throw")) {
+                                method.getBodyLines().remove(j);
+                                method.getBodyLines().add(j, "return;");
+                                break;
+                            }
+                        }
+                    }
+
+                });
 
                 Method addCriterion = new Method("addCriterion");
                 addCriterion.setVisibility(JavaVisibility.PROTECTED);
