@@ -111,8 +111,10 @@ value:[注解内容]
 ````
 修改mybatis-generator-core生成的update语句，如version=version+1
 <plugin type="com.revengemission.plugins.mybatis.ModifyUpdateSqlPlugin">
-    <property name="last_modified = #{lastModified,jdbcType=TIMESTAMP}" value=" last_modified= now() "/>
-    <property name="version = #{version,jdbcType=INTEGER}" value="  version = version+1"/>
+    <property name="last_modified = #{lastModified,jdbcType=TIMESTAMP}" value="last_modified= now()"/>
+	<property name="last_modified = #{record.lastModified,jdbcType=TIMESTAMP}" value="last_modified= now()"/>
+	<property name="version = #{version,jdbcType=INTEGER}" value="version = version + 1"/>
+	<property name="version = #{record.version,jdbcType=INTEGER}" value="version = version + 1"/>
 </plugin>
 
 ````
