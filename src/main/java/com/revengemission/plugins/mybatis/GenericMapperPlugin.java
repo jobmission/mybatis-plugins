@@ -4,7 +4,11 @@ package com.revengemission.plugins.mybatis;
 import org.mybatis.generator.api.GeneratedJavaFile;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.JavaFormatter;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.Interface;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.Parameter;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
@@ -138,6 +142,9 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         Path targetClassFilePath = Paths.get(currentPath, targetProject, targetPackage.replace(".", File.separator));
         log.info("targetClassFilePath:" + targetClassFilePath.toString());
         try {
+            if (!Files.exists(targetClassFilePath)) {
+                Files.createDirectories(targetClassFilePath);
+            }
             StringBuffer buffer = new StringBuffer();
             String line = "";
             BufferedReader in = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(pluginPackageRelativePath + txtFileName + ".txt"), encoding));
@@ -152,7 +159,6 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
             Files.write(Paths.get(targetClassFilePath.toString(), txtFileName + ".java"), input.getBytes(encoding), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 
         } catch (Exception e) {
-            e.printStackTrace();
             log.error("读取、写入文件错误：", e);
         }
 

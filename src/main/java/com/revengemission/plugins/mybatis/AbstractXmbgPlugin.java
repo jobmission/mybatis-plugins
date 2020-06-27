@@ -155,13 +155,10 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                     TextElement element1 = (TextElement) element.getElements().get(i);
                     final Integer tempIndex = i;
                     todo.forEach((k, v) -> {
-                        if (element1.getContent().indexOf(k) >= 0) {
-                            if (element1.getContent().indexOf(",") > 0) {
-                                tobeReplaced.put(tempIndex, new TextElement(v + ","));
-                            } else {
-                                tobeReplaced.put(tempIndex, new TextElement(v));
-                            }
-
+                        String elementContent = element1.getContent();
+                        if (elementContent.indexOf(k) >= 0) {
+                            String newContent = elementContent.replace(k, v);
+                            tobeReplaced.put(tempIndex, new TextElement(newContent));
                         }
 
                     });
