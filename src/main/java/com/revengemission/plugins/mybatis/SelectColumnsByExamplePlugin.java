@@ -1,7 +1,13 @@
 package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.Interface;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.Parameter;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
@@ -10,12 +16,13 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import java.util.List;
 
 /**
- * 根据Example查询部分字段，减少字段返回
+ * 根据Example查询部分字段及group by 语句
  */
 public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
 
     private static final String CLIENT_METHOD_NAME = "selectColumnsByExample";
     private static final String CLIENT_METHOD_NAME_IDS = "selectIdsByExample";
+    private static final String CLIENT_METHOD_NAME_GROUP_BY = "groupByExample";
 
     @Override
     public boolean validate(List<String> warnings) {
@@ -28,7 +35,7 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         Field commaSeparatedColumnsField = new Field("commaSeparatedColumns", FullyQualifiedJavaType.getStringInstance());
         commaSeparatedColumnsField.setVisibility(JavaVisibility.PRIVATE);
         commaSeparatedColumnsField.addJavaDocLine("/**");
-        commaSeparatedColumnsField.addJavaDocLine(" * 期望返回部分字段，以逗号分割开");
+        commaSeparatedColumnsField.addJavaDocLine(" * 期望返回字段，以逗号分割开");
         commaSeparatedColumnsField.addJavaDocLine(" */");
 
         topLevelClass.addField(commaSeparatedColumnsField);
@@ -38,7 +45,7 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         setCommaSeparatedColumns.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "commaSeparatedColumns"));
         setCommaSeparatedColumns.addBodyLine("this.commaSeparatedColumns = commaSeparatedColumns;");
         setCommaSeparatedColumns.addJavaDocLine("/**");
-        setCommaSeparatedColumns.addJavaDocLine(" * @param commaSeparatedColumns 期望返回部分字段，以逗号分割开");
+        setCommaSeparatedColumns.addJavaDocLine(" * @param commaSeparatedColumns 期望返回字段，以逗号分割开");
         setCommaSeparatedColumns.addJavaDocLine(" */");
         topLevelClass.addMethod(setCommaSeparatedColumns);
 
@@ -47,6 +54,29 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         getCommaSeparatedColumns.setReturnType(FullyQualifiedJavaType.getStringInstance());
         getCommaSeparatedColumns.addBodyLine("return commaSeparatedColumns;");
         topLevelClass.addMethod(getCommaSeparatedColumns);
+
+        Field groupByClause = new Field("groupByClause", FullyQualifiedJavaType.getStringInstance());
+        groupByClause.setVisibility(JavaVisibility.PRIVATE);
+        groupByClause.addJavaDocLine("/**");
+        groupByClause.addJavaDocLine(" * group by 语句, 注意未做防注入处理");
+        groupByClause.addJavaDocLine(" */");
+
+        topLevelClass.addField(groupByClause);
+
+        Method setGroupByClause = new Method("setGroupByClause");
+        setGroupByClause.setVisibility(JavaVisibility.PUBLIC);
+        setGroupByClause.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "groupByClause"));
+        setGroupByClause.addBodyLine("this.groupByClause = groupByClause;");
+        setGroupByClause.addJavaDocLine("/**");
+        setGroupByClause.addJavaDocLine(" * @param groupByClause group by 语句, 注意未做防注入处理");
+        setGroupByClause.addJavaDocLine(" */");
+        topLevelClass.addMethod(setGroupByClause);
+
+        Method getGroupByClause = new Method("getGroupByClause");
+        getGroupByClause.setVisibility(JavaVisibility.PUBLIC);
+        getGroupByClause.setReturnType(FullyQualifiedJavaType.getStringInstance());
+        getGroupByClause.addBodyLine("return groupByClause;");
+        topLevelClass.addMethod(getGroupByClause);
 
         return true;
     }
@@ -65,6 +95,12 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         method2.addParameter(new Parameter(new FullyQualifiedJavaType(introspectedTable.getExampleType()), "example"));
         method2.setReturnType(new FullyQualifiedJavaType("List<Long>"));
         interfaze.addMethod(method2);
+
+        Method method3 = new Method(CLIENT_METHOD_NAME_GROUP_BY);
+        method3.setAbstract(true);
+        method3.addParameter(new Parameter(new FullyQualifiedJavaType(introspectedTable.getExampleType()), "example"));
+        method3.setReturnType(new FullyQualifiedJavaType("List<java.util.Map<String, Object>>"));
+        interfaze.addMethod(method3);
 
         return true;
     }
@@ -93,6 +129,11 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         selectElement.addElement(new TextElement("from " + tableName));
         selectElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
 
+        XmlElement orderByElement = new XmlElement("if");
+        orderByElement.addAttribute(new Attribute("test", "orderByClause != null"));
+        orderByElement.addElement(new TextElement("order by ${orderByClause}"));
+        selectElement.addElement(orderByElement);
+
         parentElement.addElement(selectElement);
 
 
@@ -104,7 +145,20 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         selectElement2.addElement(new TextElement("id "));
         selectElement2.addElement(new TextElement("from " + tableName));
         selectElement2.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
+        selectElement2.addElement(orderByElement);
         parentElement.addElement(selectElement2);
+
+        XmlElement selectElement3 = new XmlElement("select");
+        selectElement3.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_GROUP_BY));
+        selectElement3.addAttribute(new Attribute("parameterType", introspectedTable.getExampleType()));
+        selectElement3.addAttribute(new Attribute("resultType", "java.util.HashMap"));
+        selectElement3.addElement(new TextElement("select "));
+        selectElement3.addElement(new TextElement("${commaSeparatedColumns} "));
+        selectElement3.addElement(new TextElement("from " + tableName));
+        selectElement3.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
+        selectElement3.addElement(new TextElement("${groupByClause} "));
+        selectElement3.addElement(orderByElement);
+        parentElement.addElement(selectElement3);
 
         return super.sqlMapDocumentGenerated(document, introspectedTable);
     }
