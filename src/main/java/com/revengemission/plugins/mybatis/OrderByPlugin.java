@@ -39,6 +39,11 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
             }
         }
 
+        Field allowLettersPattern = new Field("allowLettersPattern", FullyQualifiedJavaType.getStringInstance());
+        allowLettersPattern.setVisibility(JavaVisibility.PRIVATE);
+        allowLettersPattern.setInitializationString("\"[_0-9a-zA-Z]+\"");
+        topLevelClass.addField(allowLettersPattern);
+
         Field orderByClause = new Field("orderByClause", mapWrapper);
         orderByClause.setVisibility(JavaVisibility.PRIVATE);
         topLevelClass.addField(orderByClause);
@@ -66,11 +71,32 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
         underlineName.setReturnType(FullyQualifiedJavaType.getStringInstance());
         topLevelClass.addMethod(underlineName);
 
+        Method addOrderBySpecial = new Method("addOrderBySpecial");
+        addOrderBySpecial.setVisibility(JavaVisibility.PUBLIC);
+        Parameter fieldParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "fieldName", false);
+        Parameter orderParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "sortOrder", false);
+        addOrderBySpecial.addParameter(fieldParameter);
+        addOrderBySpecial.addParameter(orderParameter);
+        addOrderBySpecial.addBodyLine("if (fieldName.matches(allowLettersPattern)) {");
+        addOrderBySpecial.addBodyLine("String sortDirection = \"desc\";");
+        addOrderBySpecial.addBodyLine("if ((\"asc\".equalsIgnoreCase(sortOrder))) {");
+        addOrderBySpecial.addBodyLine("sortDirection = \"asc\";");
+        addOrderBySpecial.addBodyLine("}");
+        addOrderBySpecial.addBodyLine("if (orderByClause != null) {");
+        addOrderBySpecial.addBodyLine("orderByClause.put(fieldName, sortDirection);");
+        addOrderBySpecial.addBodyLine("} else {");
+        addOrderBySpecial.addBodyLine("orderByClause = new LinkedHashMap<>();");
+        addOrderBySpecial.addBodyLine("orderByClause.put(fieldName, sortDirection);");
+        addOrderBySpecial.addBodyLine("}");
+        addOrderBySpecial.addBodyLine("}");
+        topLevelClass.addMethod(addOrderBySpecial);
+
+        /**
+         * 特殊字段 限制字母和下划线
+         */
         Method addOrderBy = new Method("addOrderBy");
         addOrderBy.setVisibility(JavaVisibility.PUBLIC);
-        Parameter filedParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "fieldName", false);
-        Parameter orderParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "sortOrder", false);
-        addOrderBy.addParameter(filedParameter);
+        addOrderBy.addParameter(fieldParameter);
         addOrderBy.addParameter(orderParameter);
         addOrderBy.addBodyLine("boolean findFieldName = false;");
         addOrderBy.addBodyLine("if (tableFields.contains(fieldName)) {");
