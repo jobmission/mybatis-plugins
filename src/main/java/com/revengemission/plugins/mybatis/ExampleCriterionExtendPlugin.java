@@ -66,8 +66,9 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
 
             } else if ("GeneratedCriteria".equals(innerClass.getType().getShortName())) {
 
-                // 当字段value为null时不抛出异常，跳过、忽略添加该条件
+
                 innerClass.getMethods().forEach(method -> {
+                    //equalTo 当字段value为null时不抛出异常，跳过、忽略添加该条件
                     if ("addCriterion".equals(method.getName()) && method.getParameters().size() == 3) {
                         for (int j = 0; j < method.getBodyLines().size(); j++) {
                             if (method.getBodyLines().get(j).contains("throw")) {
@@ -76,6 +77,25 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
                                 break;
                             }
                         }
+                    }
+
+                    // between and 当字段value为null时不抛出异常，跳过、忽略添加该条件
+                    if ("addCriterion".equals(method.getName()) && method.getParameters().size() == 4) {
+                        String types = "String_Object_Object_String_";
+                        StringBuilder stringBuilder = new StringBuilder();
+                        method.getParameters().forEach(e -> {
+                            stringBuilder.append(e.getType().getShortName() + "_");
+                        });
+                        if (types.equals(stringBuilder.toString())) {
+                            for (int j = 0; j < method.getBodyLines().size(); j++) {
+                                if (method.getBodyLines().get(j).contains("throw")) {
+                                    method.getBodyLines().remove(j);
+                                    method.getBodyLines().add(j, "return;");
+                                    break;
+                                }
+                            }
+                        }
+
                     }
 
                 });
