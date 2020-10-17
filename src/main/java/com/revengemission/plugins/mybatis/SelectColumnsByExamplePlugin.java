@@ -16,13 +16,14 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import java.util.List;
 
 /**
- * 根据Example查询部分字段及group by 语句
+ * 根据Example查询部分字段及group by 语句支持
  */
 public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
 
     private static final String CLIENT_METHOD_NAME = "selectColumnsByExample";
     private static final String CLIENT_METHOD_NAME_IDS = "selectIdsByExample";
-    private static final String CLIENT_METHOD_NAME_Aggregate_Query = "aggregateQueryByExample";
+    private static final String CLIENT_METHOD_NAME_AGGREGATE_QUERY = "aggregateQueryByExample";
+    private static final String CLIENT_METHOD_NAME_AGGREGATE_STATISTICS = "aggregateStatisticsByExample";
 
     @Override
     public boolean validate(List<String> warnings) {
@@ -55,28 +56,28 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         getCommaSeparatedColumns.addBodyLine("return commaSeparatedColumns;");
         topLevelClass.addMethod(getCommaSeparatedColumns);
 
-        Field aggregateQueryClause = new Field("aggregateQueryClause", FullyQualifiedJavaType.getStringInstance());
-        aggregateQueryClause.setVisibility(JavaVisibility.PRIVATE);
-        aggregateQueryClause.addJavaDocLine("/**");
-        aggregateQueryClause.addJavaDocLine(" * aggregate query clause 语句, 注意未做防注入处理");
-        aggregateQueryClause.addJavaDocLine(" */");
+        Field aggregateByClause = new Field("aggregateByClause", FullyQualifiedJavaType.getStringInstance());
+        aggregateByClause.setVisibility(JavaVisibility.PRIVATE);
+        aggregateByClause.addJavaDocLine("/**");
+        aggregateByClause.addJavaDocLine(" * aggregate query clause 语句, 注意未做防注入处理");
+        aggregateByClause.addJavaDocLine(" */");
 
-        topLevelClass.addField(aggregateQueryClause);
+        topLevelClass.addField(aggregateByClause);
 
-        Method setAggregateQueryClause = new Method("setAggregateQueryClause");
-        setAggregateQueryClause.setVisibility(JavaVisibility.PUBLIC);
-        setAggregateQueryClause.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "aggregateQueryClause"));
-        setAggregateQueryClause.addBodyLine("this.aggregateQueryClause = aggregateQueryClause;");
-        setAggregateQueryClause.addJavaDocLine("/**");
-        setAggregateQueryClause.addJavaDocLine(" * @param aggregateQueryClause aggregate query 语句, 注意未做防注入处理");
-        setAggregateQueryClause.addJavaDocLine(" */");
-        topLevelClass.addMethod(setAggregateQueryClause);
+        Method setAggregateByClause = new Method("setAggregateByClause");
+        setAggregateByClause.setVisibility(JavaVisibility.PUBLIC);
+        setAggregateByClause.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "aggregateByClause"));
+        setAggregateByClause.addBodyLine("this.aggregateByClause = aggregateByClause;");
+        setAggregateByClause.addJavaDocLine("/**");
+        setAggregateByClause.addJavaDocLine(" * @param aggregateByClause aggregate query 语句, 注意未做防注入处理");
+        setAggregateByClause.addJavaDocLine(" */");
+        topLevelClass.addMethod(setAggregateByClause);
 
-        Method getAggregateQueryClause = new Method("getAggregateQueryClause");
-        getAggregateQueryClause.setVisibility(JavaVisibility.PUBLIC);
-        getAggregateQueryClause.setReturnType(FullyQualifiedJavaType.getStringInstance());
-        getAggregateQueryClause.addBodyLine("return aggregateQueryClause;");
-        topLevelClass.addMethod(getAggregateQueryClause);
+        Method getAggregateByClause = new Method("getAggregateByClause");
+        getAggregateByClause.setVisibility(JavaVisibility.PUBLIC);
+        getAggregateByClause.setReturnType(FullyQualifiedJavaType.getStringInstance());
+        getAggregateByClause.addBodyLine("return aggregateByClause;");
+        topLevelClass.addMethod(getAggregateByClause);
 
         return true;
     }
@@ -96,7 +97,7 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         method2.setReturnType(new FullyQualifiedJavaType("List<Long>"));
         interfaze.addMethod(method2);
 
-        Method method3 = new Method(CLIENT_METHOD_NAME_Aggregate_Query);
+        Method method3 = new Method(CLIENT_METHOD_NAME_AGGREGATE_QUERY);
         method3.addJavaDocLine("/**");
         method3.addJavaDocLine(" * 聚合查询");
         method3.addJavaDocLine(" */");
@@ -104,6 +105,15 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         method3.addParameter(new Parameter(new FullyQualifiedJavaType(introspectedTable.getExampleType()), "example"));
         method3.setReturnType(new FullyQualifiedJavaType("List<Map<String, Object>>"));
         interfaze.addMethod(method3);
+
+        Method method4 = new Method(CLIENT_METHOD_NAME_AGGREGATE_STATISTICS);
+        method4.addJavaDocLine("/**");
+        method4.addJavaDocLine(" * 聚合统计,sum、count、max、min 等");
+        method4.addJavaDocLine(" */");
+        method4.setAbstract(true);
+        method4.addParameter(new Parameter(new FullyQualifiedJavaType(introspectedTable.getExampleType()), "example"));
+        method4.setReturnType(new FullyQualifiedJavaType("Map<String, Object>"));
+        interfaze.addMethod(method4);
 
         return true;
     }
@@ -152,16 +162,28 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         parentElement.addElement(selectElement2);
 
         XmlElement selectElement3 = new XmlElement("select");
-        selectElement3.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_Aggregate_Query));
+        selectElement3.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_AGGREGATE_QUERY));
         selectElement3.addAttribute(new Attribute("parameterType", introspectedTable.getExampleType()));
         selectElement3.addAttribute(new Attribute("resultType", "java.util.HashMap"));
         selectElement3.addElement(new TextElement("select "));
         selectElement3.addElement(new TextElement("${commaSeparatedColumns} "));
         selectElement3.addElement(new TextElement("from " + tableName));
         selectElement3.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
-        selectElement3.addElement(new TextElement("${groupByClause} "));
+        selectElement3.addElement(new TextElement("${aggregateByClause} "));
         selectElement3.addElement(orderByElement);
         parentElement.addElement(selectElement3);
+
+        XmlElement selectElement4 = new XmlElement("select");
+        selectElement4.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_AGGREGATE_STATISTICS));
+        selectElement4.addAttribute(new Attribute("parameterType", introspectedTable.getExampleType()));
+        selectElement4.addAttribute(new Attribute("resultType", "java.util.HashMap"));
+        selectElement4.addElement(new TextElement("select "));
+        selectElement4.addElement(new TextElement("${commaSeparatedColumns} "));
+        selectElement4.addElement(new TextElement("from " + tableName));
+        selectElement4.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
+        selectElement4.addElement(new TextElement("${aggregateByClause} "));
+        selectElement4.addElement(orderByElement);
+        parentElement.addElement(selectElement4);
 
         return super.sqlMapDocumentGenerated(document, introspectedTable);
     }
