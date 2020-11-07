@@ -51,6 +51,13 @@ mybatis-generator-maven-plugin 中添加依赖
 ````
 
 ````
+根据唯一主键批量更新 name:[表名]，value:[ON DUPLICATE KEY UPDATE后面的语句] 
+ <plugin type="com.revengemission.plugins.mybatis.InsertOnUpdatePlugin">
+    <property name="company_entity" value="version = newRowValue.version + 1, remark = CONCAT_WS(',',newRowValue.remark,'插入时重复')"/>
+</plugin>
+````
+
+````
 逻辑删除,针对所有表生成方法,需配置逻辑删除字段和删除标示值
 <plugin type="com.revengemission.plugins.mybatis.LogicalDeletePlugin">
      <property name="deletedFlagTableFiled" value="deleted"/>
