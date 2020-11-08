@@ -93,7 +93,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         queryForMapMethod.setAbstract(true);
         queryForMapMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
         queryForMapMethod.setReturnType(mapTypeString);
-        queryForMapMethod.addAnnotation("@Select(\"<script><match_any>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</match_any></script>\")");
+        queryForMapMethod.addAnnotation("@Select(\"<script><select>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</select></script>\")");
         queryForMapMethod.addAnnotation("@Lang(MatchAnyLanguageDriver.class)");
         anInterface.addMethod(queryForMapMethod);
 
@@ -101,7 +101,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         queryForListMethod.setAbstract(true);
         queryForListMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
         queryForListMethod.setReturnType(listMapTypeString);
-        queryForListMethod.addAnnotation("@Select(\"<script><match_any>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</match_any></script>\")");
+        queryForListMethod.addAnnotation("@Select(\"<script><select>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</select></script>\")");
         queryForListMethod.addAnnotation("@Lang(MatchAnyLanguageDriver.class)");
         anInterface.addMethod(queryForListMethod);
 
@@ -109,7 +109,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         queryForObjectMethod.setAbstract(true);
         queryForObjectMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
         queryForObjectMethod.setReturnType(FullyQualifiedJavaType.getObjectInstance());
-        queryForObjectMethod.addAnnotation("@Select(\"<script><match_any>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</match_any></script>\")");
+        queryForObjectMethod.addAnnotation("@Select(\"<script><select>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</select></script>\")");
         queryForObjectMethod.addAnnotation("@Lang(MatchAnyLanguageDriver.class)");
         anInterface.addMethod(queryForObjectMethod);
 
@@ -120,7 +120,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
 ///        updateMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", sqlAnnotation));
         updateMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
         updateMethod.setReturnType(FullyQualifiedJavaType.getIntInstance());
-        updateMethod.addAnnotation("@Update(\"<script><match_any>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</match_any></script>\")");
+        updateMethod.addAnnotation("@Update(\"<script><update>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</update></script>\")");
         updateMethod.addAnnotation("@Lang(MatchAnyLanguageDriver.class)");
         anInterface.addMethod(updateMethod);
 

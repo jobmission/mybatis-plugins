@@ -9,29 +9,20 @@ import org.apache.ibatis.session.Configuration;
 
 public class MatchAnyLanguageDriver extends XMLLanguageDriver {
 
-
     @Override
     public ParameterHandler createParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
         return super.createParameterHandler(mappedStatement, parameterObject, boundSql);
     }
 
-    /**
-     * 实现自定义Select注解
-     *
-     * @param configuration Mybatis 配置
-     * @param script        注解sql
-     * @param parameterType 参数类型
-     * @return 转换后的SqlSource
-     */
     @Override
     public SqlSource createSqlSource(Configuration configuration, String script, Class<?> parameterType) {
         return super.createSqlSource(configuration, script, parameterType);
     }
 
-
     @Override
     public SqlSource createSqlSource(Configuration configuration, XNode script, Class<?> parameterType) {
-        return new XMLScriptBuilderX(configuration, script, parameterType).parseScriptNode();
+        boolean updateFlag = script.evalBoolean("update");
+        return new XMLScriptBuilderX(configuration, script, parameterType, updateFlag).parseScriptNode();
     }
 
 }

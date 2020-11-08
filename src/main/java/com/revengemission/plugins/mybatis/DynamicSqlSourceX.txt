@@ -7,22 +7,49 @@ import org.apache.ibatis.parsing.XPathParser;
 import org.apache.ibatis.scripting.xmltags.XMLScriptBuilder;
 import org.apache.ibatis.session.Configuration;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class DynamicSqlSourceX implements SqlSource {
     private final Configuration configuration;
+    boolean updateFlag = false;
+
+    List<String> selectCheckList = Arrays.asList(".*update\\s+.*", ".*insert\\s+.*", ".*delete\\s+.*", ".*create\\s+.*", ".*truncate\\s+.*", ".*alter\\s+.*", ".*drop\\s+.*", ".*into\\s+.*");
+    List<String> updateCheckList = Arrays.asList(".*delete\\s+.*", ".*create\\s+.*", ".*truncate\\s+.*", ".*alter\\s+.*", ".*drop\\s+.*", ".*into\\s+.*");
 
 
-    public DynamicSqlSourceX(Configuration configuration) {
+    public DynamicSqlSourceX(Configuration configuration, boolean updateFlag) {
         this.configuration = configuration;
+        this.updateFlag = updateFlag;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public BoundSql getBoundSql(Object parameterObject) {
         Map<String, String> parames = (Map<String, String>) parameterObject;
-        String scriptSql = "<script>" + parames.get("sql") + "</script>";
-        parames.remove("sql");
+        if (!parames.containsKey("sql") || parames.get("sql") == null) {
+            throw new RuntimeException("缺少sql");
+        }
+        String sql = parames.get("sql");
+
+        String sqlToCheck = sql.toLowerCase();
+        if (updateFlag) {
+            for (String pattern : updateCheckList) {
+                if (Pattern.matches(pattern, sqlToCheck)) {
+                    throw new RuntimeException("无效sql \n " + sql);
+                }
+            }
+        } else {
+            for (String pattern : selectCheckList) {
+                if (Pattern.matches(pattern, sqlToCheck)) {
+                    throw new RuntimeException("无效sql \n " + sql);
+                }
+            }
+        }
+
+        String scriptSql = "<script>" + sql + "</script>";
         XPathParser parser = new XPathParser(scriptSql, false, configuration.getVariables(), new XMLMapperEntityResolver());
         XNode xNode = parser.evalNode("/script");
         XMLScriptBuilder xmlScriptBuilder = new XMLScriptBuilder(configuration, xNode);
