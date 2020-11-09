@@ -113,16 +113,13 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         queryForObjectMethod.addAnnotation("@Lang(MatchAnyLanguageDriver.class)");
         anInterface.addMethod(queryForObjectMethod);
 
-        Method updateMethod = new Method(updateMethodName);
-        updateMethod.setAbstract(true);
-///        String sqlAnnotation = "@Param(\"sql\")";
-///        String mapAnnotation = "@Param(\"paramsMap\")";
-///        updateMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", sqlAnnotation));
-        updateMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
-        updateMethod.setReturnType(FullyQualifiedJavaType.getIntInstance());
-        updateMethod.addAnnotation("@Update(\"<script><update>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</update></script>\")");
-        updateMethod.addAnnotation("@Lang(MatchAnyLanguageDriver.class)");
-        anInterface.addMethod(updateMethod);
+//        Method updateMethod = new Method(updateMethodName);
+//        updateMethod.setAbstract(true);
+//        updateMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
+//        updateMethod.setReturnType(FullyQualifiedJavaType.getIntInstance());
+//        updateMethod.addAnnotation("@Update(\"<script><update>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</update></script>\")");
+//        updateMethod.addAnnotation("@Lang(MatchAnyLanguageDriver.class)");
+//        anInterface.addMethod(updateMethod);
 
         GeneratedJavaFile generatedJavaFile = new GeneratedJavaFile(anInterface, context.getJavaClientGeneratorConfiguration().getTargetProject(), encoding, javaFormatter);
         List<GeneratedJavaFile> answer = new ArrayList<>(16);

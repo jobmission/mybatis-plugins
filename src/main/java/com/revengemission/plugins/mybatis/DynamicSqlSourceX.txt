@@ -16,8 +16,8 @@ public class DynamicSqlSourceX implements SqlSource {
     private final Configuration configuration;
     boolean updateFlag = false;
 
-    List<String> selectCheckList = Arrays.asList(".*update\\s+.*", ".*insert\\s+.*", ".*delete\\s+.*", ".*create\\s+.*", ".*truncate\\s+.*", ".*alter\\s+.*", ".*drop\\s+.*", ".*into\\s+.*");
-    List<String> updateCheckList = Arrays.asList(".*delete\\s+.*", ".*create\\s+.*", ".*truncate\\s+.*", ".*alter\\s+.*", ".*drop\\s+.*", ".*into\\s+.*");
+    List<String> selectBlockList = Arrays.asList(".*update\\s+.*", ".*insert\\s+.*", ".*delete\\s+.*", ".*into\\s+.*", ".*create\\s+.*", ".*truncate\\s+.*", ".*alter\\s+.*", ".*drop\\s+.*", ".*rename\\s+.*", ".*grant\\s+.*", ".*revoke\\s+.*", ".*source\\s+.*", ".*load\\s+.*");
+    String selectAllow = ".*select\\s+.*";
 
 
     public DynamicSqlSourceX(Configuration configuration, boolean updateFlag) {
@@ -30,21 +30,20 @@ public class DynamicSqlSourceX implements SqlSource {
     public BoundSql getBoundSql(Object parameterObject) {
         Map<String, String> parames = (Map<String, String>) parameterObject;
         if (!parames.containsKey("sql") || parames.get("sql") == null) {
-            throw new RuntimeException("缺少sql");
+            throw new RuntimeException("缺少sql语句");
         }
         String sql = parames.get("sql");
 
         String sqlToCheck = sql.toLowerCase();
         if (updateFlag) {
-            for (String pattern : updateCheckList) {
-                if (Pattern.matches(pattern, sqlToCheck)) {
-                    throw new RuntimeException("无效sql \n " + sql);
-                }
-            }
+            throw new RuntimeException("无效select查询sql \n " + sql);
         } else {
-            for (String pattern : selectCheckList) {
+            if (!Pattern.matches(selectAllow, sqlToCheck)) {
+                throw new RuntimeException("无效select查询sql \n " + sql);
+            }
+            for (String pattern : selectBlockList) {
                 if (Pattern.matches(pattern, sqlToCheck)) {
-                    throw new RuntimeException("无效sql \n " + sql);
+                    throw new RuntimeException("无效select查询sql \n " + sql);
                 }
             }
         }
