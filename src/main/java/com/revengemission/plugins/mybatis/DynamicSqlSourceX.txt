@@ -30,20 +30,20 @@ public class DynamicSqlSourceX implements SqlSource {
     public BoundSql getBoundSql(Object parameterObject) {
         Map<String, String> parames = (Map<String, String>) parameterObject;
         if (!parames.containsKey("sql") || parames.get("sql") == null) {
-            throw new RuntimeException("缺少sql语句");
+            throw new IllegalStateException("缺少sql语句");
         }
         String sql = parames.get("sql");
 
         String sqlToCheck = sql.toLowerCase();
         if (updateFlag) {
-            throw new RuntimeException("无效select查询sql \n " + sql);
+            throw new IllegalStateException("无效select查询sql 【 " + sql+" 】");
         } else {
             if (!Pattern.matches(selectAllow, sqlToCheck)) {
-                throw new RuntimeException("无效select查询sql \n " + sql);
+                throw new IllegalStateException("无效select查询sql 【 " + sql+" 】");
             }
             for (String pattern : selectBlockList) {
                 if (Pattern.matches(pattern, sqlToCheck)) {
-                    throw new RuntimeException("无效select查询sql \n " + sql);
+                    throw new IllegalStateException("无效select查询sql 【 " + sql+" 】");
                 }
             }
         }

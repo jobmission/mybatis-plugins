@@ -66,33 +66,34 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
     @Override
     public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles() {
         FullyQualifiedJavaType mapTypeString = new FullyQualifiedJavaType("Map<String, Object>");
-        FullyQualifiedJavaType listMapTypeString = new FullyQualifiedJavaType("List<Map<String, Object>>");
+        FullyQualifiedJavaType linkedHashMapTypeString = new FullyQualifiedJavaType("LinkedHashMap<String, Object>");
+        FullyQualifiedJavaType listMapTypeString = new FullyQualifiedJavaType("List<LinkedHashMap<String, Object>>");
         JavaFormatter javaFormatter = context.getJavaFormatter();
         FullyQualifiedJavaType interfaceType = new FullyQualifiedJavaType(context.getJavaClientGeneratorConfiguration().getTargetPackage() + "." + mapperName);
         Interface anInterface = new Interface(interfaceType);
         anInterface.setVisibility(JavaVisibility.PUBLIC);
-        anInterface.addImportedType(FullyQualifiedJavaType.getNewMapInstance());
 
+        FullyQualifiedJavaType langJavaType = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Lang");
+        anInterface.addImportedType(langJavaType);
         if (withMapperAnnotation) {
             FullyQualifiedJavaType mapperJavaType = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper");
             anInterface.addImportedType(mapperJavaType);
             anInterface.addAnnotation("@Mapper");
         }
-        anInterface.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-
-        FullyQualifiedJavaType langJavaType = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Lang");
-        anInterface.addImportedType(langJavaType);
-
         FullyQualifiedJavaType selectJavaType = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Select");
         anInterface.addImportedType(selectJavaType);
 
-        FullyQualifiedJavaType updateJavaType = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Update");
-        anInterface.addImportedType(updateJavaType);
+//        FullyQualifiedJavaType updateJavaType = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Update");
+//        anInterface.addImportedType(updateJavaType);
+
+        anInterface.addImportedType(new FullyQualifiedJavaType("java.util.LinkedHashMap"));
+        anInterface.addImportedType(FullyQualifiedJavaType.getNewMapInstance());
+        anInterface.addImportedType(FullyQualifiedJavaType.getNewListInstance());
 
         Method queryForMapMethod = new Method(queryForMapMethodName);
         queryForMapMethod.setAbstract(true);
         queryForMapMethod.addParameter(new Parameter(mapTypeString, "paramsMapWithSql"));
-        queryForMapMethod.setReturnType(mapTypeString);
+        queryForMapMethod.setReturnType(linkedHashMapTypeString);
         queryForMapMethod.addAnnotation("@Select(\"<script><select>不需要修改这一行！paramsMapWithSql 中放入sql 语句以及需要的占位符参数</select></script>\")");
         queryForMapMethod.addAnnotation("@Lang(MatchAnyLanguageDriver.class)");
         anInterface.addMethod(queryForMapMethod);
