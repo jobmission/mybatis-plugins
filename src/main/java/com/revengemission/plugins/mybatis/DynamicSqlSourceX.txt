@@ -17,7 +17,7 @@ public class DynamicSqlSourceX implements SqlSource {
     boolean updateFlag = false;
 
     List<String> selectBlockList = Arrays.asList(".*update\\s+.*", ".*insert\\s+.*", ".*delete\\s+.*", ".*into\\s+.*", ".*create\\s+.*", ".*truncate\\s+.*", ".*alter\\s+.*", ".*drop\\s+.*", ".*rename\\s+.*", ".*grant\\s+.*", ".*revoke\\s+.*", ".*source\\s+.*", ".*load\\s+.*");
-    String selectAllow = ".*select\\s+.*";
+    String selectAllow = "\\s*select\\s+.*";
 
 
     public DynamicSqlSourceX(Configuration configuration, boolean updateFlag) {
@@ -33,6 +33,7 @@ public class DynamicSqlSourceX implements SqlSource {
             throw new IllegalStateException("缺少sql语句");
         }
         String sql = parames.get("sql");
+        sql = sql.replace("\n", " ");
 
         String sqlToCheck = sql.toLowerCase();
         if (updateFlag) {
@@ -48,7 +49,7 @@ public class DynamicSqlSourceX implements SqlSource {
             }
         }
 
-        String scriptSql = "<script>" + sql + "</script>";
+        String scriptSql = "<script>" + sql.replace(">", "&gt;").replace("<", "&lt;") + "</script>";
         XPathParser parser = new XPathParser(scriptSql, false, configuration.getVariables(), new XMLMapperEntityResolver());
         XNode xNode = parser.evalNode("/script");
         XMLScriptBuilder xmlScriptBuilder = new XMLScriptBuilder(configuration, xNode);
