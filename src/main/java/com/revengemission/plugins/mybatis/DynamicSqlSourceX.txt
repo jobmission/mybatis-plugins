@@ -7,17 +7,34 @@ import org.apache.ibatis.parsing.XPathParser;
 import org.apache.ibatis.scripting.xmltags.XMLScriptBuilder;
 import org.apache.ibatis.session.Configuration;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 public class DynamicSqlSourceX implements SqlSource {
     private final Configuration configuration;
-    boolean updateFlag = false;
+    boolean updateFlag;
 
-    List<String> selectBlockList = Arrays.asList(".*update\\s+.*", ".*insert\\s+.*", ".*delete\\s+.*", ".*into\\s+.*", ".*create\\s+.*", ".*truncate\\s+.*", ".*alter\\s+.*", ".*drop\\s+.*", ".*rename\\s+.*", ".*grant\\s+.*", ".*revoke\\s+.*", ".*source\\s+.*", ".*load\\s+.*");
-    String selectAllow = "\\s*select\\s+.*";
+    static List<Pattern> selectBlockList = new ArrayList<>();
+
+    static {
+        selectBlockList.add(Pattern.compile("[\\s;]update\\s+", Pattern.DOTALL));
+        selectBlockList.add(Pattern.compile("[\\s;]insert\\s+", Pattern.DOTALL));
+        selectBlockList.add(Pattern.compile("[\\s;]delete\\s+", Pattern.DOTALL));
+        selectBlockList.add(Pattern.compile("[\\s;]into\\s+", Pattern.DOTALL));
+        selectBlockList.add(Pattern.compile("[\\s;]create\\s+", Pattern.DOTALL));
+        selectBlockList.add(Pattern.compile("[\\s;]truncate\\s+", Pattern.DOTALL));
+        selectBlockList.add(Pattern.compile("[\\s;]alter\\s+", Pattern.DOTALL));
+        selectBlockList.add(Pattern.compile("[\\s;]drop\\s+", Pattern.DOTALL));
+        selectBlockList.add(Pattern.compile("[\\s;]rename\\s+", Pattern.DOTALL));
+        selectBlockList.add(Pattern.compile("[\\s;]grant\\s+", Pattern.DOTALL));
+        selectBlockList.add(Pattern.compile("[\\s;]revoke\\s+", Pattern.DOTALL));
+        selectBlockList.add(Pattern.compile("[\\s;]source\\s+", Pattern.DOTALL));
+        selectBlockList.add(Pattern.compile("[\\s;]load\\s+", Pattern.DOTALL));
+    }
+
+    Pattern selectAllow = Pattern.compile("\\s*select[^;]*;?\\s*", Pattern.DOTALL);
 
 
     public DynamicSqlSourceX(Configuration configuration, boolean updateFlag) {
@@ -33,18 +50,16 @@ public class DynamicSqlSourceX implements SqlSource {
             throw new IllegalStateException("缺少sql语句");
         }
         String sql = parames.get("sql");
-        sql = sql.replace("\n", " ");
-
-        String sqlToCheck = sql.toLowerCase();
+        String sqlToCheck = " " + sql.toLowerCase();
         if (updateFlag) {
-            throw new IllegalStateException("无效select查询sql 【 " + sql+" 】");
+            throw new IllegalStateException("无效select查询sql 【 " + sql + " 】");
         } else {
-            if (!Pattern.matches(selectAllow, sqlToCheck)) {
-                throw new IllegalStateException("无效select查询sql 【 " + sql+" 】");
+            if (!selectAllow.matcher(sqlToCheck).matches()) {
+                throw new IllegalStateException("无效select查询sql 【 " + sql + " 】");
             }
-            for (String pattern : selectBlockList) {
-                if (Pattern.matches(pattern, sqlToCheck)) {
-                    throw new IllegalStateException("无效select查询sql 【 " + sql+" 】");
+            for (Pattern pattern : selectBlockList) {
+                if (pattern.matcher(sqlToCheck).find()) {
+                    throw new IllegalStateException("无效select查询sql 【 " + sql + " 】");
                 }
             }
         }
