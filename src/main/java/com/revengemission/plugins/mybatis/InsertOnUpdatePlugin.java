@@ -84,7 +84,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
             insertXmlElement.addElement(new TextElement("values "));
 
 
-            generateParametersSeparateByCommaWithParenthesis(PROPERTY_PREFIX, introspectedTable.getNonBLOBColumns(), insertXmlElement);
+            generateParametersSeparateByCommaWithParenthesis("", introspectedTable.getNonBLOBColumns(), insertXmlElement);
             insertXmlElement.addElement(new TextElement("AS newRowValue"));
             insertXmlElement.addElement(onUpdateElement);
             insertXmlElement.addElement(updateClauseTextElement);
