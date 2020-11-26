@@ -34,7 +34,7 @@ public class DynamicSqlSourceX implements SqlSource {
         selectBlockList.add(Pattern.compile("[\\s;]load\\s+", Pattern.DOTALL));
     }
 
-    Pattern selectAllow = Pattern.compile("\\s*select[^;]*;?\\s*", Pattern.DOTALL);
+    Pattern selectAllow = Pattern.compile("(\\s*explain)?\\s*select[^;]*;?\\s*", Pattern.DOTALL);
 
 
     public DynamicSqlSourceX(Configuration configuration, boolean updateFlag) {
