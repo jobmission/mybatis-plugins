@@ -1,5 +1,6 @@
 package com.revengemission.plugins.mybatis;
 
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
@@ -85,7 +86,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
 
 
             generateParametersSeparateByCommaWithParenthesis("", introspectedTable.getNonBLOBColumns(), insertXmlElement);
-            insertXmlElement.addElement(new TextElement("AS newRowValue"));
+            insertXmlElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(introspectedTable.getNonBLOBColumns(), "_new") + ")"));
             insertXmlElement.addElement(onUpdateElement);
             insertXmlElement.addElement(updateClauseTextElement);
 
@@ -113,7 +114,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
             generateParametersSeparateByCommaWithParenthesis(PROPERTY_PREFIX, introspectedTable.getNonBLOBColumns(), foreach);
 
             batchInsertXmlElement.addElement(foreach);
-            batchInsertXmlElement.addElement(new TextElement("AS newRowValue"));
+            batchInsertXmlElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(introspectedTable.getNonBLOBColumns(), "_new") + ")"));
             batchInsertXmlElement.addElement(onUpdateElement);
             batchInsertXmlElement.addElement(updateClauseTextElement);
 
@@ -123,5 +124,13 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         return true;
     }
 
+    private String getFieldsString(List<IntrospectedColumn> columns, String fieldSuffix) {
+        StringBuilder sb = new StringBuilder();
+        for (IntrospectedColumn introspectedColumn : columns) {
+            sb.append(",");
+            sb.append(introspectedColumn.getActualColumnName() + fieldSuffix);
+        }
+        return sb.toString().replaceFirst(",", "");
+    }
 
 }
