@@ -59,7 +59,7 @@ mybatis-generator-maven-plugin 中添加依赖
 
 ````
 逻辑删除,针对所有表生成方法,需配置逻辑删除字段和删除标示值
-<plugin type="com.revengemission.plugins.mybatis.LogicalDeletePlugin">
+<plugin type="com.revengemission.plugins.mybatis.CustomDeletePlugin">
      <property name="deletedFlagTableFiled" value="deleted"/>
      <property name="deletedFlagValue" value="1"/>
 </plugin>
@@ -71,6 +71,7 @@ mybatis-generator-maven-plugin 中添加依赖
 ````
 
 ````
+@Deprecated
 自定义查询,可连表，可返回单值
 <plugin type="com.revengemission.plugins.mybatis.CustomSelectPlugin">
     <property name="user_account_entity;selectUniqueByUsername" value="single-row;String username;select * from user_account_entity where username=#{username}"/>
@@ -78,6 +79,15 @@ mybatis-generator-maven-plugin 中添加依赖
 ````
 
 ````
+@Deprecated
+自定义更新方法
+<plugin type="com.revengemission.plugins.mybatis.CustomUpdatePlugin">
+    <property name="user_account_entity;updateByUsername" value="long id,String username;update user_account_entity set username=#{username} where id=#{id}"/>
+</plugin>
+````
+
+````
+@Deprecated
 执行自定义查询和更新语句, 针对所有表生成方法
 <plugin type="com.revengemission.plugins.mybatis.CustomSqlPlugin"/>
 ````
@@ -86,14 +96,6 @@ mybatis-generator-maven-plugin 中添加依赖
 自定义查询,map传参数, 单独的mapper
 <plugin type="com.revengemission.plugins.mybatis.GenericMapperPlugin">
     <property  name="withMapperAnnotation" value="true"/>
-</plugin>
-````
-
-
-````
-自定义更新方法
-<plugin type="com.revengemission.plugins.mybatis.CustomUpdatePlugin">
-    <property name="user_account_entity;updateByUsername" value="long id,String username;update user_account_entity set username=#{username} where id=#{id}"/>
 </plugin>
 ````
 

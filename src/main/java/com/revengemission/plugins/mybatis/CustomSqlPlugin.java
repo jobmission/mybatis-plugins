@@ -16,6 +16,7 @@ import java.util.List;
 /**
  * 自定义sql
  */
+@Deprecated
 public class CustomSqlPlugin extends AbstractXmbgPlugin {
 
     @Override

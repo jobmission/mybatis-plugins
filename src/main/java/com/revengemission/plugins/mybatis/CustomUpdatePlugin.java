@@ -17,6 +17,7 @@ import java.util.Map;
 /**
  * 自定义更新
  */
+@Deprecated
 public class CustomUpdatePlugin extends AbstractXmbgPlugin {
 
     Map<String, String> todo = new LinkedHashMap<>();
