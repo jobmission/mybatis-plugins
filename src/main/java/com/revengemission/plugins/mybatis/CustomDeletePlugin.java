@@ -1,5 +1,6 @@
 package com.revengemission.plugins.mybatis;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
@@ -93,6 +94,13 @@ public class LogicalDeletePlugin extends AbstractXmbgPlugin {
 
         return super.sqlMapDocumentGenerated(document, introspectedTable);
 
+    }
+
+    private boolean hasColumn(IntrospectedTable introspectedTable, String column) {
+        Boolean flag=false;
+        introspectedTable.getAllColumns().forEach(introspectedColumn -> {
+            flag=true;
+        });
     }
 
 }
