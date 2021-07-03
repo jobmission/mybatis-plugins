@@ -99,6 +99,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
             FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType("java.util.List");
             batchInsertXmlElement.addAttribute(new Attribute("parameterType", parameterType.getFullyQualifiedName()));
 
+            batchInsertXmlElement.addElement(new TextElement("<if test=\"list != null and list.size() > 0\">"));
             generateTextBlockAppendTableName("insert into ", introspectedTable, batchInsertXmlElement);
 
             generateActualColumnNamesWithParenthesis(introspectedTable.getNonBLOBColumns(), batchInsertXmlElement);
@@ -117,6 +118,10 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
             batchInsertXmlElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(introspectedTable.getNonBLOBColumns(), "_new") + ")"));
             batchInsertXmlElement.addElement(onUpdateElement);
             batchInsertXmlElement.addElement(updateClauseTextElement);
+            batchInsertXmlElement.addElement(new TextElement("</if>"));
+            batchInsertXmlElement.addElement(new TextElement("<if test=\"list == null or list.size() == 0\">"));
+            batchInsertXmlElement.addElement(new TextElement("  select 0"));
+            batchInsertXmlElement.addElement(new TextElement("</if>"));
 
             document.getRootElement().addElement(batchInsertXmlElement);
         });

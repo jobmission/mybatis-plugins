@@ -46,6 +46,7 @@ public class BatchInsertPlugin extends AbstractXmbgPlugin {
         FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType("java.util.List");
         insertXmlElement.addAttribute(new Attribute("parameterType", parameterType.getFullyQualifiedName()));
 
+        insertXmlElement.addElement(new TextElement("<if test=\"list != null and list.size() > 0\">"));
         generateTextBlockAppendTableName("insert into ", introspectedTable, insertXmlElement);
 
         generateActualColumnNamesWithParenthesis(introspectedTable.getNonBLOBColumns(), insertXmlElement);
@@ -59,8 +60,11 @@ public class BatchInsertPlugin extends AbstractXmbgPlugin {
         foreach.addAttribute(new Attribute("separator", ","));
 
         generateParametersSeparateByCommaWithParenthesis(PROPERTY_PREFIX, introspectedTable.getNonBLOBColumns(), foreach);
-
         insertXmlElement.addElement(foreach);
+        insertXmlElement.addElement(new TextElement("</if>"));
+        insertXmlElement.addElement(new TextElement("<if test=\"list == null or list.size() == 0\">"));
+        insertXmlElement.addElement(new TextElement("  select 0"));
+        insertXmlElement.addElement(new TextElement("</if>"));
 
         document.getRootElement().addElement(insertXmlElement);
 

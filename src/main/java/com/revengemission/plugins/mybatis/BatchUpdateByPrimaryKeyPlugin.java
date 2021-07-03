@@ -58,13 +58,14 @@ public class BatchUpdateByPrimaryKeyPlugin extends AbstractXmbgPlugin {
     @Override
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
 
-        XmlElement update = new XmlElement("update");
-        update.addAttribute(new Attribute("id", CLIENT_METHOD_NAME));
+        XmlElement updateXmlElement = new XmlElement("update");
+        updateXmlElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME));
 
         String parameterType = "java.util.List";
 
-        update.addAttribute(new Attribute("parameterType", parameterType));
+        updateXmlElement.addAttribute(new Attribute("parameterType", parameterType));
 
+        updateXmlElement.addElement(new TextElement("<if test=\"list != null and list.size() > 0\">"));
         XmlElement foreach = new XmlElement("foreach");
         foreach.addAttribute(new Attribute("collection", "list"));
         foreach.addAttribute(new Attribute("item", "item"));
@@ -82,8 +83,13 @@ public class BatchUpdateByPrimaryKeyPlugin extends AbstractXmbgPlugin {
 
         generateWhereConditions(PROPERTY_PREFIX, introspectedTable.getPrimaryKeyColumns(), foreach);
 
-        update.addElement(foreach);
-        document.getRootElement().addElement(update);
+        updateXmlElement.addElement(foreach);
+        updateXmlElement.addElement(new TextElement("</if>"));
+        updateXmlElement.addElement(new TextElement("<if test=\"list == null or list.size() == 0\">"));
+        updateXmlElement.addElement(new TextElement("  select 0"));
+        updateXmlElement.addElement(new TextElement("</if>"));
+
+        document.getRootElement().addElement(updateXmlElement);
 
         return true;
     }
