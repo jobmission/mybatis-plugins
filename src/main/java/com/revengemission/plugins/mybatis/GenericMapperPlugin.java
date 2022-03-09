@@ -87,7 +87,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
 //        anInterface.addImportedType(updateJavaType);
 
         anInterface.addImportedType(new FullyQualifiedJavaType("java.util.LinkedHashMap"));
-        anInterface.addImportedType(FullyQualifiedJavaType.getNewMapInstance());
+        anInterface.addImportedType(FullyQualifiedJavaType.getNewHashMapInstance());
         anInterface.addImportedType(FullyQualifiedJavaType.getNewListInstance());
 
         Method queryForMapMethod = new Method(queryForMapMethodName);
