@@ -12,14 +12,10 @@ import java.util.Map;
  */
 public class ModifyUpdateSqlPlugin extends AbstractXmbgPlugin {
 
-    Map<String, String> todo = new LinkedHashMap<>();
 
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
-        todo.clear();
-        properties.forEach((k, v) -> {
-            todo.put(k.toString().trim(), v.toString().trim());
-        });
+
     }
 
     @Override
@@ -28,48 +24,62 @@ public class ModifyUpdateSqlPlugin extends AbstractXmbgPlugin {
     }
 
     @Override
-    public boolean sqlMapUpdateByExampleSelectiveElementGenerated(
-            XmlElement element, IntrospectedTable introspectedTable) {
-
-        replaceElement(element, todo);
+    public boolean sqlMapUpdateByExampleSelectiveElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+        Map<String, String> replacement = new LinkedHashMap<>();
+        properties.forEach((k, v) -> {
+            replacement.put(k.toString().trim(), v.toString().trim());
+        });
+        replaceElement(element, replacement);
         return true;
     }
 
     @Override
-    public boolean sqlMapUpdateByExampleWithBLOBsElementGenerated(
-            XmlElement element, IntrospectedTable introspectedTable) {
-        replaceElement(element, todo);
+    public boolean sqlMapUpdateByExampleWithBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+        Map<String, String> replacement = new LinkedHashMap<>();
+        properties.forEach((k, v) -> {
+            replacement.put(k.toString().trim(), v.toString().trim());
+        });
+        replaceElement(element, replacement);
         return true;
     }
 
     @Override
-    public boolean sqlMapUpdateByExampleWithoutBLOBsElementGenerated(
-            XmlElement element, IntrospectedTable introspectedTable) {
-
-        replaceElement(element, todo);
+    public boolean sqlMapUpdateByExampleWithoutBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+        Map<String, String> replacement = new LinkedHashMap<>();
+        properties.forEach((k, v) -> {
+            replacement.put(k.toString().trim(), v.toString().trim());
+        });
+        replaceElement(element, replacement);
         return true;
     }
 
     @Override
-    public boolean sqlMapUpdateByPrimaryKeySelectiveElementGenerated(
-            XmlElement element, IntrospectedTable introspectedTable) {
-        replaceElement(element, todo);
+    public boolean sqlMapUpdateByPrimaryKeySelectiveElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+        Map<String, String> replacement = new LinkedHashMap<>();
+        properties.forEach((k, v) -> {
+            replacement.put(k.toString().trim(), v.toString().trim());
+        });
+        replaceElement(element, replacement);
         return true;
     }
 
     @Override
-    public boolean sqlMapUpdateByPrimaryKeyWithoutBLOBsElementGenerated(
-            XmlElement element, IntrospectedTable introspectedTable) {
-
-        replaceElement(element, todo);
+    public boolean sqlMapUpdateByPrimaryKeyWithoutBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+        Map<String, String> replacement = new LinkedHashMap<>();
+        properties.forEach((k, v) -> {
+            replacement.put(k.toString().trim(), v.toString().trim());
+        });
+        replaceElement(element, replacement);
         return true;
     }
 
     @Override
-    public boolean sqlMapUpdateByPrimaryKeyWithBLOBsElementGenerated(
-            XmlElement element, IntrospectedTable introspectedTable) {
-
-        replaceElement(element, todo);
+    public boolean sqlMapUpdateByPrimaryKeyWithBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+        Map<String, String> replacement = new LinkedHashMap<>();
+        properties.forEach((k, v) -> {
+            replacement.put(k.toString().trim(), v.toString().trim());
+        });
+        replaceElement(element, replacement);
         return true;
     }
 

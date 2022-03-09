@@ -10,9 +10,7 @@ import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Mysql Truncate table plugin
@@ -20,14 +18,9 @@ import java.util.Map;
 public class MysqlTruncateTablePlugin extends AbstractXmbgPlugin {
 
     private static final String CLIENT_METHOD_NAME = "truncateTable";
-    Map<String, String> todo = new LinkedHashMap<>();
 
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
-        todo.clear();
-        properties.forEach((k, v) -> {
-            todo.put(k.toString().trim(), v.toString().trim());
-        });
     }
 
     @Override

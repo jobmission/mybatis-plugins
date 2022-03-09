@@ -13,7 +13,9 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * 批量更新
@@ -24,14 +26,9 @@ public class BatchUpdateByPrimaryKeyPlugin extends AbstractXmbgPlugin {
 
     private static final String PROPERTY_PREFIX = "item.";
 
-    Map<String, String> todo = new LinkedHashMap<>();
 
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
-        todo.clear();
-        properties.forEach((k, v) -> {
-            todo.put(k.toString().trim(), v.toString().trim());
-        });
     }
 
     @Override
@@ -79,7 +76,6 @@ public class BatchUpdateByPrimaryKeyPlugin extends AbstractXmbgPlugin {
 
 //        version = version + 1
         generateParameterForSet(PROPERTY_PREFIX, introspectedTable.getNonPrimaryKeyColumns(), foreach);
-        replaceElement(foreach, todo);
 
         generateWhereConditions(PROPERTY_PREFIX, introspectedTable.getPrimaryKeyColumns(), foreach);
 

@@ -87,7 +87,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
 //        anInterface.addImportedType(updateJavaType);
 
         anInterface.addImportedType(new FullyQualifiedJavaType("java.util.LinkedHashMap"));
-        anInterface.addImportedType(FullyQualifiedJavaType.getNewHashMapInstance());
+        anInterface.addImportedType(new FullyQualifiedJavaType("java.util.Map"));
         anInterface.addImportedType(FullyQualifiedJavaType.getNewListInstance());
 
         Method queryForMapMethod = new Method(queryForMapMethodName);
@@ -138,7 +138,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         String targetProject = context.getJavaClientGeneratorConfiguration().getTargetProject();
         String targetPackage = context.getJavaClientGeneratorConfiguration().getTargetPackage();
         Path targetClassFilePath = Paths.get(currentPath, targetProject, targetPackage.replace(".", File.separator));
-        log.info("targetClassFilePath:" + targetClassFilePath.toString());
+        log.info("targetClassFilePath:{}", targetClassFilePath.toString());
         try {
             if (!Files.exists(targetClassFilePath)) {
                 Files.createDirectories(targetClassFilePath);

@@ -84,7 +84,7 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
 
     @Override
     public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
-        interfaze.addImportedType(FullyQualifiedJavaType.getNewHashMapInstance());
+        interfaze.addImportedType(new FullyQualifiedJavaType("java.util.Map"));
         Method method = new Method(CLIENT_METHOD_NAME);
         method.setAbstract(true);
         method.addParameter(new Parameter(new FullyQualifiedJavaType(introspectedTable.getExampleType()), "example"));

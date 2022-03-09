@@ -146,15 +146,15 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         }
     }
 
-    protected VisitableElement replaceElement(XmlElement element, Map<String, String> todo) {
-        if (todo != null && todo.size() > 0) {
+    protected VisitableElement replaceElement(XmlElement element, Map<String, String> replacement) {
+        if (replacement != null && replacement.size() > 0) {
             Map<Integer, VisitableElement> tobeReplaced = new LinkedHashMap<>();
 
             for (int i = 0; i < element.getElements().size(); i++) {
                 if (element.getElements().get(i) instanceof TextElement) {
                     TextElement element1 = (TextElement) element.getElements().get(i);
                     final Integer tempIndex = i;
-                    todo.forEach((k, v) -> {
+                    replacement.forEach((k, v) -> {
                         String elementContent = element1.getContent();
                         if (elementContent.indexOf(k) >= 0) {
                             String newContent = elementContent.replace(k, v);
@@ -164,7 +164,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                     });
                 } else {
                     XmlElement xmlElement = (XmlElement) element.getElements().get(i);
-                    replaceElement(xmlElement, todo);
+                    replaceElement(xmlElement, replacement);
                 }
             }
             if (tobeReplaced.size() > 0) {
