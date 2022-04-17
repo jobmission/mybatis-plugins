@@ -71,8 +71,6 @@ mybatis-generator-maven-plugin 中添加依赖
 ````
 
 ````
-
-````
 自定义查询,map传参数, 单独的mapper
 <plugin type="com.revengemission.plugins.mybatis.GenericMapperPlugin">
     <property  name="withMapperAnnotation" value="true"/>
