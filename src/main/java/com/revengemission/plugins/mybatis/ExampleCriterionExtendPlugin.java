@@ -146,8 +146,22 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
                 andFunctionRightKeyMethod.setReturnType(new FullyQualifiedJavaType("Criteria"));
                 innerClass.addMethod(andFunctionRightKeyMethod);
 
+                introspectedTable.getAllColumns().forEach(introspectedColumn -> {
+                    String javaProperty = introspectedColumn.getJavaProperty();
+                    String columnName = introspectedColumn.getActualColumnName();
+                    Parameter expValue = new Parameter(FullyQualifiedJavaType.getStringInstance(), "regexp", false);
+                    Method andRegexpMethod = new Method("and" + upperCaseFirstChar(javaProperty) + "Regexp");
+                    andRegexpMethod.setVisibility(JavaVisibility.PUBLIC);
+                    andRegexpMethod.addParameter(expValue);
+                    andRegexpMethod.addBodyLine("addCriterion(\"" + columnName + " regexp\", " + "regexp, \"" + javaProperty + "\");");
+                    andRegexpMethod.addBodyLine("return (Criteria) this;");
+                    andRegexpMethod.setReturnType(new FullyQualifiedJavaType("Criteria"));
+                    innerClass.addMethod(andRegexpMethod);
+                });
+
             }
         }
+
 
         return true;
     }

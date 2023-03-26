@@ -122,7 +122,7 @@ value:[注解内容]
 ````
 
 ````
-增强Example Criterion,如使用find_in_set、json函数等，针对所有表
+增强Example Criterion,如使用find_in_set、json函数、正则表达式等，针对所有表
 <plugin type="com.revengemission.plugins.mybatis.ExampleCriterionExtendPlugin"/>
 ````
 
