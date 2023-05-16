@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.revengemission.plugins</groupId>
     <artifactId>mybatis-plugins</artifactId>
-    <version>1.7.0</version>
+    <version>1.8.0</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>MyBatis Generator plugins</description>
@@ -129,6 +129,7 @@
                 </plugins>
             </build>
         </profile>
+        <!--  https://oss.sonatype.org/#stagingRepositories   -->
         <profile>
             <id>release</id>
             <build>
