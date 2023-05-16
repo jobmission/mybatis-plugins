@@ -27,6 +27,7 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
     public boolean modelExampleClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         Field field = new Field(FIELD_NAME, FullyQualifiedJavaType.getIntInstance());
         field.setVisibility(JavaVisibility.PRIVATE);
+        field.setInitializationString("5");
         topLevelClass.addField(field);
         char c = FIELD_NAME.charAt(0);
         String camelName = Character.toUpperCase(c) + FIELD_NAME.substring(1);
