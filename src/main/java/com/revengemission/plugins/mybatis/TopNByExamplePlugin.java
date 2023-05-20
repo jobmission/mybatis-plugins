@@ -78,7 +78,6 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
             }
             addTopOneLimitStatement(selectTopOneElement, introspectedTable);
             addTopOneSqlserverStatement(selectTopOneElement, introspectedTable);
-            addTopOneOracleStatement(selectTopOneElement, introspectedTable);
             addTopOneDB2Statement(selectTopOneElement, introspectedTable);
             parentElement.addElement(selectTopOneElement);
         }
@@ -94,7 +93,6 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
             }
             addTopNLimitStatement(selectTopNElement, introspectedTable);
             addTopNSqlserverStatement(selectTopNElement, introspectedTable);
-            addTopNOracleStatement(selectTopNElement, introspectedTable);
             addTopNDB2Statement(selectTopNElement, introspectedTable);
             parentElement.addElement(selectTopNElement);
         }
@@ -107,7 +105,11 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'mysql' || _databaseId == 'postgresql'"));
 
-        topOneElement.addElement(new TextElement("select * from " + tableName));
+        if (introspectedTable.getBLOBColumns().size() > 0) {
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
+        } else {
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" /> from " + tableName));
+        }
 
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
         topOneElement.addElement(new TextElement("limit 1"));
@@ -121,7 +123,11 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'mysql' or _databaseId == 'postgresql'"));
 
-        topOneElement.addElement(new TextElement("select * from " + tableName));
+        if (introspectedTable.getBLOBColumns().size() > 0) {
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
+        } else {
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" /> from " + tableName));
+        }
 
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
         topOneElement.addElement(new TextElement("limit ${topN}"));
@@ -134,7 +140,11 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
 
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'sqlserver'"));
-        topOneElement.addElement(new TextElement("select top 1 * from " + tableName));
+        if (introspectedTable.getBLOBColumns().size() > 0) {
+            topOneElement.addElement(new TextElement("select top 1 <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
+        } else {
+            topOneElement.addElement(new TextElement("select top 1 <include refid=\"Base_Column_List\" /> from " + tableName));
+        }
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
         parentElement.addElement(topOneElement);
     }
@@ -144,28 +154,12 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
 
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'sqlserver'"));
-        topOneElement.addElement(new TextElement("select top ${topN} * from " + tableName));
+        if (introspectedTable.getBLOBColumns().size() > 0) {
+            topOneElement.addElement(new TextElement("select top ${topN} <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
+        } else {
+            topOneElement.addElement(new TextElement("select top ${topN} <include refid=\"Base_Column_List\" /> from " + tableName));
+        }
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
-        parentElement.addElement(topOneElement);
-    }
-
-    void addTopOneOracleStatement(XmlElement parentElement, IntrospectedTable introspectedTable) {
-        String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
-        XmlElement topOneElement = new XmlElement("if");
-        topOneElement.addAttribute(new Attribute("test", "_databaseId == 'oracle'"));
-        topOneElement.addElement(new TextElement("select * from " + tableName));
-        topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
-        topOneElement.addElement(new TextElement("and rowmun <![CDATA[<=]]> 1 "));
-        parentElement.addElement(topOneElement);
-    }
-
-    void addTopNOracleStatement(XmlElement parentElement, IntrospectedTable introspectedTable) {
-        String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
-        XmlElement topOneElement = new XmlElement("if");
-        topOneElement.addAttribute(new Attribute("test", "_databaseId == 'oracle'"));
-        topOneElement.addElement(new TextElement("select * from " + tableName));
-        topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
-        topOneElement.addElement(new TextElement("and rowmun <![CDATA[<=]]> ${topN} "));
         parentElement.addElement(topOneElement);
     }
 
@@ -173,7 +167,11 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
         String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'db2'"));
-        topOneElement.addElement(new TextElement("select * from " + tableName));
+        if (introspectedTable.getBLOBColumns().size() > 0) {
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
+        } else {
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" /> from " + tableName));
+        }
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
         topOneElement.addElement(new TextElement("fetch first 1 only"));
         parentElement.addElement(topOneElement);
@@ -183,7 +181,11 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
         String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'db2'"));
-        topOneElement.addElement(new TextElement("select * from " + tableName));
+        if (introspectedTable.getBLOBColumns().size() > 0) {
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
+        } else {
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" /> from " + tableName));
+        }
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
         topOneElement.addElement(new TextElement("fetch first ${topN} only"));
         parentElement.addElement(topOneElement);
