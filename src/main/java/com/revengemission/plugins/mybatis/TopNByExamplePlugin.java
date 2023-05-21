@@ -112,6 +112,12 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
         }
 
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
+
+        XmlElement orderByElement = new XmlElement("if");
+        orderByElement.addAttribute(new Attribute("test", "orderByClause != null"));
+        orderByElement.addElement(new TextElement("order by ${orderByClause}"));
+        topOneElement.addElement(orderByElement);
+
         topOneElement.addElement(new TextElement("limit 1"));
 
         parentElement.addElement(topOneElement);
@@ -130,6 +136,12 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
         }
 
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
+
+        XmlElement orderByElement = new XmlElement("if");
+        orderByElement.addAttribute(new Attribute("test", "orderByClause != null"));
+        orderByElement.addElement(new TextElement("order by ${orderByClause}"));
+        topOneElement.addElement(orderByElement);
+
         topOneElement.addElement(new TextElement("limit ${topN}"));
 
         parentElement.addElement(topOneElement);
@@ -146,6 +158,12 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
             topOneElement.addElement(new TextElement("select top 1 <include refid=\"Base_Column_List\" /> from " + tableName));
         }
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
+
+        XmlElement orderByElement = new XmlElement("if");
+        orderByElement.addAttribute(new Attribute("test", "orderByClause != null"));
+        orderByElement.addElement(new TextElement("order by ${orderByClause}"));
+        topOneElement.addElement(orderByElement);
+
         parentElement.addElement(topOneElement);
     }
 
@@ -160,6 +178,12 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
             topOneElement.addElement(new TextElement("select top ${topN} <include refid=\"Base_Column_List\" /> from " + tableName));
         }
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
+
+        XmlElement orderByElement = new XmlElement("if");
+        orderByElement.addAttribute(new Attribute("test", "orderByClause != null"));
+        orderByElement.addElement(new TextElement("order by ${orderByClause}"));
+        topOneElement.addElement(orderByElement);
+
         parentElement.addElement(topOneElement);
     }
 
