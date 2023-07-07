@@ -12,7 +12,9 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 插入数据时，重复键更新
@@ -26,10 +28,17 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
 
     private static final String PROPERTY_PREFIX = "item.";
 
+    Map<String, Integer> igonreMap = new HashMap<>();
+
 
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
-
+        igonreMap.put("id", 1);
+        igonreMap.put("version", 1);
+        igonreMap.put("record_status", 1);
+        igonreMap.put("sort_priority", 1);
+        igonreMap.put("remark", 1);
+        igonreMap.put("date_created", 1);
     }
 
     @Override
@@ -70,7 +79,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         properties.forEach((k, v) -> {
             if (currentTableName.equalsIgnoreCase(k.toString().trim())) {
                 TextElement onUpdateElement = new TextElement("ON DUPLICATE KEY UPDATE ");
-                TextElement updateClauseTextElement = new TextElement(v.toString().trim());
+                TextElement updateClauseTextElement = new TextElement(getUpdateClauseText(v.toString().trim(), introspectedTable.getNonBLOBColumns()));
 
                 XmlElement insertXmlElement = new XmlElement("insert");
 
@@ -127,6 +136,20 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         });
 
         return true;
+    }
+
+    private String getUpdateClauseText(String v, List<IntrospectedColumn> columns) {
+        if (v == null || "".equals(v.trim())) {
+            StringBuilder sb = new StringBuilder();
+            for (IntrospectedColumn introspectedColumn : columns) {
+                if (!igonreMap.containsKey(introspectedColumn.getActualColumnName())) {
+                    sb.append(", " + introspectedColumn.getActualColumnName() + " = newRowValue." + introspectedColumn.getActualColumnName() + "_new");
+                }
+            }
+            return sb.toString().replaceFirst(",", "");
+        } else {
+            return v;
+        }
     }
 
     private String getFieldsString(List<IntrospectedColumn> columns, String fieldSuffix) {
