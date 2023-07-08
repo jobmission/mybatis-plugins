@@ -54,7 +54,7 @@
     ````
 2. 根据唯一约束批量upsert
     ````
-    name:[表名]，value:[ON DUPLICATE KEY UPDATE后面的语句]; value为空时，更新id、version、record_status、sort_priority、remark、date_created之外的字段
+    name:[表名]，value:[ON DUPLICATE KEY UPDATE后面的语句]; value为空时，更新id、deleted、record_status、sort_priority、remark、date_created之外的字段
     <plugin type="com.revengemission.plugins.mybatis.InsertOnUpdatePlugin">
         <property name="user_entity" value="version = newRowValue.version + 1, remark = CONCAT_WS(',',newRowValue.remark,'插入时重复')"/>
         <property name="another_entity" value=""/>

@@ -34,7 +34,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
         igonreMap.put("id", 1);
-        igonreMap.put("version", 1);
+        igonreMap.put("deleted", 1);
         igonreMap.put("record_status", 1);
         igonreMap.put("sort_priority", 1);
         igonreMap.put("remark", 1);
@@ -142,7 +142,9 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         if (v == null || "".equals(v.trim())) {
             StringBuilder sb = new StringBuilder();
             for (IntrospectedColumn introspectedColumn : columns) {
-                if (!igonreMap.containsKey(introspectedColumn.getActualColumnName())) {
+                if ("version".equals(introspectedColumn.getActualColumnName())) {
+                    sb.append(", version = version + 1");
+                } else if (!igonreMap.containsKey(introspectedColumn.getActualColumnName())) {
                     sb.append(", " + introspectedColumn.getActualColumnName() + " = newRowValue." + introspectedColumn.getActualColumnName() + "_new");
                 }
             }
