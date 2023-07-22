@@ -147,7 +147,14 @@
     userEntityExample.setTopN(5);
     List<UserEntity> userEntityList = userEntityMapper.topNByExample(example);;
     ````
-
+14. 根据唯一约束批量upsert增强版, 针对所有表
+    ````
+    <plugin type="com.revengemission.plugins.mybatis.InsertOnUpdateSelectivePlugin">
+        <property name="ignoreFields" value="id,deleted,record_status,sort_priority,remark,date_created"/>
+    </plugin>
+   
+    userEntityMapper.batchInsertOnUpdateSelective(items);
+    ````
 
 
 

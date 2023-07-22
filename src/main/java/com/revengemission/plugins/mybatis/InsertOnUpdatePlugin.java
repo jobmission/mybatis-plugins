@@ -6,15 +6,12 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
-import org.mybatis.generator.api.dom.xml.Attribute;
-import org.mybatis.generator.api.dom.xml.Document;
-import org.mybatis.generator.api.dom.xml.TextElement;
-import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.api.dom.xml.*;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 /**
  * 插入数据时，重复键更新
@@ -28,17 +25,17 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
 
     private static final String PROPERTY_PREFIX = "item.";
 
-    Map<String, Integer> igonreMap = new HashMap<>();
+    Set<String> igonreSet = new HashSet<>();
 
 
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
-        igonreMap.put("id", 1);
-        igonreMap.put("deleted", 1);
-        igonreMap.put("record_status", 1);
-        igonreMap.put("sort_priority", 1);
-        igonreMap.put("remark", 1);
-        igonreMap.put("date_created", 1);
+        igonreSet.add("id");
+        igonreSet.add("deleted");
+        igonreSet.add("record_status");
+        igonreSet.add("sort_priority");
+        igonreSet.add("remark");
+        igonreSet.add("date_created");
     }
 
     @Override
@@ -57,7 +54,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
 
                 Method methodSingle = new Method(CLIENT_METHOD_NAME_SINGLE);
                 methodSingle.setAbstract(true);
-                methodSingle.addParameter(new Parameter(new FullyQualifiedJavaType(objectName), "object"));
+                methodSingle.addParameter(new Parameter(new FullyQualifiedJavaType(objectName), "row"));
                 methodSingle.setReturnType(FullyQualifiedJavaType.getIntInstance());
                 interfaze.addMethod(methodSingle);
 
@@ -78,25 +75,25 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         log.info("enter sqlMapDocumentGenerated table {}", currentTableName);
         properties.forEach((k, v) -> {
             if (currentTableName.equalsIgnoreCase(k.toString().trim())) {
-                TextElement onUpdateElement = new TextElement("ON DUPLICATE KEY UPDATE ");
-                TextElement updateClauseTextElement = new TextElement(getUpdateClauseText(v.toString().trim(), introspectedTable.getNonBLOBColumns()));
+
+                TextElement onUpdateElement = new TextElement("ON DUPLICATE KEY UPDATE");
 
                 XmlElement insertXmlElement = new XmlElement("insert");
-
                 insertXmlElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_SINGLE));
                 insertXmlElement.addAttribute(new Attribute("parameterType", context.getJavaModelGeneratorConfiguration().getTargetPackage() + "." + getEntityName(introspectedTable)));
 
                 generateTextBlockAppendTableName("insert into ", introspectedTable, insertXmlElement);
 
-                generateActualColumnNamesWithParenthesis(introspectedTable.getNonBLOBColumns(), insertXmlElement);
+                generateActualColumnNamesWithParenthesis(introspectedTable.getAllColumns(), insertXmlElement);
 
                 insertXmlElement.addElement(new TextElement("values "));
 
 
-                generateParametersSeparateByCommaWithParenthesis("", introspectedTable.getNonBLOBColumns(), insertXmlElement);
-                insertXmlElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(introspectedTable.getNonBLOBColumns(), "_new") + ")"));
+                generateParametersSeparateByCommaWithParenthesis("", introspectedTable.getAllColumns(), insertXmlElement);
+                insertXmlElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(introspectedTable.getAllColumns(), "_new") + ")"));
                 insertXmlElement.addElement(onUpdateElement);
-                insertXmlElement.addElement(updateClauseTextElement);
+
+                insertXmlElement.addElement(getUpdateClauseText(v.toString().trim(), introspectedTable.getAllColumns()));
 
                 document.getRootElement().addElement(insertXmlElement);
 
@@ -106,13 +103,13 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 batchInsertXmlElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_BATCH));
                 FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType("java.util.List");
                 batchInsertXmlElement.addAttribute(new Attribute("parameterType", parameterType.getFullyQualifiedName()));
+                XmlElement ifListElement = new XmlElement("if");
+                ifListElement.addAttribute(new Attribute("test", "list != null and list.size() > 0"));
+                generateTextBlockAppendTableName("insert into ", introspectedTable, ifListElement);
 
-                batchInsertXmlElement.addElement(new TextElement("<if test=\"list != null and list.size() > 0\">"));
-                generateTextBlockAppendTableName("insert into ", introspectedTable, batchInsertXmlElement);
+                generateActualColumnNamesWithParenthesis(introspectedTable.getAllColumns(), ifListElement);
 
-                generateActualColumnNamesWithParenthesis(introspectedTable.getNonBLOBColumns(), batchInsertXmlElement);
-
-                batchInsertXmlElement.addElement(new TextElement("values "));
+                ifListElement.addElement(new TextElement("values "));
 
                 XmlElement foreach = new XmlElement("foreach");
                 foreach.addAttribute(new Attribute("collection", "list"));
@@ -120,16 +117,17 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 foreach.addAttribute(new Attribute("index", "index"));
                 foreach.addAttribute(new Attribute("separator", ","));
 
-                generateParametersSeparateByCommaWithParenthesis(PROPERTY_PREFIX, introspectedTable.getNonBLOBColumns(), foreach);
+                generateParametersSeparateByCommaWithParenthesis(PROPERTY_PREFIX, introspectedTable.getAllColumns(), foreach);
 
-                batchInsertXmlElement.addElement(foreach);
-                batchInsertXmlElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(introspectedTable.getNonBLOBColumns(), "_new") + ")"));
-                batchInsertXmlElement.addElement(onUpdateElement);
-                batchInsertXmlElement.addElement(updateClauseTextElement);
-                batchInsertXmlElement.addElement(new TextElement("</if>"));
-                batchInsertXmlElement.addElement(new TextElement("<if test=\"list == null or list.size() == 0\">"));
-                batchInsertXmlElement.addElement(new TextElement("  select 0"));
-                batchInsertXmlElement.addElement(new TextElement("</if>"));
+                ifListElement.addElement(foreach);
+                ifListElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(introspectedTable.getAllColumns(), "_new") + ")"));
+                ifListElement.addElement(onUpdateElement);
+                ifListElement.addElement(getUpdateClauseText(v.toString().trim(), introspectedTable.getAllColumns()));
+                batchInsertXmlElement.addElement(ifListElement);
+                XmlElement ifNullElement = new XmlElement("if");
+                ifNullElement.addAttribute(new Attribute("test", "list == null or list.size() == 0"));
+                ifNullElement.addElement(new TextElement("select 0"));
+                batchInsertXmlElement.addElement(ifNullElement);
 
                 document.getRootElement().addElement(batchInsertXmlElement);
             }
@@ -138,20 +136,24 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         return true;
     }
 
-    private String getUpdateClauseText(String v, List<IntrospectedColumn> columns) {
+    private VisitableElement getUpdateClauseText(String v, List<IntrospectedColumn> columns) {
+        XmlElement trimElement = new XmlElement("trim");
+        trimElement.addAttribute(new Attribute("suffixOverrides", ","));
+
         if (v == null || "".equals(v.trim())) {
             StringBuilder sb = new StringBuilder();
             for (IntrospectedColumn introspectedColumn : columns) {
                 if ("version".equals(introspectedColumn.getActualColumnName())) {
-                    sb.append(", version = version + 1");
-                } else if (!igonreMap.containsKey(introspectedColumn.getActualColumnName())) {
-                    sb.append(", " + introspectedColumn.getActualColumnName() + " = newRowValue." + introspectedColumn.getActualColumnName() + "_new");
+                    trimElement.addElement(new TextElement("version = version + 1,"));
+                } else if (!igonreSet.contains(introspectedColumn.getActualColumnName())) {
+                    trimElement.addElement(new TextElement(introspectedColumn.getActualColumnName() + " = newRowValue." + introspectedColumn.getActualColumnName() + "_new,"));
                 }
             }
-            return sb.toString().replaceFirst(",", "");
         } else {
-            return v;
+            trimElement.addElement(new TextElement(v));
         }
+
+        return trimElement;
     }
 
     private String getFieldsString(List<IntrospectedColumn> columns, String fieldSuffix) {
