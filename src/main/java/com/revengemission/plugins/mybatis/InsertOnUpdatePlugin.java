@@ -143,10 +143,13 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         if (v == null || "".equals(v.trim())) {
             StringBuilder sb = new StringBuilder();
             for (IntrospectedColumn introspectedColumn : columns) {
-                if ("version".equals(introspectedColumn.getActualColumnName())) {
+                String columnName = introspectedColumn.getActualColumnName();
+                if ("version".equals(columnName)) {
                     trimElement.addElement(new TextElement("version = version + 1,"));
-                } else if (!igonreSet.contains(introspectedColumn.getActualColumnName())) {
-                    trimElement.addElement(new TextElement(introspectedColumn.getActualColumnName() + " = newRowValue." + introspectedColumn.getActualColumnName() + "_new,"));
+                } else if ("last_modified".equals(columnName)) {
+                    trimElement.addElement(new TextElement("last_modified = now(),"));
+                } else if (!igonreSet.contains(columnName)) {
+                    trimElement.addElement(new TextElement(columnName + " = newRowValue." + columnName + "_new,"));
                 }
             }
         } else {

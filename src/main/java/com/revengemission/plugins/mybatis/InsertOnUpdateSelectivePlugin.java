@@ -320,6 +320,8 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
             if (!igonreSet.contains(columnName)) {
                 if ("version".equals(columnName)) {
                     trimElement.addElement(new TextElement("version = version + 1,"));
+                } else if ("last_modified".equals(columnName)) {
+                    trimElement.addElement(new TextElement("last_modified = now(),"));
                 } else {
                     trimElement.addElement(new TextElement(columnName + " = newRowValue." + columnName + "_new,"));
                 }
@@ -337,6 +339,8 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
             if (!igonreSet.contains(columnName)) {
                 if ("version".equals(columnName)) {
                     trimElement.addElement(new TextElement("version = version + 1,"));
+                } else if ("last_modified".equals(columnName)) {
+                    trimElement.addElement(new TextElement("last_modified = now(),"));
                 } else {
                     trimElement.addElement(new TextElement(columnName + " = IF(newRowValue." + columnName + "_new is null, " + columnName + ", newRowValue." + columnName + "_new),"));
                 }
