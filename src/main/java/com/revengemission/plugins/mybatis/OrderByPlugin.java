@@ -3,12 +3,7 @@ package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.Field;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.api.dom.java.*;
 
 import java.util.List;
 
@@ -176,6 +171,22 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
                 break;
             }
         }
+
+        /**
+         * clearOrderBy
+         */
+        Method clearOrderBy = new Method("clearOrderBy");
+        clearOrderBy.setVisibility(JavaVisibility.PUBLIC);
+        clearOrderBy.addJavaDocLine("/**");
+        clearOrderBy.addJavaDocLine(" * clearOrderBy");
+        clearOrderBy.addJavaDocLine(" */");
+
+        clearOrderBy.addBodyLine("if (orderByClause != null) {");
+        clearOrderBy.addBodyLine("orderByClause.clear();");
+        clearOrderBy.addBodyLine("}");
+
+
+        topLevelClass.addMethod(clearOrderBy);
 
         for (Method method : topLevelClass.getMethods()) {
             if ("getOrderByClause".equals(method.getName())) {
