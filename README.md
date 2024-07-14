@@ -46,13 +46,13 @@
 
 ### 插件列表
 
-1. 批量插入, 针对所有表生成方法
+1. [批量插入](src/main/java/com/revengemission/plugins/mybatis/BatchInsertPlugin.java), 针对所有表生成方法
     ````
     <plugin type="com.revengemission.plugins.mybatis.BatchInsertPlugin"/>
     
     userEntityMapper.batchInsert(items);
     ````
-2. 根据唯一约束批量upsert
+2. [根据唯一约束批量upsert](src/main/java/com/revengemission/plugins/mybatis/InsertOnUpdatePlugin.java)
     ````
     name:[表名]，value:[ON DUPLICATE KEY UPDATE后面的语句]; value为空时，更新id、deleted、record_status、sort_priority、remark、date_created之外的字段
     <plugin type="com.revengemission.plugins.mybatis.InsertOnUpdatePlugin">
@@ -63,7 +63,7 @@
     userEntityMapper.insertOnUpdate(item);
     userEntityMapper.batchInsertOnUpdate(items);
     ````
-3. 逻辑删除, 针对所有表生成方法, 需配置逻辑删除字段和删除flag值
+3. [逻辑删除](src/main/java/com/revengemission/plugins/mybatis/CustomDeletePlugin.java), 针对所有表生成方法, 需配置逻辑删除字段和删除flag值
     ````
     <plugin type="com.revengemission.plugins.mybatis.CustomDeletePlugin">
          <property name="deletedFlagTableFiled" value="deleted"/>
@@ -72,13 +72,13 @@
    
     userEntityMapper.logicalDeleteById(99);
     ````
-4. 根据主键批量更新, 针对所有表生成方法
+4. [根据主键批量更新](src/main/java/com/revengemission/plugins/mybatis/BatchUpdateByPrimaryKeyPlugin.java), 针对所有表生成方法
     ````
     <plugin type="com.revengemission.plugins.mybatis.BatchUpdateByPrimaryKeyPlugin"/>
    
     userEntityMapper.batchUpdateByPrimaryKey(items);
     ````
-5. 自定义查询, map传参数, 单独的mapper接口, 使用时注意过滤危险字符防止注入
+5. [自定义查询](src/main/java/com/revengemission/plugins/mybatis/GenericMapperPlugin.java), map传参数, 单独的mapper接口, 使用时注意过滤危险字符防止注入
     ````
     <plugin type="com.revengemission.plugins.mybatis.GenericMapperPlugin">
         <property name="withMapperAnnotation" value="true"/>
@@ -89,7 +89,7 @@
     paramsMapWithSql.put("name", "zhangsan");
     List<LinkedHashMap<String, Object>> linkedHashMapList = genericMapper.queryForList(paramsMapWithSql);
     ````
-6. mybatis model class上添加注解
+6. [mybatis model class上添加注解](src/main/java/com/revengemission/plugins/mybatis/ModelAnnotationPlugin.java)
     ````
     name:[表名;完整包名加类名], 如果所有表的model都加注解则name:[every_table;完整包名加类名]
     value:[注解内容]
@@ -97,7 +97,7 @@
         <property name="user_entity;com.fasterxml.jackson.annotation.JsonInclude" value="@JsonInclude(JsonInclude.Include.NON_NULL)"/>
     </plugin>
     ````
-7. mybatis model field上添加注解
+7. [mybatis model field上添加注解](src/main/java/com/revengemission/plugins/mybatis/ModelFieldAnnotationPlugin.java)
     ````
     name:[表名;字段名;完整包名加类名], 如果所有表的model都加注解则name:[every_table;字段名;完整包名加类名]
     value:[注解内容]
@@ -105,7 +105,7 @@
         <property name="user_entity;column_name;com.fasterxml.jackson.annotation.JsonIgnore" value="@JsonIgnore"/>
     </plugin>
     ````
-8. 修改mybatis-generator-core生成的update语句, 如 version = version+1
+8. [修改mybatis-generator-core生成的update语句](src/main/java/com/revengemission/plugins/mybatis/ModifyUpdateSqlPlugin.java), 如 version = version+1
     ````
     <plugin type="com.revengemission.plugins.mybatis.ModifyUpdateSqlPlugin">
         <property name="last_modified = #{lastModified,jdbcType=TIMESTAMP}" value="last_modified= now()"/>
@@ -114,31 +114,39 @@
         <property name="version = #{record.version,jdbcType=INTEGER}" value="version = version + 1"/>
     </plugin>
     ````
-9. 根据example查询约束字段唯一记录, 返回单对象, 针对所有表
+9. [根据example查询约束字段唯一记录](src/main/java/com/revengemission/plugins/mybatis/SelectUniqueByExamplePlugin.java), 返回单对象, 针对所有表
     ````
     <plugin type="com.revengemission.plugins.mybatis.SelectUniqueByExamplePlugin"/>
    
     UserEntity userEntity = userEntityMapper.selectUniqueByExample(example)
     ````
-10. 生成Truncate table语句, 针对所有表; 如果有外键约束, 执行truncate table可能失败
+10. [生成Truncate table语句](src/main/java/com/revengemission/plugins/mybatis/TruncateTablePlugin.java), 针对所有表; 如果有外键约束, 执行truncate table可能失败
     ````
-    <plugin type="com.revengemission.plugins.mybatis.MysqlTruncateTablePlugin"/>
+    <plugin type="com.revengemission.plugins.mybatis.TruncateTablePlugin"/>
     ````
-11. 增强example中order by 语句, 防止注入, 可以多字段排序, 针对所有表
+11. [增强example中order by 语句](src/main/java/com/revengemission/plugins/mybatis/OrderByPlugin.java), 防止注入, 可以多字段排序, 针对所有表
     ````
     <plugin type="com.revengemission.plugins.mybatis.OrderByPlugin"/>
     
     example.addOrderBy("name", "desc");
     example.addOrderBy("id", "desc");
     ````
-12. 增强Example Criterion, 如使用find_in_set、json函数、正则表达式等, 针对所有表
+12. [增强Example Criterion](src/main/java/com/revengemission/plugins/mybatis/ExampleCriterionExtendPlugin.java), 如使用find_in_set、json函数、正则表达式等, 针对所有表
     ````
     <plugin type="com.revengemission.plugins.mybatis.ExampleCriterionExtendPlugin"/>
-    
-    userEntityExample.createCriteria().andFunctionRightKey("find_in_set", "field_a", searchValue);
+    userEntityExample.createCriteria().andNameRegexp("searchValue");
     userEntityExample.createCriteria().andConditionValue("FROM_UNIXTIME(field_b, '%Y-%m-%d') = ", "2020-01-01");
+    userEntityExample.createCriteria().andConditionValue("column_a->>'$.field_a.field_b' = ", "abc");
+    //mysql, postgresql
+    userEntityExample.createCriteria().andConditionJsonFieldValue("column_a", "field_b", "=", "abc");
+    //mysql, postgresql: only support array json or array json in first level
+    userEntityExample.createCriteria().andConditionJsonFieldContains("column_a", "field_b", "[\"ab\", \"ac\"]");
+    //mysql, nothing
+    userEntityExample.createCriteria().andFunctionLeftKey("functionName", "searchKey", "searchValue");
+    //mysql, filed_a="a,b,c,d,e": FIND_IN_SET('b', field_a); LOCATE('b,c',field_a)
+    userEntityExample.createCriteria().andFunctionRightKey("find_in_set", "field_a", "searchValue"); 
     ````
-13. topN, 针对所有表
+13. [topN](src/main/java/com/revengemission/plugins/mybatis/TopNByExamplePlugin.java), 针对所有表, Mysql、Oracle、SqlServer、PostgreSQL
     ````
     <plugin type="com.revengemission.plugins.mybatis.TopNByExamplePlugin"/>
     
@@ -147,7 +155,7 @@
     userEntityExample.setTopN(5);
     List<UserEntity> userEntityList = userEntityMapper.topNByExample(example);;
     ````
-14. 根据唯一约束批量upsert增强版, 针对所有表
+14. [根据唯一约束批量upsert增强版](src/main/java/com/revengemission/plugins/mybatis/InsertOnUpdateSelectivePlugin.java), 针对所有表
     ````
     <plugin type="com.revengemission.plugins.mybatis.InsertOnUpdateSelectivePlugin">
         <property name="ignoreFields" value="id,deleted,record_status,sort_priority,remark,date_created"/>

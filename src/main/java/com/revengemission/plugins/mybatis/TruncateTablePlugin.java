@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Mysql Truncate table plugin
  */
-public class MysqlTruncateTablePlugin extends AbstractXmbgPlugin {
+public class TruncateTablePlugin extends AbstractXmbgPlugin {
 
     private static final String CLIENT_METHOD_NAME = "truncateTable";
 
