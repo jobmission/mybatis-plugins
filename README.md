@@ -54,10 +54,9 @@
     ````
 2. [根据唯一约束批量upsert](src/main/java/com/revengemission/plugins/mybatis/InsertOnUpdatePlugin.java)
     ````
-    name:[表名]，value:[ON DUPLICATE KEY UPDATE后面的语句]; value为空时，更新id、deleted、record_status、sort_priority、remark、date_created之外的字段
+    name:[表名]，value:uniqueFields=;updateFields=;updateIgnoreFields=
     <plugin type="com.revengemission.plugins.mybatis.InsertOnUpdatePlugin">
-        <property name="user_entity" value="version = newRowValue.version + 1, remark = CONCAT_WS(',',newRowValue.remark,'插入时重复')"/>
-        <property name="another_entity" value=""/>
+        <property name="user_entity" value="uniqueFields=username;updateFields=nickname,address;updateIgnoreFields=id,deleted,record_status,sort_priority,remark,date_created"/>
     </plugin>
    
     userEntityMapper.insertOnUpdate(item);
@@ -155,10 +154,11 @@
     userEntityExample.setTopN(5);
     List<UserEntity> userEntityList = userEntityMapper.topNByExample(example);;
     ````
-14. [根据唯一约束批量upsert增强版](src/main/java/com/revengemission/plugins/mybatis/InsertOnUpdateSelectivePlugin.java), 针对所有表
+14. [根据唯一约束批量upsert增强版](src/main/java/com/revengemission/plugins/mybatis/InsertOnUpdateSelectivePlugin.java)
     ````
+    name:[表名]，value:uniqueFields=;updateFields=;updateIgnoreFields=
     <plugin type="com.revengemission.plugins.mybatis.InsertOnUpdateSelectivePlugin">
-        <property name="ignoreFields" value="id,deleted,record_status,sort_priority,remark,date_created"/>
+        <property name="user_entity" value="uniqueFields=username;updateIgnoreFields=id,deleted,record_status,sort_priority,remark,date_created"/>
     </plugin>
    
     userEntityMapper.batchInsertOnUpdateSelective(items);

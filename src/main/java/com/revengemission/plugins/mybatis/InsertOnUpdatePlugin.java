@@ -9,7 +9,7 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.xml.*;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -25,17 +25,9 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
 
     private static final String PROPERTY_PREFIX = "item.";
 
-    Set<String> igonreSet = new HashSet<>();
-
-
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
-        igonreSet.add("id");
-        igonreSet.add("deleted");
-        igonreSet.add("record_status");
-        igonreSet.add("sort_priority");
-        igonreSet.add("remark");
-        igonreSet.add("date_created");
+        log.info("enter initialized {}", getTableName(introspectedTable));
     }
 
     @Override
@@ -44,12 +36,75 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         return true;
     }
 
+    //uniqueFields=a,b;updateFields=c,d,e,f
+    protected Set<String> getUniqueFields(String value) {
+        Set<String> uniqueFields = new LinkedHashSet<>();
+        String[] strings = value.trim().split(";");
+        for (String s : strings) {
+            if (s.startsWith("uniqueFields")) {
+                String[] fields = s.split("=");
+                if (fields.length == 2) {
+                    String[] fieldsArray = fields[1].split(",");
+                    for (String field : fieldsArray) {
+                        uniqueFields.add(field.trim());
+                    }
+                }
+            }
+        }
+        return uniqueFields;
+    }
+
+    //updateFields=a,b;updateFields=c,d,e,f
+    protected Set<String> getUpdateFields(String value) {
+        Set<String> updateFields = new LinkedHashSet<>();
+        String[] strings = value.trim().split(";");
+        for (String s : strings) {
+            if (s.startsWith("updateFields")) {
+                String[] fields = s.split("=");
+                if (fields.length == 2) {
+                    String[] fieldsArray = fields[1].split(",");
+                    for (String field : fieldsArray) {
+                        updateFields.add(field.trim());
+                    }
+                }
+            }
+        }
+        return updateFields;
+    }
+
+    //uniqueFields=code;updateIgnoreFields=a,b;updateFields=c,d,e,f
+    protected Set<String> getUpdateIgnoreFields(String value) {
+        Set<String> updateIgnoreFields = new LinkedHashSet<>();
+        String[] strings = value.trim().split(";");
+        for (String s : strings) {
+            if (s.startsWith("updateIgnoreFields")) {
+                String[] fields = s.split("=");
+                if (fields.length == 2) {
+                    String[] fieldsArray = fields[1].split(",");
+                    for (String field : fieldsArray) {
+                        updateIgnoreFields.add(field.trim());
+                    }
+                }
+            }
+        }
+        if (updateIgnoreFields.isEmpty()) {
+            updateIgnoreFields.add("id");
+            updateIgnoreFields.add("deleted");
+            updateIgnoreFields.add("record_status");
+            updateIgnoreFields.add("sort_priority");
+            updateIgnoreFields.add("remark");
+            updateIgnoreFields.add("date_created");
+        }
+        return updateIgnoreFields;
+    }
+
     @Override
     public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
         String currentTableName = getTableName(introspectedTable);
         log.info("enter clientGenerated table {}", currentTableName);
         properties.forEach((k, v) -> {
             if (currentTableName.equalsIgnoreCase(k.toString().trim())) {
+
                 String objectName = getEntityName(introspectedTable);
 
                 Method methodSingle = new Method(CLIENT_METHOD_NAME_SINGLE);
@@ -75,39 +130,56 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         log.info("enter sqlMapDocumentGenerated table {}", currentTableName);
         properties.forEach((k, v) -> {
             if (currentTableName.equalsIgnoreCase(k.toString().trim())) {
+                Set<String> uniqueFields = getUniqueFields((String) v);
 
-                TextElement onUpdateElement = new TextElement("ON DUPLICATE KEY UPDATE");
+                List<IntrospectedColumn> notAutoIncrementColumnList = introspectedTable.getAllColumns().stream().filter(introspectedColumn -> !introspectedColumn.isAutoIncrement()).toList();
 
+                TextElement mysqlOnUpdateElement = new TextElement("ON DUPLICATE KEY UPDATE");
+                TextElement postgresqlOnConflictElement = new TextElement("ON CONFLICT (" + String.join(", ", uniqueFields) + ")");
                 XmlElement insertXmlElement = new XmlElement("insert");
                 insertXmlElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_SINGLE));
                 insertXmlElement.addAttribute(new Attribute("parameterType", context.getJavaModelGeneratorConfiguration().getTargetPackage() + "." + getEntityName(introspectedTable)));
 
                 generateTextBlockAppendTableName("insert into ", introspectedTable, insertXmlElement);
 
-                generateActualColumnNamesWithParenthesis(introspectedTable.getAllColumns(), insertXmlElement);
+                generateActualColumnNamesWithParenthesis(notAutoIncrementColumnList, insertXmlElement);
 
                 insertXmlElement.addElement(new TextElement("values "));
 
 
-                generateParametersSeparateByCommaWithParenthesis("", introspectedTable.getAllColumns(), insertXmlElement);
-                insertXmlElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(introspectedTable.getAllColumns(), "_new") + ")"));
-                insertXmlElement.addElement(onUpdateElement);
+                generateParametersSeparateByCommaWithParenthesis("", notAutoIncrementColumnList, insertXmlElement);
+                XmlElement mysqlIfElement = new XmlElement("if");
+                mysqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'mysql'"));
 
-                insertXmlElement.addElement(getUpdateClauseText(v.toString().trim(), introspectedTable.getAllColumns()));
+                mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+
+                mysqlIfElement.addElement(mysqlOnUpdateElement);
+
+                mysqlIfElement.addElement(getMysqlUpdateClauseText(v.toString().trim(), introspectedTable));
+                insertXmlElement.addElement(mysqlIfElement);
+
+                XmlElement postgresqlIfElement = new XmlElement("if");
+                postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql'"));
+                postgresqlIfElement.addElement(postgresqlOnConflictElement);
+                postgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
+
+                postgresqlIfElement.addElement(getPostgresqlUpdateClauseText(v.toString().trim(), introspectedTable));
+                insertXmlElement.addElement(postgresqlIfElement);
 
                 document.getRootElement().addElement(insertXmlElement);
 
 
                 XmlElement batchInsertXmlElement = new XmlElement("insert");
-
                 batchInsertXmlElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_BATCH));
                 FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType("java.util.List");
                 batchInsertXmlElement.addAttribute(new Attribute("parameterType", parameterType.getFullyQualifiedName()));
+
+
                 XmlElement ifListElement = new XmlElement("if");
                 ifListElement.addAttribute(new Attribute("test", "list != null and list.size() > 0"));
                 generateTextBlockAppendTableName("insert into ", introspectedTable, ifListElement);
 
-                generateActualColumnNamesWithParenthesis(introspectedTable.getAllColumns(), ifListElement);
+                generateActualColumnNamesWithParenthesis(notAutoIncrementColumnList, ifListElement);
 
                 ifListElement.addElement(new TextElement("values "));
 
@@ -117,18 +189,30 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 foreach.addAttribute(new Attribute("index", "index"));
                 foreach.addAttribute(new Attribute("separator", ","));
 
-                generateParametersSeparateByCommaWithParenthesis(PROPERTY_PREFIX, introspectedTable.getAllColumns(), foreach);
+                generateParametersSeparateByCommaWithParenthesis(PROPERTY_PREFIX, notAutoIncrementColumnList, foreach);
 
                 ifListElement.addElement(foreach);
-                ifListElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(introspectedTable.getAllColumns(), "_new") + ")"));
-                ifListElement.addElement(onUpdateElement);
-                ifListElement.addElement(getUpdateClauseText(v.toString().trim(), introspectedTable.getAllColumns()));
-                batchInsertXmlElement.addElement(ifListElement);
+                XmlElement batchMysqlIfElement = new XmlElement("if");
+                batchMysqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'mysql'"));
+
+                batchMysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                batchMysqlIfElement.addElement(mysqlOnUpdateElement);
+                batchMysqlIfElement.addElement(getMysqlUpdateClauseText(v.toString().trim(), introspectedTable));
+                ifListElement.addElement(batchMysqlIfElement);
+
+                XmlElement batchPostgresqlIfElement = new XmlElement("if");
+                batchPostgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql'"));
+
+                batchPostgresqlIfElement.addElement(postgresqlOnConflictElement);
+                batchPostgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
+                batchPostgresqlIfElement.addElement(getPostgresqlUpdateClauseText(v.toString().trim(), introspectedTable));
+                ifListElement.addElement(batchPostgresqlIfElement);
+
                 XmlElement ifNullElement = new XmlElement("if");
                 ifNullElement.addAttribute(new Attribute("test", "list == null or list.size() == 0"));
                 ifNullElement.addElement(new TextElement("select 0"));
                 batchInsertXmlElement.addElement(ifNullElement);
-
+                batchInsertXmlElement.addElement(ifListElement);
                 document.getRootElement().addElement(batchInsertXmlElement);
             }
         });
@@ -136,13 +220,17 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         return true;
     }
 
-    private VisitableElement getUpdateClauseText(String v, List<IntrospectedColumn> columns) {
+    private VisitableElement getMysqlUpdateClauseText(String v, IntrospectedTable introspectedTable) {
+        Set<String> updateFields = getUpdateFields(v);
+        Set<String> igonreSet = getUpdateIgnoreFields(v);
         XmlElement trimElement = new XmlElement("trim");
         trimElement.addAttribute(new Attribute("suffixOverrides", ","));
 
-        if (v == null || "".equals(v.trim())) {
-            StringBuilder sb = new StringBuilder();
-            for (IntrospectedColumn introspectedColumn : columns) {
+        if (updateFields.isEmpty()) {
+            for (IntrospectedColumn introspectedColumn : introspectedTable.getAllColumns()) {
+                if (introspectedColumn.isAutoIncrement()) {
+                    continue;
+                }
                 String columnName = introspectedColumn.getActualColumnName();
                 if ("version".equals(columnName)) {
                     trimElement.addElement(new TextElement("version = version + 1,"));
@@ -153,7 +241,50 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 }
             }
         } else {
-            trimElement.addElement(new TextElement(v));
+            StringBuilder sb = new StringBuilder();
+            for (String updateField : updateFields) {
+                if ("version".equals(updateField)) {
+                    sb.append(", ").append("version = version + 1");
+                } else {
+                    sb.append(", ").append(updateField).append(" = ").append(updateField).append("_new");
+                }
+            }
+            trimElement.addElement(new TextElement(sb.toString().replaceFirst(", ", "")));
+        }
+
+        return trimElement;
+    }
+
+    private VisitableElement getPostgresqlUpdateClauseText(String v, IntrospectedTable introspectedTable) {
+        Set<String> updateFields = getUpdateFields(v);
+        Set<String> igonreSet = getUpdateIgnoreFields(v);
+        XmlElement trimElement = new XmlElement("trim");
+        trimElement.addAttribute(new Attribute("suffixOverrides", ","));
+
+        if (updateFields.isEmpty()) {
+            for (IntrospectedColumn introspectedColumn : introspectedTable.getAllColumns()) {
+                if (introspectedColumn.isAutoIncrement()) {
+                    continue;
+                }
+                String columnName = introspectedColumn.getActualColumnName();
+                if ("version".equals(columnName)) {
+                    trimElement.addElement(new TextElement("version = " + getTableName(introspectedTable) + ".version + 1,"));
+                } else if ("last_modified".equals(columnName)) {
+                    trimElement.addElement(new TextElement("last_modified = now(),"));
+                } else if (!igonreSet.contains(columnName)) {
+                    trimElement.addElement(new TextElement(columnName + " = EXCLUDED." + columnName));
+                }
+            }
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (String updateField : updateFields) {
+                if ("version".equals(updateField)) {
+                    sb.append(", ").append("version = ").append(getTableName(introspectedTable)).append(".version + 1");
+                } else {
+                    sb.append(", ").append(updateField).append(" = ").append("EXCLUDED.").append(updateField);
+                }
+            }
+            trimElement.addElement(new TextElement(sb.toString().replaceFirst(", ", "")));
         }
 
         return trimElement;
@@ -162,8 +293,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
     private String getFieldsString(List<IntrospectedColumn> columns, String fieldSuffix) {
         StringBuilder sb = new StringBuilder();
         for (IntrospectedColumn introspectedColumn : columns) {
-            sb.append(",");
-            sb.append(introspectedColumn.getActualColumnName() + fieldSuffix);
+            sb.append(",").append(introspectedColumn.getActualColumnName()).append(fieldSuffix);
         }
         return sb.toString().replaceFirst(",", "");
     }
