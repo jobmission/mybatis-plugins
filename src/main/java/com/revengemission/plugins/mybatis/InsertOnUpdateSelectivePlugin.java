@@ -170,7 +170,8 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                     /// mysql
                     XmlElement mysqlIfElement = new XmlElement("if");
                     mysqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'mysql'"));
-                    mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                    ///mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                    mysqlIfElement.addElement(new TextElement("AS newRowValue"));
                     mysqlIfElement.addElement(onMysqlUpdateElement);
                     mysqlIfElement.addElement(getMysqlUpdateSelectiveClauseText(introspectedTable));
                     insertXmlElement.addElement(mysqlIfElement);
@@ -199,7 +200,8 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                     /// mysql
                     XmlElement mysqlIfElement = new XmlElement("if");
                     mysqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'mysql'"));
-                    mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                    ///mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                    mysqlIfElement.addElement(new TextElement("AS newRowValue"));
                     mysqlIfElement.addElement(onMysqlUpdateElement);
                     mysqlIfElement.addElement(getMysqlUpdateIgnoreClauseText(v.toString(), notAutoIncrementColumnList));
                     insertXmlElement.addElement(mysqlIfElement);
@@ -230,7 +232,8 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                     /// mysql
                     XmlElement mysqlIfElement = new XmlElement("if");
                     mysqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'mysql'"));
-                    mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                    ///mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                    mysqlIfElement.addElement(new TextElement("AS newRowValue"));
                     mysqlIfElement.addElement(onMysqlUpdateElement);
                     VisitableElement elementList = getMysqlUpdateSelectiveAndIgnoreClauseText(v.toString(), introspectedTable);
                     mysqlIfElement.addElement(elementList);
@@ -271,7 +274,8 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                     /// mysql
                     XmlElement mysqlIfElement = new XmlElement("if");
                     mysqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'mysql'"));
-                    mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                    ///mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                    mysqlIfElement.addElement(new TextElement("AS newRowValue"));
                     mysqlIfElement.addElement(onMysqlUpdateElement);
                     VisitableElement elementList = getMysqlUpdateSelectiveClauseText(introspectedTable);
                     mysqlIfElement.addElement(elementList);
@@ -321,7 +325,8 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                     /// mysql
                     XmlElement mysqlIfElement = new XmlElement("if");
                     mysqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'mysql'"));
-                    mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                    ///mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                    mysqlIfElement.addElement(new TextElement("AS newRowValue"));
                     mysqlIfElement.addElement(onMysqlUpdateElement);
                     mysqlIfElement.addElement(getMysqlUpdateIgnoreClauseText(v.toString(), notAutoIncrementColumnList));
                     ifListElement.addElement(mysqlIfElement);
@@ -367,7 +372,8 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                     /// mysql
                     XmlElement mysqlIfElement = new XmlElement("if");
                     mysqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'mysql'"));
-                    mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                    ///mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                    mysqlIfElement.addElement(new TextElement("AS newRowValue"));
                     mysqlIfElement.addElement(onMysqlUpdateElement);
                     mysqlIfElement.addElement(getMysqlUpdateSelectiveAndIgnoreClauseText(v.toString(), introspectedTable));
                     ifListElement.addElement(mysqlIfElement);
@@ -405,7 +411,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
         introspectedTable.getAllColumns().forEach(introspectedColumn -> {
             if (!introspectedColumn.isAutoIncrement()) {
                 String columnName = introspectedColumn.getActualColumnName();
-                trimElement.addElement(new TextElement(columnName + " = IF(newRowValue." + columnName + "_new is null, " + columnName + ", newRowValue." + columnName + "_new),"));
+                trimElement.addElement(new TextElement(columnName + " = IF(newRowValue." + columnName + " is null, " + columnName + ", newRowValue." + columnName + "),"));
             }
         });
         return trimElement;
@@ -442,7 +448,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                 } else if ("last_modified".equals(columnName)) {
                     trimElement.addElement(new TextElement("last_modified = now(),"));
                 } else {
-                    trimElement.addElement(new TextElement(columnName + " = newRowValue." + columnName + "_new,"));
+                    trimElement.addElement(new TextElement(columnName + " = newRowValue." + columnName + ","));
                 }
             }
         }
@@ -466,7 +472,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                 } else if ("last_modified".equals(columnName)) {
                     trimElement.addElement(new TextElement("last_modified = now(),"));
                 } else {
-                    trimElement.addElement(new TextElement(columnName + " = EXCLUDED." + columnName));
+                    trimElement.addElement(new TextElement(columnName + " = EXCLUDED." + columnName + ","));
                 }
             }
         }
@@ -490,7 +496,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                 } else if ("last_modified".equals(columnName)) {
                     trimElement.addElement(new TextElement("last_modified = now(),"));
                 } else {
-                    trimElement.addElement(new TextElement(columnName + " = IF(newRowValue." + columnName + "_new is null, " + columnName + ", newRowValue." + columnName + "_new),"));
+                    trimElement.addElement(new TextElement(columnName + " = IF(newRowValue." + columnName + " is null, " + columnName + ", newRowValue." + columnName + "),"));
                 }
             }
         }
@@ -520,13 +526,4 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
         }
         return trimElement;
     }
-
-    private String getFieldsString(List<IntrospectedColumn> columns, String fieldSuffix) {
-        StringBuilder sb = new StringBuilder();
-        for (IntrospectedColumn introspectedColumn : columns) {
-            sb.append(",").append(introspectedColumn.getActualColumnName()).append(fieldSuffix);
-        }
-        return sb.toString().replaceFirst(",", "");
-    }
-
 }

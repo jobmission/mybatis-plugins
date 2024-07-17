@@ -25,9 +25,12 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
 
     private static final String PROPERTY_PREFIX = "item.";
 
+
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
-        log.info("enter initialized {}", getTableName(introspectedTable));
+        String tableName = getTableName(introspectedTable);
+        log.info("enter initialized {}", tableName);
+        log.info("uniqueConstraintKeys {}", getUniqueConstraintKeys(introspectedTable));
     }
 
     @Override
@@ -151,7 +154,8 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 XmlElement mysqlIfElement = new XmlElement("if");
                 mysqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'mysql'"));
 
-                mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                ///mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                mysqlIfElement.addElement(new TextElement("AS newRowValue"));
 
                 mysqlIfElement.addElement(mysqlOnUpdateElement);
 
@@ -195,7 +199,8 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 XmlElement batchMysqlIfElement = new XmlElement("if");
                 batchMysqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'mysql'"));
 
-                batchMysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                ////batchMysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                batchMysqlIfElement.addElement(new TextElement("AS newRowValue"));
                 batchMysqlIfElement.addElement(mysqlOnUpdateElement);
                 batchMysqlIfElement.addElement(getMysqlUpdateClauseText(v.toString().trim(), introspectedTable));
                 ifListElement.addElement(batchMysqlIfElement);
@@ -237,7 +242,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 } else if ("last_modified".equals(columnName)) {
                     trimElement.addElement(new TextElement("last_modified = now(),"));
                 } else if (!igonreSet.contains(columnName)) {
-                    trimElement.addElement(new TextElement(columnName + " = newRowValue." + columnName + "_new,"));
+                    trimElement.addElement(new TextElement(columnName + " = newRowValue." + columnName));
                 }
             }
         } else {
@@ -245,8 +250,10 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
             for (String updateField : updateFields) {
                 if ("version".equals(updateField)) {
                     sb.append(", ").append("version = version + 1");
+                } else if ("last_modified".equals(updateField)) {
+                    sb.append(", ").append("last_modified = now()");
                 } else {
-                    sb.append(", ").append(updateField).append(" = ").append(updateField).append("_new");
+                    sb.append(", ").append(updateField).append(" = newRowValue.").append(updateField);
                 }
             }
             trimElement.addElement(new TextElement(sb.toString().replaceFirst(", ", "")));
@@ -272,7 +279,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 } else if ("last_modified".equals(columnName)) {
                     trimElement.addElement(new TextElement("last_modified = now(),"));
                 } else if (!igonreSet.contains(columnName)) {
-                    trimElement.addElement(new TextElement(columnName + " = EXCLUDED." + columnName));
+                    trimElement.addElement(new TextElement(columnName + " = EXCLUDED." + columnName + ","));
                 }
             }
         } else {
@@ -280,6 +287,8 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
             for (String updateField : updateFields) {
                 if ("version".equals(updateField)) {
                     sb.append(", ").append("version = ").append(getTableName(introspectedTable)).append(".version + 1");
+                } else if ("last_modified".equals(updateField)) {
+                    sb.append(", ").append("last_modified =  now()");
                 } else {
                     sb.append(", ").append(updateField).append(" = ").append("EXCLUDED.").append(updateField);
                 }

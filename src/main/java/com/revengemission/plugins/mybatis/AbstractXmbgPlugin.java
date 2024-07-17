@@ -9,13 +9,17 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.VisitableElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
+import org.slf4j.LoggerFactory;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 public abstract class AbstractXmbgPlugin extends PluginAdapter {
 
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(AbstractXmbgPlugin.class);
 
     protected void generateTextBlockAppendTableName(String text, IntrospectedTable introspectedTable, XmlElement parent) {
         StringBuilder sb = new StringBuilder();
@@ -248,5 +252,44 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
             }
         }
         return null;
+    }
+
+    /**
+     * get UniqueConstraintKeys
+     *
+     * @param introspectedTable
+     * @return
+     */
+    Map<String, List<String>> getUniqueConstraintKeys(IntrospectedTable introspectedTable) {
+
+        Map<String, List<String>> uniqueConstraintMap = new HashMap<>();
+        try (Connection connection = context.getConnection()) {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            ResultSet rs = databaseMetaData.getIndexInfo(null, null, getTableName(introspectedTable), true, true);
+            while (rs.next()) {
+                String ascOrDesc = rs.getString("ASC_OR_DESC");
+                int cardinality = rs.getInt("CARDINALITY");
+                short ordinalPosition = rs.getShort("ORDINAL_POSITION");
+                boolean nonUnique = rs.getBoolean("NON_UNIQUE");
+                String indexQualifier = rs.getString("INDEX_QUALIFIER");
+                String indexName = rs.getString("INDEX_NAME");
+                short indexType = rs.getShort("TYPE");
+                String columnName = rs.getString("COLUMN_NAME");
+                log.info(" {} {}", indexName, columnName);
+                if (!"PRIMARY".equalsIgnoreCase(indexName) && !indexName.contains("pk_")) {
+                    List<String> list;
+                    if (uniqueConstraintMap.containsKey(indexName)) {
+                        list = new ArrayList<>(uniqueConstraintMap.get(indexName));
+                    } else {
+                        list = new ArrayList<>();
+                    }
+                    list.add(columnName);
+                    uniqueConstraintMap.put(indexName, list);
+                }
+            }
+        } catch (SQLException e) {
+            log.error("SqlException in my plugin", e);
+        }
+        return uniqueConstraintMap;
     }
 }
