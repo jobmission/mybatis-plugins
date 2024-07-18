@@ -226,6 +226,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
     }
 
     private VisitableElement getMysqlUpdateClauseText(String v, IntrospectedTable introspectedTable) {
+        String tableName = getTableName(introspectedTable);
         Set<String> updateFields = getUpdateFields(v);
         Set<String> igonreSet = getUpdateIgnoreFields(v);
         XmlElement trimElement = new XmlElement("trim");
@@ -238,18 +239,18 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 }
                 String columnName = introspectedColumn.getActualColumnName();
                 if ("version".equals(columnName)) {
-                    trimElement.addElement(new TextElement("version = version + 1,"));
+                    trimElement.addElement(new TextElement("version = " + tableName + ".version + 1,"));
                 } else if ("last_modified".equals(columnName)) {
                     trimElement.addElement(new TextElement("last_modified = now(),"));
                 } else if (!igonreSet.contains(columnName)) {
-                    trimElement.addElement(new TextElement(columnName + " = newRowValue." + columnName));
+                    trimElement.addElement(new TextElement(columnName + " = newRowValue." + columnName + ","));
                 }
             }
         } else {
             StringBuilder sb = new StringBuilder();
             for (String updateField : updateFields) {
                 if ("version".equals(updateField)) {
-                    sb.append(", ").append("version = version + 1");
+                    sb.append(", ").append("version = ").append(tableName).append(".version + 1");
                 } else if ("last_modified".equals(updateField)) {
                     sb.append(", ").append("last_modified = now()");
                 } else {
@@ -263,6 +264,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
     }
 
     private VisitableElement getPostgresqlUpdateClauseText(String v, IntrospectedTable introspectedTable) {
+        String tableName = getTableName(introspectedTable);
         Set<String> updateFields = getUpdateFields(v);
         Set<String> igonreSet = getUpdateIgnoreFields(v);
         XmlElement trimElement = new XmlElement("trim");
@@ -275,7 +277,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 }
                 String columnName = introspectedColumn.getActualColumnName();
                 if ("version".equals(columnName)) {
-                    trimElement.addElement(new TextElement("version = " + getTableName(introspectedTable) + ".version + 1,"));
+                    trimElement.addElement(new TextElement("version = " + tableName + ".version + 1,"));
                 } else if ("last_modified".equals(columnName)) {
                     trimElement.addElement(new TextElement("last_modified = now(),"));
                 } else if (!igonreSet.contains(columnName)) {
@@ -286,7 +288,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
             StringBuilder sb = new StringBuilder();
             for (String updateField : updateFields) {
                 if ("version".equals(updateField)) {
-                    sb.append(", ").append("version = ").append(getTableName(introspectedTable)).append(".version + 1");
+                    sb.append(", ").append("version = ").append(tableName).append(".version + 1");
                 } else if ("last_modified".equals(updateField)) {
                     sb.append(", ").append("last_modified =  now()");
                 } else {

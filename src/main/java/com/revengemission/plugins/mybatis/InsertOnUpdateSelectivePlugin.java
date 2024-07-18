@@ -203,14 +203,14 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                     ///mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
                     mysqlIfElement.addElement(new TextElement("AS newRowValue"));
                     mysqlIfElement.addElement(onMysqlUpdateElement);
-                    mysqlIfElement.addElement(getMysqlUpdateIgnoreClauseText(v.toString(), notAutoIncrementColumnList));
+                    mysqlIfElement.addElement(getMysqlUpdateIgnoreClauseText(v.toString(), introspectedTable));
                     insertXmlElement.addElement(mysqlIfElement);
                     /// posrgresql
                     XmlElement postgresqlIfElement = new XmlElement("if");
                     postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql'"));
                     postgresqlIfElement.addElement(postgresqlOnConflictElement);
                     postgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
-                    postgresqlIfElement.addElement(getPostgresqlUpdateIgnoreClauseText(v.toString(), notAutoIncrementColumnList));
+                    postgresqlIfElement.addElement(getPostgresqlUpdateIgnoreClauseText(v.toString(), introspectedTable));
                     insertXmlElement.addElement(postgresqlIfElement);
 
                     document.getRootElement().addElement(insertXmlElement);
@@ -328,7 +328,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                     ///mysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
                     mysqlIfElement.addElement(new TextElement("AS newRowValue"));
                     mysqlIfElement.addElement(onMysqlUpdateElement);
-                    mysqlIfElement.addElement(getMysqlUpdateIgnoreClauseText(v.toString(), notAutoIncrementColumnList));
+                    mysqlIfElement.addElement(getMysqlUpdateIgnoreClauseText(v.toString(), introspectedTable));
                     ifListElement.addElement(mysqlIfElement);
 
                     /// postgresql
@@ -336,7 +336,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                     postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql'"));
                     postgresqlIfElement.addElement(postgresqlOnConflictElement);
                     postgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
-                    VisitableElement postgresqlElementList = getPostgresqlUpdateIgnoreClauseText(v.toString(), notAutoIncrementColumnList);
+                    VisitableElement postgresqlElementList = getPostgresqlUpdateIgnoreClauseText(v.toString(), introspectedTable);
                     postgresqlIfElement.addElement(postgresqlElementList);
 
                     ifListElement.addElement(postgresqlIfElement);
@@ -430,21 +430,21 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
         return trimElement;
     }
 
-    private VisitableElement getMysqlUpdateIgnoreClauseText(String value, List<IntrospectedColumn> columns) {
-
+    private VisitableElement getMysqlUpdateIgnoreClauseText(String value, IntrospectedTable introspectedTable) {
+        String tableName = getTableName(introspectedTable);
         Set<String> igonreSet = getUpdateIgnoreFields(value);
 
         XmlElement trimElement = new XmlElement("trim");
         trimElement.addAttribute(new Attribute("suffixOverrides", ","));
 
-        for (IntrospectedColumn introspectedColumn : columns) {
+        for (IntrospectedColumn introspectedColumn : introspectedTable.getAllColumns()) {
             if (introspectedColumn.isAutoIncrement()) {
                 continue;
             }
             String columnName = introspectedColumn.getActualColumnName();
             if (!igonreSet.contains(columnName)) {
                 if ("version".equals(columnName)) {
-                    trimElement.addElement(new TextElement("version = version + 1,"));
+                    trimElement.addElement(new TextElement("version = " + tableName + ".version + 1,"));
                 } else if ("last_modified".equals(columnName)) {
                     trimElement.addElement(new TextElement("last_modified = now(),"));
                 } else {
@@ -455,20 +455,21 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
         return trimElement;
     }
 
-    private VisitableElement getPostgresqlUpdateIgnoreClauseText(String value, List<IntrospectedColumn> columns) {
+    private VisitableElement getPostgresqlUpdateIgnoreClauseText(String value, IntrospectedTable introspectedTable) {
+        String tableName = getTableName(introspectedTable);
         Set<String> igonreSet = getUpdateIgnoreFields(value);
 
         XmlElement trimElement = new XmlElement("trim");
         trimElement.addAttribute(new Attribute("suffixOverrides", ","));
 
-        for (IntrospectedColumn introspectedColumn : columns) {
+        for (IntrospectedColumn introspectedColumn : introspectedTable.getAllColumns()) {
             if (introspectedColumn.isAutoIncrement()) {
                 continue;
             }
             String columnName = introspectedColumn.getActualColumnName();
             if (!igonreSet.contains(columnName)) {
                 if ("version".equals(columnName)) {
-                    trimElement.addElement(new TextElement("version = version + 1,"));
+                    trimElement.addElement(new TextElement("version = " + tableName + ".version + 1,"));
                 } else if ("last_modified".equals(columnName)) {
                     trimElement.addElement(new TextElement("last_modified = now(),"));
                 } else {
@@ -480,6 +481,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
     }
 
     private VisitableElement getMysqlUpdateSelectiveAndIgnoreClauseText(String value, IntrospectedTable introspectedTable) {
+        String tableName = getTableName(introspectedTable);
         Set<String> igonreSet = getUpdateIgnoreFields(value);
 
         XmlElement trimElement = new XmlElement("trim");
@@ -492,7 +494,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
             String columnName = introspectedColumn.getActualColumnName();
             if (!igonreSet.contains(columnName)) {
                 if ("version".equals(columnName)) {
-                    trimElement.addElement(new TextElement("version = version + 1,"));
+                    trimElement.addElement(new TextElement("version = " + tableName + ".version + 1,"));
                 } else if ("last_modified".equals(columnName)) {
                     trimElement.addElement(new TextElement("last_modified = now(),"));
                 } else {
@@ -504,6 +506,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
     }
 
     private VisitableElement getPostgresqlUpdateSelectiveAndIgnoreClauseText(String value, IntrospectedTable introspectedTable) {
+        String tableName = getTableName(introspectedTable);
         Set<String> igonreSet = getUpdateIgnoreFields(value);
 
         XmlElement trimElement = new XmlElement("trim");
@@ -516,7 +519,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
             String columnName = introspectedColumn.getActualColumnName();
             if (!igonreSet.contains(columnName)) {
                 if ("version".equals(columnName)) {
-                    trimElement.addElement(new TextElement("version = " + getTableName(introspectedTable) + ".version + 1,"));
+                    trimElement.addElement(new TextElement("version = " + tableName + ".version + 1,"));
                 } else if ("last_modified".equals(columnName)) {
                     trimElement.addElement(new TextElement("last_modified = now(),"));
                 } else {
