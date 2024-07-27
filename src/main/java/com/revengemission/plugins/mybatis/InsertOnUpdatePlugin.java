@@ -163,7 +163,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 insertXmlElement.addElement(mysqlIfElement);
 
                 XmlElement postgresqlIfElement = new XmlElement("if");
-                postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql'"));
+                postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql' or _databaseId == 'sqlite'"));
                 postgresqlIfElement.addElement(postgresqlOnConflictElement);
                 postgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
 
@@ -206,7 +206,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 ifListElement.addElement(batchMysqlIfElement);
 
                 XmlElement batchPostgresqlIfElement = new XmlElement("if");
-                batchPostgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql'"));
+                batchPostgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql' or _databaseId == 'sqlite'"));
 
                 batchPostgresqlIfElement.addElement(postgresqlOnConflictElement);
                 batchPostgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));

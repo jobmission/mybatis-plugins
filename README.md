@@ -145,7 +145,7 @@
     //mysql, filed_a="a,b,c,d,e": FIND_IN_SET('b', field_a); LOCATE('b,c',field_a)
     userEntityExample.createCriteria().andFunctionRightKey("find_in_set", "field_a", "searchValue"); 
     ````
-13. [topN](src/main/java/com/revengemission/plugins/mybatis/TopNByExamplePlugin.java), 针对所有表, Mysql、Oracle、SqlServer、PostgreSQL
+13. [topN](src/main/java/com/revengemission/plugins/mybatis/TopNByExamplePlugin.java), 针对所有表, Mysql、PostgreSQL
     ````
     <plugin type="com.revengemission.plugins.mybatis.TopNByExamplePlugin"/>
     
@@ -163,6 +163,9 @@
    
     userEntityMapper.batchInsertOnUpdateSelective(items);
     ````
+### Others
+````
 
+````
 
 

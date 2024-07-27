@@ -177,7 +177,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                     insertXmlElement.addElement(mysqlIfElement);
                     /// postgresql
                     XmlElement postgresqlIfElement = new XmlElement("if");
-                    postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql'"));
+                    postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql' or _databaseId == 'sqlite'"));
                     postgresqlIfElement.addElement(postgresqlOnConflictElement);
                     postgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
                     postgresqlIfElement.addElement(getPostgresqlUpdateSelectiveClauseText(introspectedTable));
@@ -207,7 +207,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                     insertXmlElement.addElement(mysqlIfElement);
                     /// posrgresql
                     XmlElement postgresqlIfElement = new XmlElement("if");
-                    postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql'"));
+                    postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql' or _databaseId == 'sqlite'"));
                     postgresqlIfElement.addElement(postgresqlOnConflictElement);
                     postgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
                     postgresqlIfElement.addElement(getPostgresqlUpdateIgnoreClauseText(v.toString(), introspectedTable));
@@ -240,7 +240,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
                     insertXmlElement.addElement(mysqlIfElement);
                     /// posrgresql
                     XmlElement postgresqlIfElement = new XmlElement("if");
-                    postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql'"));
+                    postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql' or _databaseId == 'sqlite'"));
                     postgresqlIfElement.addElement(postgresqlOnConflictElement);
                     postgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
                     postgresqlIfElement.addElement(getPostgresqlUpdateSelectiveAndIgnoreClauseText(v.toString(), introspectedTable));
@@ -284,7 +284,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
 
                     /// postgresql
                     XmlElement postgresqlIfElement = new XmlElement("if");
-                    postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql'"));
+                    postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql' or _databaseId == 'sqlite'"));
                     postgresqlIfElement.addElement(postgresqlOnConflictElement);
                     postgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
                     VisitableElement postgresqlElementList = getPostgresqlUpdateSelectiveClauseText(introspectedTable);
@@ -333,7 +333,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
 
                     /// postgresql
                     XmlElement postgresqlIfElement = new XmlElement("if");
-                    postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql'"));
+                    postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql' or _databaseId == 'sqlite'"));
                     postgresqlIfElement.addElement(postgresqlOnConflictElement);
                     postgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
                     VisitableElement postgresqlElementList = getPostgresqlUpdateIgnoreClauseText(v.toString(), introspectedTable);
@@ -381,7 +381,7 @@ public class InsertOnUpdateSelectivePlugin extends AbstractXmbgPlugin {
 
                     /// postgresql
                     XmlElement postgresqlIfElement = new XmlElement("if");
-                    postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql'"));
+                    postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql' or _databaseId == 'sqlite'"));
                     postgresqlIfElement.addElement(postgresqlOnConflictElement);
                     postgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
                     VisitableElement postgresqlElementList = getPostgresqlUpdateSelectiveAndIgnoreClauseText(v.toString(), introspectedTable);

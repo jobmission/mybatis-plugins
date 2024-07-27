@@ -103,7 +103,7 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
 
         String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
         XmlElement topOneElement = new XmlElement("if");
-        topOneElement.addAttribute(new Attribute("test", "_databaseId == 'mysql' || _databaseId == 'postgresql'"));
+        topOneElement.addAttribute(new Attribute("test", "_databaseId == 'mysql' or _databaseId == 'postgresql' or _databaseId == 'sqlite'"));
 
         if (!introspectedTable.getBLOBColumns().isEmpty()) {
             topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
@@ -127,7 +127,7 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
 
         String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
         XmlElement topOneElement = new XmlElement("if");
-        topOneElement.addAttribute(new Attribute("test", "_databaseId == 'mysql' or _databaseId == 'postgresql'"));
+        topOneElement.addAttribute(new Attribute("test", "_databaseId == 'mysql' or _databaseId == 'postgresql' or _databaseId == 'sqlite'"));
 
         if (!introspectedTable.getBLOBColumns().isEmpty()) {
             topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
