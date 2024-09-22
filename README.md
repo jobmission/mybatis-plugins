@@ -168,7 +168,7 @@
 
 ````
 
-### TypeResolver，mybatis/mybatis-config.xml
+### [TypeResolver](src/main/java/com/revengemission/plugins/mybatis/CustomTypeResolver.java)，mybatis/mybatis-config.xml
 ````xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE configuration
@@ -179,7 +179,7 @@
         <setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
     <typeHandlers>
-        <typeHandler handler="com.revengemission.plugins.mybatis.JsonTypeHandler"
+        <typeHandler handler="com.revengemission.plugins.mybatis.CustomTypeResolver"
                      javaType="com.fasterxml.jackson.databind.JsonNode" jdbcType="JAVA_OBJECT"/>
         <typeHandler handler="com.revengemission.plugins.mybatis.TimestampWithZoneTypeHandler"
                      javaType="java.time.LocalDateTime" jdbcType="TIMESTAMP"/>
