@@ -170,21 +170,10 @@
 
 ### [TypeResolver](src/main/java/com/revengemission/plugins/mybatis/CustomTypeResolver.java)，mybatis/mybatis-config.xml
 ````xml
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE configuration
-        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-config.dtd">
-<configuration>
-    <settings>
-        <setting name="mapUnderscoreToCamelCase" value="true"/>
-    </settings>
-    <typeHandlers>
-        <typeHandler handler="com.revengemission.plugins.mybatis.CustomTypeResolver"
-                     javaType="com.fasterxml.jackson.databind.JsonNode" jdbcType="JAVA_OBJECT"/>
-        <typeHandler handler="com.revengemission.plugins.mybatis.TimestampWithZoneTypeHandler"
-                     javaType="java.time.LocalDateTime" jdbcType="TIMESTAMP"/>
-    </typeHandlers>
-</configuration>
+<javaTypeResolver type="com.revengemission.plugins.mybatis.CustomTypeResolver">
+    <property name="forceBigDecimals" value="false"/>
+    <property name="useJSR310Types" value="true"/>
+</javaTypeResolver>
 
 ````
 
