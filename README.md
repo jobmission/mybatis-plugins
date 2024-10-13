@@ -173,6 +173,9 @@
 <javaTypeResolver type="com.revengemission.plugins.mybatis.CustomTypeResolver">
     <property name="forceBigDecimals" value="false"/>
     <property name="useJSR310Types" value="true"/>
+    <property name="forceJavaObjectToMap" value="true"/>
+    <property name="forceOtherToJson" value="true"/>
+    <property name="forceLongVarcharToJson" value="true"/>
 </javaTypeResolver>
 
 ````
