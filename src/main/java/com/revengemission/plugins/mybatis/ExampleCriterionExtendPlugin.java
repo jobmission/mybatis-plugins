@@ -207,7 +207,7 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
                 andFunctionLeftKeyMethod.setReturnType(new FullyQualifiedJavaType("Criteria"));
                 innerClass.addMethod(andFunctionLeftKeyMethod);
 
-                Method andFunctionRightKeyMethod = new Method("");
+                Method andFunctionRightKeyMethod = new Method("andFunctionRightKey");
                 andFunctionRightKeyMethod.setVisibility(JavaVisibility.PUBLIC);
                 andFunctionRightKeyMethod.addParameter(functionParameter);
                 andFunctionRightKeyMethod.addParameter(searchKeyParameter);
