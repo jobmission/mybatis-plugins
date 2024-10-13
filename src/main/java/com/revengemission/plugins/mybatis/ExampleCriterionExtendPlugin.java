@@ -1,7 +1,13 @@
 package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.InnerClass;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.Parameter;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
@@ -71,7 +77,7 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
                 criterionConstruct.addBodyLine("this.secondValue = secondValue;");
                 innerClass.addMethod(criterionConstruct);
 
-                if (containsBLOBColumn(introspectedTable)) {
+                {
                     Method criterionThirdConstruct = new Method("Criterion");
                     criterionThirdConstruct.setConstructor(true);
                     criterionThirdConstruct.setVisibility(JavaVisibility.PROTECTED);
@@ -137,7 +143,7 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
                 addCriterion.addBodyLine("criteria.add(new Criterion(additionalCondition, functionName, value, secondValue));");
                 innerClass.addMethod(addCriterion);
 
-                if (containsBLOBColumn(introspectedTable)) {
+                {
                     Method thirdAddCriterion = new Method("addCriterion");
                     thirdAddCriterion.setVisibility(JavaVisibility.PROTECTED);
                     Parameter thirdValueParameter = new Parameter(FullyQualifiedJavaType.getObjectInstance(), "thirdValue", false);
@@ -161,7 +167,7 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
                 andConditionValueMethod.setReturnType(new FullyQualifiedJavaType("Criteria"));
                 innerClass.addMethod(andConditionValueMethod);
 
-                if (containsBLOBColumn(introspectedTable)) {
+                {
                     Method andConditionJsonFieldValueMethod = new Method("andConditionJsonFieldValue");
                     andConditionJsonFieldValueMethod.setVisibility(JavaVisibility.PUBLIC);
                     Parameter jsonColumnConditionParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "jsonColumn", false);
@@ -201,7 +207,7 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
                 andFunctionLeftKeyMethod.setReturnType(new FullyQualifiedJavaType("Criteria"));
                 innerClass.addMethod(andFunctionLeftKeyMethod);
 
-                Method andFunctionRightKeyMethod = new Method("andFunctionRightKey");
+                Method andFunctionRightKeyMethod = new Method("");
                 andFunctionRightKeyMethod.setVisibility(JavaVisibility.PUBLIC);
                 andFunctionRightKeyMethod.addParameter(functionParameter);
                 andFunctionRightKeyMethod.addParameter(searchKeyParameter);
@@ -241,7 +247,7 @@ public class ExampleCriterionExtendPlugin extends AbstractXmbgPlugin {
             keyValueElement.addElement(new TextElement("and ${criterion.condition} #{criterion.value}"));
             chooseChild.addElement(keyValueElement);*/
 
-            if (containsBLOBColumn(introspectedTable)) {
+            {
                 {
                     XmlElement jsonKeyValueElement = new XmlElement("when");
                     jsonKeyValueElement.addAttribute(new Attribute("test", "criterion.additionalCondition == 4"));
