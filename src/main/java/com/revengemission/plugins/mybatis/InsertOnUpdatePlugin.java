@@ -6,31 +6,40 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
-import org.mybatis.generator.api.dom.xml.*;
+import org.mybatis.generator.api.dom.xml.Attribute;
+import org.mybatis.generator.api.dom.xml.Document;
+import org.mybatis.generator.api.dom.xml.TextElement;
+import org.mybatis.generator.api.dom.xml.VisitableElement;
+import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 插入数据时，重复键更新
  */
 public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
 
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(InsertOnUpdatePlugin.class);
+    private static final Logger log = LoggerFactory.getLogger(InsertOnUpdatePlugin.class);
 
     private static final String CLIENT_METHOD_NAME_SINGLE = "insertOnUpdate";
     private static final String CLIENT_METHOD_NAME_BATCH = "batchInsertOnUpdate";
 
     private static final String PROPERTY_PREFIX = "item.";
+    private Map<String, List<String>> uniqueConstraintKeysMap;
 
 
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
         String tableName = getTableName(introspectedTable);
         log.info("enter initialized {}", tableName);
-        log.info("uniqueConstraintKeys {}", getUniqueConstraintKeys(introspectedTable));
     }
 
     @Override
@@ -105,25 +114,20 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
     public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
         String currentTableName = getTableName(introspectedTable);
         log.info("enter clientGenerated table {}", currentTableName);
-        properties.forEach((k, v) -> {
-            if (currentTableName.equalsIgnoreCase(k.toString().trim())) {
+        String objectName = getEntityName(introspectedTable);
 
-                String objectName = getEntityName(introspectedTable);
+        Method methodSingle = new Method(CLIENT_METHOD_NAME_SINGLE);
+        methodSingle.setAbstract(true);
+        methodSingle.addParameter(new Parameter(new FullyQualifiedJavaType(objectName), "row"));
+        methodSingle.setReturnType(FullyQualifiedJavaType.getIntInstance());
+        interfaze.addMethod(methodSingle);
 
-                Method methodSingle = new Method(CLIENT_METHOD_NAME_SINGLE);
-                methodSingle.setAbstract(true);
-                methodSingle.addParameter(new Parameter(new FullyQualifiedJavaType(objectName), "row"));
-                methodSingle.setReturnType(FullyQualifiedJavaType.getIntInstance());
-                interfaze.addMethod(methodSingle);
-
-                Method methodBatch = new Method(CLIENT_METHOD_NAME_BATCH);
-                methodBatch.setAbstract(true);
-                FullyQualifiedJavaType type = new FullyQualifiedJavaType("java.util.List<" + objectName + ">");
-                methodBatch.addParameter(new Parameter(type, "list"));
-                methodBatch.setReturnType(FullyQualifiedJavaType.getIntInstance());
-                interfaze.addMethod(methodBatch);
-            }
-        });
+        Method methodBatch = new Method(CLIENT_METHOD_NAME_BATCH);
+        methodBatch.setAbstract(true);
+        FullyQualifiedJavaType type = new FullyQualifiedJavaType("java.util.List<" + objectName + ">");
+        methodBatch.addParameter(new Parameter(type, "list"));
+        methodBatch.setReturnType(FullyQualifiedJavaType.getIntInstance());
+        interfaze.addMethod(methodBatch);
         return true;
     }
 
@@ -131,8 +135,10 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
         String currentTableName = getTableName(introspectedTable);
         log.info("enter sqlMapDocumentGenerated table {}", currentTableName);
+        AtomicReference<Boolean> findFlag = new AtomicReference<>(false);
         properties.forEach((k, v) -> {
             if (currentTableName.equalsIgnoreCase(k.toString().trim())) {
+                findFlag.set(true);
                 Set<String> uniqueFields = getUniqueFields((String) v);
 
                 List<IntrospectedColumn> notAutoIncrementColumnList = introspectedTable.getAllColumns().stream().filter(introspectedColumn -> !introspectedColumn.isAutoIncrement()).toList();
@@ -159,7 +165,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
 
                 mysqlIfElement.addElement(mysqlOnUpdateElement);
 
-                mysqlIfElement.addElement(getMysqlUpdateClauseText(v.toString().trim(), introspectedTable));
+                mysqlIfElement.addElement(getMysqlUpdateClauseText(v.toString().trim(), uniqueFields, introspectedTable));
                 insertXmlElement.addElement(mysqlIfElement);
 
                 XmlElement postgresqlIfElement = new XmlElement("if");
@@ -167,7 +173,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 postgresqlIfElement.addElement(postgresqlOnConflictElement);
                 postgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
 
-                postgresqlIfElement.addElement(getPostgresqlUpdateClauseText(v.toString().trim(), introspectedTable));
+                postgresqlIfElement.addElement(getPostgresqlUpdateClauseText(v.toString().trim(), uniqueFields, introspectedTable));
                 insertXmlElement.addElement(postgresqlIfElement);
 
                 document.getRootElement().addElement(insertXmlElement);
@@ -202,7 +208,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 ////batchMysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
                 batchMysqlIfElement.addElement(new TextElement("AS newRowValue"));
                 batchMysqlIfElement.addElement(mysqlOnUpdateElement);
-                batchMysqlIfElement.addElement(getMysqlUpdateClauseText(v.toString().trim(), introspectedTable));
+                batchMysqlIfElement.addElement(getMysqlUpdateClauseText(v.toString().trim(), uniqueFields, introspectedTable));
                 ifListElement.addElement(batchMysqlIfElement);
 
                 XmlElement batchPostgresqlIfElement = new XmlElement("if");
@@ -210,7 +216,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
 
                 batchPostgresqlIfElement.addElement(postgresqlOnConflictElement);
                 batchPostgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
-                batchPostgresqlIfElement.addElement(getPostgresqlUpdateClauseText(v.toString().trim(), introspectedTable));
+                batchPostgresqlIfElement.addElement(getPostgresqlUpdateClauseText(v.toString().trim(), uniqueFields, introspectedTable));
                 ifListElement.addElement(batchPostgresqlIfElement);
 
                 XmlElement ifNullElement = new XmlElement("if");
@@ -222,10 +228,119 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
             }
         });
 
+        if (!findFlag.get()) {
+            uniqueConstraintKeysMap = getUniqueConstraintKeys(introspectedTable);
+            List<String> uniqueColumns = new ArrayList<>();
+            List<String> pkColumns = new ArrayList<>();
+            if (uniqueConstraintKeysMap != null && !uniqueConstraintKeysMap.isEmpty()) {
+                uniqueConstraintKeysMap.forEach((k, v) -> {
+                    if (k.startsWith("pk_")) {
+                        pkColumns.addAll(v);
+                    } else {
+                        uniqueColumns.clear();
+                        uniqueColumns.addAll(v);
+                    }
+                });
+            }
+            Set<String> uniqueFields = null;
+            if (!uniqueColumns.isEmpty()) {
+                uniqueFields = new HashSet<>(uniqueColumns);
+            } else if (!pkColumns.isEmpty()) {
+                uniqueFields = new HashSet<>(pkColumns);
+            }
+            if (uniqueFields != null && !uniqueFields.isEmpty()) {
+
+                List<IntrospectedColumn> notAutoIncrementColumnList = introspectedTable.getAllColumns().stream().filter(introspectedColumn -> !introspectedColumn.isAutoIncrement()).toList();
+
+                TextElement mysqlOnUpdateElement = new TextElement("ON DUPLICATE KEY UPDATE");
+                TextElement postgresqlOnConflictElement = new TextElement("ON CONFLICT (" + String.join(", ", uniqueFields) + ")");
+                XmlElement insertXmlElement = new XmlElement("insert");
+                insertXmlElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_SINGLE));
+                insertXmlElement.addAttribute(new Attribute("parameterType", context.getJavaModelGeneratorConfiguration().getTargetPackage() + "." + getEntityName(introspectedTable)));
+
+                generateTextBlockAppendTableName("insert into ", introspectedTable, insertXmlElement);
+
+                generateActualColumnNamesWithParenthesis(notAutoIncrementColumnList, insertXmlElement);
+
+                insertXmlElement.addElement(new TextElement("values "));
+
+
+                generateParametersSeparateByCommaWithParenthesis("", notAutoIncrementColumnList, insertXmlElement);
+                XmlElement mysqlIfElement = new XmlElement("if");
+                mysqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'mysql'"));
+                mysqlIfElement.addElement(new TextElement("AS newRowValue"));
+
+                mysqlIfElement.addElement(mysqlOnUpdateElement);
+
+                mysqlIfElement.addElement(getMysqlUpdateClauseText("", uniqueFields, introspectedTable));
+                insertXmlElement.addElement(mysqlIfElement);
+
+                XmlElement postgresqlIfElement = new XmlElement("if");
+                postgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql' or _databaseId == 'sqlite'"));
+                postgresqlIfElement.addElement(postgresqlOnConflictElement);
+                postgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
+
+                postgresqlIfElement.addElement(getPostgresqlUpdateClauseText("", uniqueFields, introspectedTable));
+                insertXmlElement.addElement(postgresqlIfElement);
+
+                document.getRootElement().addElement(insertXmlElement);
+
+
+                XmlElement batchInsertXmlElement = new XmlElement("insert");
+                batchInsertXmlElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_BATCH));
+                FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType("java.util.List");
+                batchInsertXmlElement.addAttribute(new Attribute("parameterType", parameterType.getFullyQualifiedName()));
+
+
+                XmlElement ifListElement = new XmlElement("if");
+                ifListElement.addAttribute(new Attribute("test", "list != null and list.size() > 0"));
+                generateTextBlockAppendTableName("insert into ", introspectedTable, ifListElement);
+
+                generateActualColumnNamesWithParenthesis(notAutoIncrementColumnList, ifListElement);
+
+                ifListElement.addElement(new TextElement("values "));
+
+                XmlElement foreach = new XmlElement("foreach");
+                foreach.addAttribute(new Attribute("collection", "list"));
+                foreach.addAttribute(new Attribute("item", "item"));
+                foreach.addAttribute(new Attribute("index", "index"));
+                foreach.addAttribute(new Attribute("separator", ","));
+
+                generateParametersSeparateByCommaWithParenthesis(PROPERTY_PREFIX, notAutoIncrementColumnList, foreach);
+
+                ifListElement.addElement(foreach);
+                XmlElement batchMysqlIfElement = new XmlElement("if");
+                batchMysqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'mysql'"));
+
+                ////batchMysqlIfElement.addElement(new TextElement("AS newRowValue (" + getFieldsString(notAutoIncrementColumnList, "_new") + ")"));
+                batchMysqlIfElement.addElement(new TextElement("AS newRowValue"));
+                batchMysqlIfElement.addElement(mysqlOnUpdateElement);
+                batchMysqlIfElement.addElement(getMysqlUpdateClauseText("", uniqueFields, introspectedTable));
+                ifListElement.addElement(batchMysqlIfElement);
+
+                XmlElement batchPostgresqlIfElement = new XmlElement("if");
+                batchPostgresqlIfElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql' or _databaseId == 'sqlite'"));
+
+                batchPostgresqlIfElement.addElement(postgresqlOnConflictElement);
+                batchPostgresqlIfElement.addElement(new TextElement("DO UPDATE SET"));
+                batchPostgresqlIfElement.addElement(getPostgresqlUpdateClauseText("", uniqueFields, introspectedTable));
+                ifListElement.addElement(batchPostgresqlIfElement);
+
+                XmlElement ifNullElement = new XmlElement("if");
+                ifNullElement.addAttribute(new Attribute("test", "list == null or list.size() == 0"));
+                ifNullElement.addElement(new TextElement("select 0"));
+                batchInsertXmlElement.addElement(ifNullElement);
+                batchInsertXmlElement.addElement(ifListElement);
+                document.getRootElement().addElement(batchInsertXmlElement);
+
+            }
+
+        }
+
         return true;
     }
 
-    private VisitableElement getMysqlUpdateClauseText(String v, IntrospectedTable introspectedTable) {
+    private VisitableElement getMysqlUpdateClauseText(String v, Set<String> uniqueFields, IntrospectedTable introspectedTable) {
         String tableName = getTableName(introspectedTable);
         Set<String> updateFields = getUpdateFields(v);
         Set<String> igonreSet = getUpdateIgnoreFields(v);
@@ -238,6 +353,9 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                     continue;
                 }
                 String columnName = introspectedColumn.getActualColumnName();
+                if (uniqueFields.contains(columnName)) {
+                    continue;
+                }
                 if ("version".equals(columnName)) {
                     trimElement.addElement(new TextElement("version = " + tableName + ".version + 1,"));
                 } else if ("last_modified".equals(columnName)) {
@@ -263,7 +381,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         return trimElement;
     }
 
-    private VisitableElement getPostgresqlUpdateClauseText(String v, IntrospectedTable introspectedTable) {
+    private VisitableElement getPostgresqlUpdateClauseText(String v, Set<String> uniqueFields, IntrospectedTable introspectedTable) {
         String tableName = getTableName(introspectedTable);
         Set<String> updateFields = getUpdateFields(v);
         Set<String> igonreSet = getUpdateIgnoreFields(v);
@@ -276,6 +394,9 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                     continue;
                 }
                 String columnName = introspectedColumn.getActualColumnName();
+                if (uniqueFields.contains(columnName)) {
+                    continue;
+                }
                 if ("version".equals(columnName)) {
                     trimElement.addElement(new TextElement("version = " + tableName + ".version + 1,"));
                 } else if ("last_modified".equals(columnName)) {

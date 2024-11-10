@@ -265,7 +265,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         Map<String, List<String>> uniqueConstraintMap = new HashMap<>();
         try (Connection connection = context.getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
-            ResultSet rs = databaseMetaData.getIndexInfo(null, null, getTableName(introspectedTable), true, true);
+            ResultSet rs = databaseMetaData.getIndexInfo(null, null, getTableName(introspectedTable), true, false);
             while (rs.next()) {
                 String ascOrDesc = rs.getString("ASC_OR_DESC");
                 int cardinality = rs.getInt("CARDINALITY");
@@ -276,16 +276,14 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                 short indexType = rs.getShort("TYPE");
                 String columnName = rs.getString("COLUMN_NAME");
                 log.info(" {} {}", indexName, columnName);
-                if (!"PRIMARY".equalsIgnoreCase(indexName) && !indexName.contains("pk_")) {
-                    List<String> list;
-                    if (uniqueConstraintMap.containsKey(indexName)) {
-                        list = new ArrayList<>(uniqueConstraintMap.get(indexName));
-                    } else {
-                        list = new ArrayList<>();
-                    }
-                    list.add(columnName);
-                    uniqueConstraintMap.put(indexName, list);
+                List<String> list;
+                if (uniqueConstraintMap.containsKey(indexName)) {
+                    list = new ArrayList<>(uniqueConstraintMap.get(indexName));
+                } else {
+                    list = new ArrayList<>();
                 }
+                list.add(columnName);
+                uniqueConstraintMap.put(indexName, list);
             }
         } catch (SQLException e) {
             log.error("SqlException in my plugin", e);
