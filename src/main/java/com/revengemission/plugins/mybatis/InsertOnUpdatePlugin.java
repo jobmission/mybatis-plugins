@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +32,6 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
     private static final String CLIENT_METHOD_NAME_BATCH = "batchInsertOnUpdate";
 
     private static final String PROPERTY_PREFIX = "item.";
-    private Map<String, List<String>> uniqueConstraintKeysMap;
-
 
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
@@ -49,8 +46,8 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
     }
 
     //uniqueFields=a,b;updateFields=c,d,e,f
-    protected Set<String> getUniqueFields(String value) {
-        Set<String> uniqueFields = new LinkedHashSet<>();
+    protected List<String> getUniqueFields(String value) {
+        List<String> uniqueFields = new ArrayList<>();
         String[] strings = value.trim().split(";");
         for (String s : strings) {
             if (s.startsWith("uniqueFields")) {
@@ -58,7 +55,9 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 if (fields.length == 2) {
                     String[] fieldsArray = fields[1].split(",");
                     for (String field : fieldsArray) {
-                        uniqueFields.add(field.trim());
+                        if (!uniqueFields.contains(field.trim())) {
+                            uniqueFields.add(field.trim());
+                        }
                     }
                 }
             }
@@ -139,7 +138,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         properties.forEach((k, v) -> {
             if (currentTableName.equalsIgnoreCase(k.toString().trim())) {
                 findFlag.set(true);
-                Set<String> uniqueFields = getUniqueFields((String) v);
+                List<String> uniqueFields = getUniqueFields((String) v);
 
                 List<IntrospectedColumn> notAutoIncrementColumnList = introspectedTable.getAllColumns().stream().filter(introspectedColumn -> !introspectedColumn.isAutoIncrement()).toList();
 
@@ -229,7 +228,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         });
 
         if (!findFlag.get()) {
-            uniqueConstraintKeysMap = getUniqueConstraintKeys(introspectedTable);
+            Map<String, List<String>> uniqueConstraintKeysMap = getUniqueConstraintKeys(introspectedTable);
             List<String> uniqueColumns = new ArrayList<>();
             List<String> pkColumns = new ArrayList<>();
             if (uniqueConstraintKeysMap != null && !uniqueConstraintKeysMap.isEmpty()) {
@@ -242,11 +241,11 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                     }
                 });
             }
-            Set<String> uniqueFields = null;
+            List<String> uniqueFields = null;
             if (!uniqueColumns.isEmpty()) {
-                uniqueFields = new HashSet<>(uniqueColumns);
+                uniqueFields = new ArrayList<>(uniqueColumns);
             } else if (!pkColumns.isEmpty()) {
-                uniqueFields = new HashSet<>(pkColumns);
+                uniqueFields = new ArrayList<>(pkColumns);
             }
             if (uniqueFields != null && !uniqueFields.isEmpty()) {
 
@@ -340,7 +339,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         return true;
     }
 
-    private VisitableElement getMysqlUpdateClauseText(String v, Set<String> uniqueFields, IntrospectedTable introspectedTable) {
+    private VisitableElement getMysqlUpdateClauseText(String v, List<String> uniqueFields, IntrospectedTable introspectedTable) {
         String tableName = getTableName(introspectedTable);
         Set<String> updateFields = getUpdateFields(v);
         Set<String> igonreSet = getUpdateIgnoreFields(v);
@@ -381,7 +380,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
         return trimElement;
     }
 
-    private VisitableElement getPostgresqlUpdateClauseText(String v, Set<String> uniqueFields, IntrospectedTable introspectedTable) {
+    private VisitableElement getPostgresqlUpdateClauseText(String v, List<String> uniqueFields, IntrospectedTable introspectedTable) {
         String tableName = getTableName(introspectedTable);
         Set<String> updateFields = getUpdateFields(v);
         Set<String> igonreSet = getUpdateIgnoreFields(v);

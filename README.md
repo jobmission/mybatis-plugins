@@ -180,4 +180,10 @@
 
 ````
 
+### 发布到中央仓库
+````
+1、mvn clean deployment
+2、https://central.sonatype.com/publishing
+3、
+````
 
