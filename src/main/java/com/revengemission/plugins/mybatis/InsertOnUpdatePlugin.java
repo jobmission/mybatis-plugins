@@ -233,7 +233,7 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
             List<String> pkColumns = new ArrayList<>();
             if (uniqueConstraintKeysMap != null && !uniqueConstraintKeysMap.isEmpty()) {
                 uniqueConstraintKeysMap.forEach((k, v) -> {
-                    if (k.startsWith("pk_")) {
+                    if (k.startsWith("pk_") || k.startsWith("PRIMARY")) {
                         pkColumns.addAll(v);
                     } else {
                         uniqueColumns.clear();

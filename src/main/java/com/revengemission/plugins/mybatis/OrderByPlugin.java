@@ -191,10 +191,10 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
         for (Method method : topLevelClass.getMethods()) {
             if ("getOrderByClause".equals(method.getName())) {
                 method.getBodyLines().clear();
-                method.addBodyLine("if (orderByClause != null && orderByClause.size() > 0) {");
+                method.addBodyLine("if (orderByClause != null && !orderByClause.isEmpty()) {");
                 method.addBodyLine("StringBuffer sb = new StringBuffer();");
                 method.addBodyLine("orderByClause.forEach((k, v) -> {");
-                method.addBodyLine("sb.append(',' + k + ' ' + v);");
+                method.addBodyLine("sb.append(',').append(k).append(' ').append(v);");
                 method.addBodyLine("});");
                 method.addBodyLine("return sb.toString().replaceFirst(\",\", \"\");");
                 method.addBodyLine("} else {");
