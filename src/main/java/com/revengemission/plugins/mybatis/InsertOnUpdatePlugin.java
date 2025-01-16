@@ -146,6 +146,12 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 TextElement postgresqlOnConflictElement = new TextElement("ON CONFLICT (" + String.join(", ", uniqueFields) + ")");
                 XmlElement insertXmlElement = new XmlElement("insert");
                 insertXmlElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_SINGLE));
+                List<String> primaryKeys = getPrimaryKeys(introspectedTable);
+                if (primaryKeys.size() == 1) {
+                    insertXmlElement.addAttribute(new Attribute("keyColumn", primaryKeys.get(0)));
+                    insertXmlElement.addAttribute(new Attribute("keyProperty", primaryKeys.get(0)));
+                    insertXmlElement.addAttribute(new Attribute("useGeneratedKeys", "true"));
+                }
                 insertXmlElement.addAttribute(new Attribute("parameterType", context.getJavaModelGeneratorConfiguration().getTargetPackage() + "." + getEntityName(introspectedTable)));
 
                 generateTextBlockAppendTableName("insert into ", introspectedTable, insertXmlElement);
@@ -255,6 +261,12 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 TextElement postgresqlOnConflictElement = new TextElement("ON CONFLICT (" + String.join(", ", uniqueFields) + ")");
                 XmlElement insertXmlElement = new XmlElement("insert");
                 insertXmlElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_SINGLE));
+                List<String> primaryKeys = getPrimaryKeys(introspectedTable);
+                if (primaryKeys.size() == 1) {
+                    insertXmlElement.addAttribute(new Attribute("keyColumn", primaryKeys.get(0)));
+                    insertXmlElement.addAttribute(new Attribute("keyProperty", primaryKeys.get(0)));
+                    insertXmlElement.addAttribute(new Attribute("useGeneratedKeys", "true"));
+                }
                 insertXmlElement.addAttribute(new Attribute("parameterType", context.getJavaModelGeneratorConfiguration().getTargetPackage() + "." + getEntityName(introspectedTable)));
 
                 generateTextBlockAppendTableName("insert into ", introspectedTable, insertXmlElement);

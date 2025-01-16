@@ -15,7 +15,11 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractXmbgPlugin extends PluginAdapter {
 
@@ -289,5 +293,20 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
             log.error("SqlException in my plugin", e);
         }
         return uniqueConstraintMap;
+    }
+
+    List<String> getPrimaryKeys(IntrospectedTable introspectedTable) {
+        List<String> primaryKeys = new ArrayList<>();
+        try (Connection connection = context.getConnection()) {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            ResultSet rs = databaseMetaData.getPrimaryKeys(null, null, getTableName(introspectedTable));
+            while (rs.next()) {
+                String columnName = rs.getString("COLUMN_NAME");
+                primaryKeys.add(columnName);
+            }
+        } catch (SQLException e) {
+            log.error("SqlException in my plugin", e);
+        }
+        return primaryKeys;
     }
 }
