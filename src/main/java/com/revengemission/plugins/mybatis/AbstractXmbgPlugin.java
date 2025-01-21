@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -142,7 +143,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         if (Character.isUpperCase(str.charAt(0))) {
             return str;
         } else {
-            return (new StringBuilder()).append(Character.toUpperCase(str.charAt(0))).append(str.substring(1)).toString();
+            return Character.toUpperCase(str.charAt(0)) + str.substring(1);
         }
     }
 
@@ -150,12 +151,12 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         if (Character.isLowerCase(s.charAt(0))) {
             return s;
         } else {
-            return (new StringBuilder()).append(Character.toLowerCase(s.charAt(0))).append(s.substring(1)).toString();
+            return Character.toLowerCase(s.charAt(0)) + s.substring(1);
         }
     }
 
     protected VisitableElement replaceElement(XmlElement element, Map<String, String> replacement) {
-        if (replacement != null && replacement.size() > 0) {
+        if (replacement != null && !replacement.isEmpty()) {
             Map<Integer, VisitableElement> tobeReplaced = new LinkedHashMap<>();
 
             for (int i = 0; i < element.getElements().size(); i++) {
@@ -164,7 +165,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                     final Integer tempIndex = i;
                     replacement.forEach((k, v) -> {
                         String elementContent = element1.getContent();
-                        if (elementContent.indexOf(k) >= 0) {
+                        if (elementContent.contains(k)) {
                             String newContent = elementContent.replace(k, v);
                             tobeReplaced.put(tempIndex, new TextElement(newContent));
                         }
@@ -175,7 +176,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                     replaceElement(xmlElement, replacement);
                 }
             }
-            if (tobeReplaced.size() > 0) {
+            if (!tobeReplaced.isEmpty()) {
                 tobeReplaced.forEach((k, v) -> {
                     element.getElements().remove(k.intValue());
                     element.getElements().add(k, v);
@@ -192,7 +193,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
 
     public String underlineName(String name) {
         StringBuilder result = new StringBuilder();
-        if (name != null && name.length() > 0) {
+        if (name != null && !name.isEmpty()) {
             result.append(name, 0, 1);
             for (int i = 1; i < name.length(); i++) {
                 String s = name.substring(i, i + 1);
@@ -217,7 +218,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
             if (camel.isEmpty()) {
                 continue;
             }
-            if (result.length() == 0) {
+            if (result.isEmpty()) {
                 result.append(camel.toLowerCase());
             } else {
                 result.append(camel.substring(0, 1).toUpperCase());
@@ -234,7 +235,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
     String getEntityName(IntrospectedTable introspectedTable) {
         String objectName = introspectedTable.getTableConfiguration().getDomainObjectName();
 
-        if (objectName == null || "".equals(objectName.trim())) {
+        if (objectName == null || objectName.trim().isEmpty()) {
             objectName = tableNameToEntityName(getTableName(introspectedTable));
         }
         return objectName;
@@ -308,5 +309,43 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
             log.error("SqlException in my plugin", e);
         }
         return primaryKeys;
+    }
+
+    List<ForeignKeyItem> getForeignKeys(IntrospectedTable introspectedTable) {
+        List<ForeignKeyItem> foreignKeyItemList = new LinkedList<>();
+        try (Connection connection = context.getConnection()) {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            ResultSet importedKeyssResultSet = databaseMetaData.getImportedKeys(null, null, getTableName(introspectedTable));
+            while (importedKeyssResultSet.next()) {
+                String fkName = importedKeyssResultSet.getString("FK_NAME");
+                String fkTableName = importedKeyssResultSet.getString("FKTABLE_NAME");
+                String fkColumnName = importedKeyssResultSet.getString("FKCOLUMN_NAME");
+                String pkTableName = importedKeyssResultSet.getString("PKTABLE_NAME");
+                String pkColumnName = importedKeyssResultSet.getString("PKCOLUMN_NAME");
+                ForeignKeyItem foreignKeyItem = new ForeignKeyItem(fkName, fkTableName, fkColumnName, pkTableName, pkColumnName);
+                foreignKeyItemList.add(foreignKeyItem);
+            }
+        } catch (SQLException e) {
+            log.error("SqlException in my plugin", e);
+        }
+        return foreignKeyItemList;
+    }
+
+    Map<String, String> getTableColumns(String tableName) {
+        Map<String, String> columnsRemarkMap = new LinkedHashMap<>();
+        try (Connection connection = context.getConnection()) {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            ResultSet columnsResultSet = databaseMetaData.getColumns(null, null, tableName, "%");
+            while (columnsResultSet.next()) {
+                String columnName = columnsResultSet.getString("COLUMN_NAME");
+                String dataType = columnsResultSet.getString("TYPE_NAME");
+                String remarks = columnsResultSet.getString("REMARKS");
+                columnsRemarkMap.put(columnName, remarks);
+                log.info("Column Name: {}, Data Type: {}, REMARKS: {}", columnName, dataType, remarks);
+            }
+        } catch (SQLException e) {
+            log.error("SqlException in my plugin", e);
+        }
+        return columnsRemarkMap;
     }
 }

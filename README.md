@@ -163,6 +163,10 @@
    
     userEntityMapper.batchInsertOnUpdateSelective(items);
     ````
+15. [根据外键生成对象返回](src/main/java/com/revengemission/plugins/mybatis/ForeignKeyPlugin.java)
+    ````
+    <plugin type="com.revengemission.plugins.mybatis.ForeignKeyPlugin"/>
+    ````
 ### Others
 ````
 
