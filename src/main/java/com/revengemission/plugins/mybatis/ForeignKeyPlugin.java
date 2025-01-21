@@ -65,7 +65,6 @@ public class ForeignKeyPlugin extends AbstractXmbgPlugin {
     @Override
     public boolean sqlMapBaseColumnListElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
         log.info("enter sqlMapBaseColumnListElementGenerated");
-        String tableName = getTableName(introspectedTable);
         List<ForeignKeyItem> foreignKeyItemList = getForeignKeys(introspectedTable);
         if (!foreignKeyItemList.isEmpty()) {
             StringBuilder stringBuilder = new StringBuilder();
@@ -92,25 +91,27 @@ public class ForeignKeyPlugin extends AbstractXmbgPlugin {
 
     @Override
     public boolean sqlMapExampleWhereClauseElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        XmlElement chooseChild = findFirstMatchedXmlElement(element, "choose");
-        if (chooseChild != null) {
-            List<VisitableElement> tempList = chooseChild.getElements();
-            chooseChild.getElements().forEach(whenElement -> {
-                if (whenElement instanceof XmlElement xmlElement) {
-                    for (int i = 0; i < xmlElement.getElements().size(); i++) {
-                        VisitableElement visitableElement = xmlElement.getElements().get(i);
-                        if (visitableElement instanceof TextElement textElement) {
-                            String content = textElement.getContent();
-                            xmlElement.getElements().remove(i);
-                            xmlElement.getElements().add(i, new TextElement("and mt." + content.replace("and ", "")));
+        List<ForeignKeyItem> foreignKeyItemList = getForeignKeys(introspectedTable);
+        if (!foreignKeyItemList.isEmpty()) {
+            XmlElement chooseChild = findFirstMatchedXmlElement(element, "choose");
+            if (chooseChild != null) {
+                List<VisitableElement> tempList = chooseChild.getElements();
+                chooseChild.getElements().forEach(whenElement -> {
+                    if (whenElement instanceof XmlElement xmlElement) {
+                        for (int i = 0; i < xmlElement.getElements().size(); i++) {
+                            VisitableElement visitableElement = xmlElement.getElements().get(i);
+                            if (visitableElement instanceof TextElement textElement) {
+                                String content = textElement.getContent();
+                                xmlElement.getElements().remove(i);
+                                xmlElement.getElements().add(i, new TextElement("and mt." + content.replace("and ", "")));
+                            }
                         }
+
                     }
 
-                }
-
-            });
+                });
+            }
         }
-
         return true;
     }
 
