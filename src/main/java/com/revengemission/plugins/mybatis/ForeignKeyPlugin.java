@@ -137,7 +137,7 @@ public class ForeignKeyPlugin extends AbstractXmbgPlugin {
         List<ForeignKeyItem> foreignKeyItemList = getForeignKeys(introspectedTable);
         if (!foreignKeyItemList.isEmpty()) {
             String oldStr = "delete from " + tableName;
-            String newStr = "sedelete from " + tableName + " mt \n";
+            String newStr = "delete from " + tableName + " mt \n";
             Map<String, String> replacement = new LinkedHashMap<>();
             replacement.put(oldStr, newStr);
             replaceElement(element, replacement);
