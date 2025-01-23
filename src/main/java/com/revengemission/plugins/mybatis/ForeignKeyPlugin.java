@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -92,7 +93,13 @@ public class ForeignKeyPlugin extends AbstractXmbgPlugin {
     @Override
     public boolean sqlMapExampleWhereClauseElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
         List<ForeignKeyItem> foreignKeyItemList = getForeignKeys(introspectedTable);
-        if (!foreignKeyItemList.isEmpty()) {
+        AtomicBoolean selectFlag = new AtomicBoolean(true);
+        element.getAttributes().forEach(attribute -> {
+            if ("id".equalsIgnoreCase(attribute.getName()) && attribute.getValue().contains("Update_By")) {
+                selectFlag.set(false);
+            }
+        });
+        if (selectFlag.get() && !foreignKeyItemList.isEmpty()) {
             XmlElement chooseChild = findFirstMatchedXmlElement(element, "choose");
             if (chooseChild != null) {
                 List<VisitableElement> tempList = chooseChild.getElements();
@@ -195,6 +202,27 @@ public class ForeignKeyPlugin extends AbstractXmbgPlugin {
             });
             Map<String, String> replacement = new LinkedHashMap<>();
             replacement.put("from " + tableName, stringBuilder.toString());
+            replaceElement(element, replacement);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean sqlMapSelectByPrimaryKeyElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+        String tableName = getTableName(introspectedTable);
+        log.info("enter sqlMapSelectByPrimaryKeyElementGenerated {}", tableName);
+        List<ForeignKeyItem> foreignKeyItemList = getForeignKeys(introspectedTable);
+        if (!foreignKeyItemList.isEmpty()) {
+            AtomicInteger atomicInteger = new AtomicInteger(1);
+            StringBuilder stringBuilder = new StringBuilder("from " + tableName + " mt\n");
+            foreignKeyItemList.forEach(foreignKeyItem -> {
+                String childTableName = "childT" + atomicInteger.get();
+                stringBuilder.append("\tleft join ").append(foreignKeyItem.getPkTableName()).append(" ").append(childTableName).append(" on mt.").append(foreignKeyItem.getFkColumnName()).append(" = ").append(childTableName).append(".").append(foreignKeyItem.getPkColumnName()).append("\n");
+                atomicInteger.incrementAndGet();
+            });
+            Map<String, String> replacement = new LinkedHashMap<>();
+            replacement.put("from " + tableName, stringBuilder.toString());
+            replacement.put("where id = #{id,jdbcType=BIGINT}", "where mt.id = #{id,jdbcType=BIGINT}");
             replaceElement(element, replacement);
         }
         return true;
