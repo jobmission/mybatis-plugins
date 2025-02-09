@@ -204,7 +204,7 @@
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
-                                <phase>verify</phase>
+                                <phase>deploy</phase>
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
@@ -218,7 +218,6 @@
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central-releases</publishingServerId>
-                            <tokenAuth>true</tokenAuth>
                         </configuration>
                     </plugin>
                 </plugins>
