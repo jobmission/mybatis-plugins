@@ -1,5 +1,6 @@
 package com.revengemission.plugins.mybatis;
 
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
@@ -41,6 +42,7 @@ public class BatchInsertPlugin extends AbstractXmbgPlugin {
     @Override
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
         XmlElement insertXmlElement = new XmlElement("insert");
+        List<IntrospectedColumn> notAutoIncrementColumnList = introspectedTable.getAllColumns().stream().filter(introspectedColumn -> !introspectedColumn.isAutoIncrement()).toList();
 
         insertXmlElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME));
         FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType("java.util.List");
@@ -49,7 +51,7 @@ public class BatchInsertPlugin extends AbstractXmbgPlugin {
         insertXmlElement.addElement(new TextElement("<if test=\"list != null and list.size() > 0\">"));
         generateTextBlockAppendTableName("insert into ", introspectedTable, insertXmlElement);
 
-        generateActualColumnNamesWithParenthesis(introspectedTable.getNonBLOBColumns(), insertXmlElement);
+        generateActualColumnNamesWithParenthesis(notAutoIncrementColumnList, insertXmlElement);
 
         insertXmlElement.addElement(new TextElement(" values "));
 
@@ -59,7 +61,7 @@ public class BatchInsertPlugin extends AbstractXmbgPlugin {
         foreach.addAttribute(new Attribute("index", "index"));
         foreach.addAttribute(new Attribute("separator", ","));
 
-        generateParametersSeparateByCommaWithParenthesis(PROPERTY_PREFIX, introspectedTable.getNonBLOBColumns(), foreach);
+        generateParametersSeparateByCommaWithParenthesis(PROPERTY_PREFIX, notAutoIncrementColumnList, foreach);
         insertXmlElement.addElement(foreach);
         insertXmlElement.addElement(new TextElement("</if>"));
         insertXmlElement.addElement(new TextElement("<if test=\"list == null or list.size() == 0\">"));
