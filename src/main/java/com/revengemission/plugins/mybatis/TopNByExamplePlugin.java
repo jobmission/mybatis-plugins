@@ -1,7 +1,13 @@
 package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.Interface;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.Parameter;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
@@ -106,9 +112,9 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'mysql' or _databaseId == 'postgresql' or _databaseId == 'sqlite'"));
 
         if (!introspectedTable.getBLOBColumns().isEmpty()) {
-            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName + " mt"));
         } else {
-            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" /> from " + tableName));
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" /> from " + tableName + " mt"));
         }
 
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
@@ -130,9 +136,9 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'mysql' or _databaseId == 'postgresql' or _databaseId == 'sqlite'"));
 
         if (!introspectedTable.getBLOBColumns().isEmpty()) {
-            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName + " mt"));
         } else {
-            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" /> from " + tableName));
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" /> from " + tableName + " mt"));
         }
 
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
@@ -153,9 +159,9 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'sqlserver'"));
         if (!introspectedTable.getBLOBColumns().isEmpty()) {
-            topOneElement.addElement(new TextElement("select top 1 <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
+            topOneElement.addElement(new TextElement("select top 1 <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName + " mt"));
         } else {
-            topOneElement.addElement(new TextElement("select top 1 <include refid=\"Base_Column_List\" /> from " + tableName));
+            topOneElement.addElement(new TextElement("select top 1 <include refid=\"Base_Column_List\" /> from " + tableName + " mt"));
         }
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
 
@@ -173,9 +179,9 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'sqlserver'"));
         if (!introspectedTable.getBLOBColumns().isEmpty()) {
-            topOneElement.addElement(new TextElement("select top ${topN} <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
+            topOneElement.addElement(new TextElement("select top ${topN} <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName + " mt"));
         } else {
-            topOneElement.addElement(new TextElement("select top ${topN} <include refid=\"Base_Column_List\" /> from " + tableName));
+            topOneElement.addElement(new TextElement("select top ${topN} <include refid=\"Base_Column_List\" /> from " + tableName + " mt"));
         }
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
 
@@ -192,9 +198,9 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'db2'"));
         if (!introspectedTable.getBLOBColumns().isEmpty()) {
-            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName + " mt"));
         } else {
-            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" /> from " + tableName));
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" /> from " + tableName + " mt"));
         }
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
         topOneElement.addElement(new TextElement("fetch first 1 only"));
@@ -206,9 +212,9 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'db2'"));
         if (!introspectedTable.getBLOBColumns().isEmpty()) {
-            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName));
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" />, <include refid=\"Blob_Column_List\" /> from " + tableName + " mt"));
         } else {
-            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" /> from " + tableName));
+            topOneElement.addElement(new TextElement("select <include refid=\"Base_Column_List\" /> from " + tableName + " mt"));
         }
         topOneElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
         topOneElement.addElement(new TextElement("fetch first ${topN} only"));

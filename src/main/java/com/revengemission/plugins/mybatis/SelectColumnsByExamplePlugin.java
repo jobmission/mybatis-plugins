@@ -139,7 +139,7 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         ifNullElement.addElement(new TextElement("<include refid=\"Base_Column_List\" />"));
         selectElement.addElement(ifNullElement);
 
-        selectElement.addElement(new TextElement("from " + tableName));
+        selectElement.addElement(new TextElement("from " + tableName + " mt"));
         selectElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
 
         XmlElement orderByElement = new XmlElement("if");
@@ -156,7 +156,7 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         selectElement2.addAttribute(new Attribute("resultType", "java.lang.Long"));
         selectElement2.addElement(new TextElement("select "));
         selectElement2.addElement(new TextElement("id "));
-        selectElement2.addElement(new TextElement("from " + tableName));
+        selectElement2.addElement(new TextElement("from " + tableName + " mt"));
         selectElement2.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
         selectElement2.addElement(orderByElement);
         parentElement.addElement(selectElement2);
@@ -167,7 +167,7 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         selectElement3.addAttribute(new Attribute("resultType", "java.util.HashMap"));
         selectElement3.addElement(new TextElement("select "));
         selectElement3.addElement(new TextElement("${commaSeparatedColumns} "));
-        selectElement3.addElement(new TextElement("from " + tableName));
+        selectElement3.addElement(new TextElement("from " + tableName + " mt"));
         selectElement3.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
         selectElement3.addElement(new TextElement("${aggregateByClause} "));
         selectElement3.addElement(orderByElement);
@@ -179,7 +179,7 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
         selectElement4.addAttribute(new Attribute("resultType", "java.util.HashMap"));
         selectElement4.addElement(new TextElement("select "));
         selectElement4.addElement(new TextElement("${commaSeparatedColumns} "));
-        selectElement4.addElement(new TextElement("from " + tableName));
+        selectElement4.addElement(new TextElement("from " + tableName + " mt"));
         selectElement4.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
         selectElement4.addElement(new TextElement("${aggregateByClause} "));
         selectElement4.addElement(orderByElement);

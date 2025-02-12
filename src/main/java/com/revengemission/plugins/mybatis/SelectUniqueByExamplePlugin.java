@@ -59,7 +59,7 @@ public class SelectUniqueByExamplePlugin extends AbstractXmbgPlugin {
             includeBlobElement.addAttribute(new Attribute("refid", "Blob_Column_List"));
             selectElement.addElement(includeBlobElement);
 
-            selectElement.addElement(new TextElement("from " + tableName));
+            selectElement.addElement(new TextElement("from " + tableName + " mt"));
             selectElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
 
         } else {
@@ -68,7 +68,7 @@ public class SelectUniqueByExamplePlugin extends AbstractXmbgPlugin {
             includeBaseElement.addAttribute(new Attribute("refid", "Base_Column_List"));
             selectElement.addElement(includeBaseElement);
 
-            selectElement.addElement(new TextElement("from " + tableName));
+            selectElement.addElement(new TextElement("from " + tableName + " mt"));
             selectElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
         }
 
