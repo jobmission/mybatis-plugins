@@ -46,7 +46,7 @@ public class SelectUniqueByExamplePlugin extends AbstractXmbgPlugin {
         selectElement.addAttribute(new Attribute("parameterType", introspectedTable.getExampleType()));
         selectElement.addElement(new TextElement("select"));
 
-        if (introspectedTable.getBLOBColumns().size() > 0) {
+        if (!introspectedTable.getBLOBColumns().isEmpty()) {
             selectElement.addAttribute(new Attribute("resultMap", "ResultMapWithBLOBs"));
 
             XmlElement includeBaseElement = new XmlElement("include");
