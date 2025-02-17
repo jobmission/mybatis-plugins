@@ -312,6 +312,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
     }
 
     Map<String, List<ForeignKeyItem>> foreignKeysCacheMap = new HashMap<>();
+    
     List<ForeignKeyItem> getForeignKeys(IntrospectedTable introspectedTable) {
         String tableName = getTableName(introspectedTable);
         if (foreignKeysCacheMap.containsKey(tableName)) {
@@ -336,8 +337,13 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         foreignKeysCacheMap.put(tableName, foreignKeyItemList);
         return foreignKeyItemList;
     }
+    
+    Map<String, Map<String, String>> tableColumnsCacheMap = new HashMap<>();
 
     Map<String, String> getTableColumns(String tableName) {
+        if (tableColumnsCacheMap.containsKey(tableName)) {
+            return tableColumnsCacheMap.get(tableName);
+        }
         Map<String, String> columnsRemarkMap = new LinkedHashMap<>();
         try (Connection connection = context.getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
@@ -352,6 +358,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         } catch (SQLException e) {
             log.error("SqlException in my plugin", e);
         }
+        tableColumnsCacheMap.put(tableName, columnsRemarkMap);
         return columnsRemarkMap;
     }
 }
