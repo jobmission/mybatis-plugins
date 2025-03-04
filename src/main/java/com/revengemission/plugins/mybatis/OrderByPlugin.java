@@ -155,7 +155,7 @@ public class OrderByPlugin extends AbstractXmbgPlugin {
         Parameter orderByClauseMapParameter = new Parameter(mapWrapper, "orderBys", false);
         addOrderBy3.addParameter(orderByClauseMapParameter);
 
-        addOrderBy3.addBodyLine("if (orderBys == null || orderBys.size() == 0) {");
+        addOrderBy3.addBodyLine("if (orderBys == null || orderBys.isEmpty()) {");
         addOrderBy3.addBodyLine("return;");
         addOrderBy3.addBodyLine("}");
 
