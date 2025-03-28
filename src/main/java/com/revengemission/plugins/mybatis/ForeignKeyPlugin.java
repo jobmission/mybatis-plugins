@@ -110,7 +110,7 @@ public class ForeignKeyPlugin extends AbstractXmbgPlugin {
                             if (visitableElement instanceof TextElement textElement) {
                                 String content = textElement.getContent();
                                 xmlElement.getElements().remove(i);
-                                xmlElement.getElements().add(i, new TextElement("and mt." + content.replaceFirst("and ", "")));
+                                xmlElement.getElements().add(i, new TextElement(content.replaceFirst("and ", "and mt.")));
                             }
                         }
 
