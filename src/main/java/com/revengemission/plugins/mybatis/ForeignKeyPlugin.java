@@ -102,7 +102,6 @@ public class ForeignKeyPlugin extends AbstractXmbgPlugin {
         if (selectFlag.get() && !foreignKeyItemList.isEmpty()) {
             XmlElement chooseChild = findFirstMatchedXmlElement(element, "choose");
             if (chooseChild != null) {
-                List<VisitableElement> tempList = chooseChild.getElements();
                 chooseChild.getElements().forEach(whenElement -> {
                     if (whenElement instanceof XmlElement xmlElement) {
                         for (int i = 0; i < xmlElement.getElements().size(); i++) {

@@ -59,7 +59,16 @@ public class SelectUniqueByExamplePlugin extends AbstractXmbgPlugin {
             includeBlobElement.addAttribute(new Attribute("refid", "Blob_Column_List"));
             selectElement.addElement(includeBlobElement);
 
-            selectElement.addElement(new TextElement("from " + tableName + " mt"));
+            StringBuilder stringBuilder = new StringBuilder("from " + tableName + " mt");
+            List<ForeignKeyItem> foreignKeyItemList = getForeignKeys(introspectedTable);
+            if (!foreignKeyItemList.isEmpty()) {
+                for (int i = 0; i < foreignKeyItemList.size(); i++) {
+                    stringBuilder.append("\n");
+                    stringBuilder.append("    left join ").append(foreignKeyItemList.get(i).getPkTableName()).append(" childT").append(i + 1).append(" on mt.").append(foreignKeyItemList.get(i).getFkColumnName()).append(" = childT").append(i + 1).append(".").append(foreignKeyItemList.get(i).getPkColumnName());
+                }
+            }
+            selectElement.addElement(new TextElement(stringBuilder.toString()));
+
             selectElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
 
         } else {
@@ -68,7 +77,15 @@ public class SelectUniqueByExamplePlugin extends AbstractXmbgPlugin {
             includeBaseElement.addAttribute(new Attribute("refid", "Base_Column_List"));
             selectElement.addElement(includeBaseElement);
 
-            selectElement.addElement(new TextElement("from " + tableName + " mt"));
+            StringBuilder stringBuilder = new StringBuilder("from " + tableName + " mt");
+            List<ForeignKeyItem> foreignKeyItemList = getForeignKeys(introspectedTable);
+            if (!foreignKeyItemList.isEmpty()) {
+                for (int i = 0; i < foreignKeyItemList.size(); i++) {
+                    stringBuilder.append("\n");
+                    stringBuilder.append("    left join ").append(foreignKeyItemList.get(i).getPkTableName()).append(" childT").append(i + 1).append(" on mt.").append(foreignKeyItemList.get(i).getFkColumnName()).append(" = childT").append(i + 1).append(".").append(foreignKeyItemList.get(i).getPkColumnName());
+                }
+            }
+            selectElement.addElement(new TextElement(stringBuilder.toString()));
             selectElement.addElement(new TextElement("<include refid=\"Example_Where_Clause\" />"));
         }
 

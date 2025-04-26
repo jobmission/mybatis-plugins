@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.revengemission.plugins</groupId>
     <artifactId>mybatis-plugins</artifactId>
-    <version>2.1.1</version>
+    <version>2.1.2</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>MyBatis Generator plugins</description>
@@ -15,7 +15,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <HikariCP.version>6.2.1</HikariCP.version>
+        <HikariCP.version>6.3.0</HikariCP.version>
     </properties>
 
     <dependencies>
