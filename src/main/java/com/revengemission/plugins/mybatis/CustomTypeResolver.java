@@ -1,6 +1,5 @@
 package com.revengemission.plugins.mybatis;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl;
@@ -47,13 +46,31 @@ public class CustomTypeResolver extends JavaTypeResolverDefaultImpl {
         boolean forceOtherToJson = StringUtility.isTrue(properties.getProperty("forceOtherToJson"));
         if (forceOtherToJson) {
             log.info("===forceOtherToJson=true");
-            this.typeMap.put(Types.OTHER, new JdbcTypeInformation(JDBCType.OTHER.name(), new FullyQualifiedJavaType(JsonNode.class.getName())));
+            if (isJackson3()) {
+                this.typeMap.put(Types.OTHER, new JdbcTypeInformation(JDBCType.OTHER.name(), new FullyQualifiedJavaType(tools.jackson.databind.JsonNode.class.getName())));
+            } else {
+                this.typeMap.put(Types.OTHER, new JdbcTypeInformation(JDBCType.OTHER.name(), new FullyQualifiedJavaType(com.fasterxml.jackson.databind.JsonNode.class.getName())));
+            }
         }
         // mysql json
         boolean forceLongVarcharToJson = StringUtility.isTrue(properties.getProperty("forceLongVarcharToJson"));
         if (forceLongVarcharToJson) {
             log.info("===forceLongVarcharToJson=true");
-            this.typeMap.put(Types.LONGVARCHAR, new JdbcTypeInformation(JDBCType.OTHER.name(), new FullyQualifiedJavaType(JsonNode.class.getName())));
+            if (isJackson3()) {
+                this.typeMap.put(Types.LONGVARCHAR, new JdbcTypeInformation(JDBCType.OTHER.name(), new FullyQualifiedJavaType(tools.jackson.databind.JsonNode.class.getName())));
+            } else {
+                this.typeMap.put(Types.LONGVARCHAR, new JdbcTypeInformation(JDBCType.OTHER.name(), new FullyQualifiedJavaType(com.fasterxml.jackson.databind.JsonNode.class.getName())));
+            }
+        }
+    }
+
+    boolean isJackson3() {
+        try {
+            // Try to load a Jackson 3 specific class
+            Class.forName("tools.jackson.databind.ObjectMapper");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
     }
 }
