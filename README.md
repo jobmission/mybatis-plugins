@@ -79,14 +79,12 @@
     ````
 5. [自定义查询](src/main/java/com/revengemission/plugins/mybatis/GenericMapperPlugin.java), map传参数, 单独的mapper接口, 使用时注意过滤危险字符防止注入
     ````
-    <plugin type="com.revengemission.plugins.mybatis.GenericMapperPlugin">
-        <property name="withMapperAnnotation" value="true"/>
-    </plugin>
+    <plugin type="com.revengemission.plugins.mybatis.GenericMapperPlugin"/>
    
-    Map<String, Object> paramsMapWithSql = new HashMap<>();
-    paramsMapWithSql.put("sql", "select * from user_entity where name = #{name}");
+    String sql = "select * from user_entity where name = #{parameters.name}";
+    Map<String, Object> parameters = new HashMap<>();
     paramsMapWithSql.put("name", "zhangsan");
-    List<LinkedHashMap<String, Object>> linkedHashMapList = genericMapper.queryForList(paramsMapWithSql);
+    List<Map<String, Object>> mapList = genericMapper.queryForList(sql, parameters);
     ````
 6. [mybatis model class上添加注解](src/main/java/com/revengemission/plugins/mybatis/ModelAnnotationPlugin.java)
     ````
