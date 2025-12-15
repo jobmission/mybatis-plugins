@@ -67,6 +67,7 @@ public class TableConstantsPlugin extends AbstractXmbgPlugin {
             GeneratedJavaFile generatedJavaFile = new GeneratedJavaFile(
                     topLevelClass,
                     "src/main/java",
+                    "UTF-8",
                     javaFormatter
             );
             return Collections.singletonList(generatedJavaFile);
