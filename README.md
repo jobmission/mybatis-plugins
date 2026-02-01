@@ -52,7 +52,7 @@
     
     userEntityMapper.batchInsert(items);
     ````
-2. [根据唯一约束批量upsert](src/main/java/com/revengemission/plugins/mybatis/InsertOnUpdatePlugin.java)
+2. [根据唯一约束批量upsert, 如果没有配置唯一约束字段，则自动使用唯一约束的多个字段](src/main/java/com/revengemission/plugins/mybatis/InsertOnUpdatePlugin.java)
     ````
     name:[表名]，value:uniqueFields=;updateFields=;updateIgnoreFields=
     <plugin type="com.revengemission.plugins.mybatis.InsertOnUpdatePlugin">
