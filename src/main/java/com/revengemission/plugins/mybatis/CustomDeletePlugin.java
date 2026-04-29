@@ -70,7 +70,7 @@ public class CustomDeletePlugin extends AbstractXmbgPlugin {
     @Override
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
 
-        String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+        String tableName = introspectedTable.getAliasedFullyQualifiedRuntimeTableName();
         XmlElement parentElement = document.getRootElement();
         if (hasColumn(introspectedTable, deletedFlagTableFiled)) {
 
@@ -125,8 +125,8 @@ public class CustomDeletePlugin extends AbstractXmbgPlugin {
     private boolean hasColumn(IntrospectedTable introspectedTable, String column) {
         boolean flag = false;
         List<IntrospectedColumn> allColumns = introspectedTable.getAllColumns();
-        for (int i = 0; i < allColumns.size(); i++) {
-            if (column.equals(allColumns.get(i).getActualColumnName())) {
+        for (IntrospectedColumn allColumn : allColumns) {
+            if (column.equals(allColumn.getActualColumnName())) {
                 flag = true;
             }
         }

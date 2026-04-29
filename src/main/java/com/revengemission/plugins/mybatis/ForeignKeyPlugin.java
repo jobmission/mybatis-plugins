@@ -1,12 +1,7 @@
 package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.Field;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.VisitableElement;
@@ -95,7 +90,7 @@ public class ForeignKeyPlugin extends AbstractXmbgPlugin {
         List<ForeignKeyItem> foreignKeyItemList = getForeignKeys(introspectedTable);
         AtomicBoolean selectFlag = new AtomicBoolean(true);
         element.getAttributes().forEach(attribute -> {
-            if ("id".equalsIgnoreCase(attribute.getName()) && attribute.getValue().contains("Update_By")) {
+            if ("id".equalsIgnoreCase(attribute.name()) && attribute.value().contains("Update_By")) {
                 selectFlag.set(false);
             }
         });
@@ -107,7 +102,7 @@ public class ForeignKeyPlugin extends AbstractXmbgPlugin {
                         for (int i = 0; i < xmlElement.getElements().size(); i++) {
                             VisitableElement visitableElement = xmlElement.getElements().get(i);
                             if (visitableElement instanceof TextElement textElement) {
-                                String content = textElement.getContent();
+                                String content = textElement.content();
                                 xmlElement.getElements().remove(i);
                                 xmlElement.getElements().add(i, new TextElement(content.replaceFirst("and ", "and mt.")));
                             }
@@ -162,7 +157,7 @@ public class ForeignKeyPlugin extends AbstractXmbgPlugin {
                 String fieldName = lowerCaseFirstChar(domainName.replace("Entity", ""));
                 XmlElement associationElement = new XmlElement("association");
                 associationElement.addAttribute(new Attribute("property", fieldName));
-                associationElement.addAttribute(new Attribute("javaType", context.getJavaModelGeneratorConfiguration().getTargetPackage() + "." + domainName));
+                associationElement.addAttribute(new Attribute("javaType", context.getModelGeneratorConfiguration().getTargetPackage() + "." + domainName));
 
                 Map<String, String> tableColumnsMap = getTableColumns(foreignKeyItem.getPkTableName());
                 tableColumnsMap.keySet().forEach(columnName -> {

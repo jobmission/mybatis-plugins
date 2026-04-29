@@ -4,7 +4,6 @@ import org.mybatis.generator.api.GeneratedJavaFile;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.config.PropertyRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +48,7 @@ public class DynamicSQLPlugin extends AbstractXmbgPlugin {
         Parameter fieldName = new Parameter(FullyQualifiedJavaType.getStringInstance(), "fieldName", false);
         existField.addParameter(fieldName);
 
-        StringBuffer stringBufferGetField = new StringBuffer();
+        StringBuilder stringBufferGetField = new StringBuilder();
         stringBufferGetField.append("Map<String, SqlColumn> allColumns = new HashMap<>();\n");
         for (IntrospectedColumn field : introspectedTable.getAllColumns()) {
             stringBufferGetField.append("        allColumns.put(\"" + field.getJavaProperty() + "\", " + field.getJavaProperty() + ");\n");
@@ -71,7 +70,7 @@ public class DynamicSQLPlugin extends AbstractXmbgPlugin {
         getSortField.addParameter(sortFieldParameter);
         getSortField.addParameter(sortOrderParameter);
 
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
         stringBuffer.append("Map<String, SqlColumn> allColumns = new HashMap<>();\n");
         for (IntrospectedColumn field : introspectedTable.getAllColumns()) {
             stringBuffer.append("        allColumns.put(\"" + field.getJavaProperty() + "\", " + field.getJavaProperty() + ");\n");
@@ -99,10 +98,9 @@ public class DynamicSQLPlugin extends AbstractXmbgPlugin {
         topLevelClass.addMethod(existField);
 
         GeneratedJavaFile gjf = new GeneratedJavaFile(topLevelClass,
-            context.getJavaClientGeneratorConfiguration()
-                .getTargetProject(),
-            context.getProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING),
-            context.getJavaFormatter());
+            context.getClientGeneratorConfiguration()
+                .get().getTargetProject(),
+            true);
         answer.add(gjf);
 
         return answer;
@@ -117,7 +115,7 @@ public class DynamicSQLPlugin extends AbstractXmbgPlugin {
         selectUniqueByExample.addAnnotation("@Generated(\"org.mybatis.generator.api.MyBatisGenerator\")");
         selectUniqueByExample.setDefault(true);
         selectUniqueByExample.setReturnType(new FullyQualifiedJavaType("QueryExpressionDSL<MyBatis3SelectModelAdapter<" + objectName + ">>"));
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
         stringBuffer.append("return SelectDSL.selectWithMapper(this::selectOne");
         for (IntrospectedColumn field : introspectedTable.getAllColumns()) {
             stringBuffer.append(", ");

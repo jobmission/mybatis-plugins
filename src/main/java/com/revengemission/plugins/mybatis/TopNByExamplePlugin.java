@@ -1,13 +1,7 @@
 package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.Field;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.Interface;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
@@ -107,7 +101,7 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
 
     void addTopOneLimitStatement(XmlElement parentElement, IntrospectedTable introspectedTable) {
 
-        String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+        String tableName = introspectedTable.getAliasedFullyQualifiedRuntimeTableName();
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'mysql' or _databaseId == 'postgresql' or _databaseId == 'sqlite'"));
 
@@ -131,7 +125,7 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
 
     void addTopNLimitStatement(XmlElement parentElement, IntrospectedTable introspectedTable) {
 
-        String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+        String tableName = introspectedTable.getAliasedFullyQualifiedRuntimeTableName();
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'mysql' or _databaseId == 'postgresql' or _databaseId == 'sqlite'"));
 
@@ -154,7 +148,7 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
     }
 
     void addTopOneSqlserverStatement(XmlElement parentElement, IntrospectedTable introspectedTable) {
-        String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+        String tableName = introspectedTable.getAliasedFullyQualifiedRuntimeTableName();
 
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'sqlserver'"));
@@ -174,7 +168,7 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
     }
 
     void addTopNSqlserverStatement(XmlElement parentElement, IntrospectedTable introspectedTable) {
-        String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+        String tableName = introspectedTable.getAliasedFullyQualifiedRuntimeTableName();
 
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'sqlserver'"));
@@ -194,7 +188,7 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
     }
 
     void addTopOneDB2Statement(XmlElement parentElement, IntrospectedTable introspectedTable) {
-        String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+        String tableName = introspectedTable.getAliasedFullyQualifiedRuntimeTableName();
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'db2'"));
         if (!introspectedTable.getBLOBColumns().isEmpty()) {
@@ -208,7 +202,7 @@ public class TopNByExamplePlugin extends AbstractXmbgPlugin {
     }
 
     void addTopNDB2Statement(XmlElement parentElement, IntrospectedTable introspectedTable) {
-        String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+        String tableName = introspectedTable.getAliasedFullyQualifiedRuntimeTableName();
         XmlElement topOneElement = new XmlElement("if");
         topOneElement.addAttribute(new Attribute("test", "_databaseId == 'db2'"));
         if (!introspectedTable.getBLOBColumns().isEmpty()) {

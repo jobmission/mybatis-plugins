@@ -6,19 +6,11 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
-import org.mybatis.generator.api.dom.xml.Attribute;
-import org.mybatis.generator.api.dom.xml.Document;
-import org.mybatis.generator.api.dom.xml.TextElement;
-import org.mybatis.generator.api.dom.xml.VisitableElement;
-import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.api.dom.xml.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -148,11 +140,11 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 insertXmlElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_SINGLE));
                 List<String> primaryKeys = getPrimaryKeys(introspectedTable);
                 if (primaryKeys.size() == 1) {
-                    insertXmlElement.addAttribute(new Attribute("keyColumn", primaryKeys.get(0)));
-                    insertXmlElement.addAttribute(new Attribute("keyProperty", primaryKeys.get(0)));
+                    insertXmlElement.addAttribute(new Attribute("keyColumn", primaryKeys.getFirst()));
+                    insertXmlElement.addAttribute(new Attribute("keyProperty", primaryKeys.getFirst()));
                     insertXmlElement.addAttribute(new Attribute("useGeneratedKeys", "true"));
                 }
-                insertXmlElement.addAttribute(new Attribute("parameterType", context.getJavaModelGeneratorConfiguration().getTargetPackage() + "." + getEntityName(introspectedTable)));
+                insertXmlElement.addAttribute(new Attribute("parameterType", context.getModelGeneratorConfiguration().getTargetPackage() + "." + getEntityName(introspectedTable)));
 
                 generateTextBlockAppendTableName("insert into ", introspectedTable, insertXmlElement);
 
@@ -263,11 +255,11 @@ public class InsertOnUpdatePlugin extends AbstractXmbgPlugin {
                 insertXmlElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_SINGLE));
                 List<String> primaryKeys = getPrimaryKeys(introspectedTable);
                 if (primaryKeys.size() == 1) {
-                    insertXmlElement.addAttribute(new Attribute("keyColumn", primaryKeys.get(0)));
-                    insertXmlElement.addAttribute(new Attribute("keyProperty", primaryKeys.get(0)));
+                    insertXmlElement.addAttribute(new Attribute("keyColumn", primaryKeys.getFirst()));
+                    insertXmlElement.addAttribute(new Attribute("keyProperty", primaryKeys.getFirst()));
                     insertXmlElement.addAttribute(new Attribute("useGeneratedKeys", "true"));
                 }
-                insertXmlElement.addAttribute(new Attribute("parameterType", context.getJavaModelGeneratorConfiguration().getTargetPackage() + "." + getEntityName(introspectedTable)));
+                insertXmlElement.addAttribute(new Attribute("parameterType", context.getModelGeneratorConfiguration().getTargetPackage() + "." + getEntityName(introspectedTable)));
 
                 generateTextBlockAppendTableName("insert into ", introspectedTable, insertXmlElement);
 

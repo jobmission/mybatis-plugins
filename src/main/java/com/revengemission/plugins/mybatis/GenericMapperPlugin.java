@@ -2,12 +2,7 @@ package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.GeneratedJavaFile;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.JavaFormatter;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.Interface;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
+import org.mybatis.generator.api.dom.java.*;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -49,8 +44,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         FullyQualifiedJavaType longType = new FullyQualifiedJavaType("long");
         FullyQualifiedJavaType mapType = new FullyQualifiedJavaType("Map<String, Object>");
         FullyQualifiedJavaType listMapType = new FullyQualifiedJavaType("List<Map<String, Object>>");
-        JavaFormatter javaFormatter = context.getJavaFormatter();
-        FullyQualifiedJavaType interfaceType = new FullyQualifiedJavaType(context.getJavaClientGeneratorConfiguration().getTargetPackage() + "." + mapperName);
+        FullyQualifiedJavaType interfaceType = new FullyQualifiedJavaType(context.getClientGeneratorConfiguration().get().getTargetPackage() + "." + mapperName);
         Interface anInterface = new Interface(interfaceType);
         anInterface.setVisibility(JavaVisibility.PUBLIC);
 
@@ -128,7 +122,7 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         deleteMethod.addAnnotation("@Delete(\"${sql}\")");
         anInterface.addMethod(deleteMethod);
 
-        GeneratedJavaFile generatedJavaFile = new GeneratedJavaFile(anInterface, context.getJavaClientGeneratorConfiguration().getTargetProject(), encoding, javaFormatter);
+        GeneratedJavaFile generatedJavaFile = new GeneratedJavaFile(anInterface, context.getClientGeneratorConfiguration().get().getTargetProject(), true);
         List<GeneratedJavaFile> answer = new ArrayList<>(16);
         answer.add(generatedJavaFile);
         return answer;

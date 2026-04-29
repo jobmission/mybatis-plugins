@@ -11,7 +11,7 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
+import org.mybatis.generator.runtime.mybatis3.MyBatis3FormattingUtilities;
 
 import java.util.List;
 import java.util.Set;
@@ -26,10 +26,6 @@ public class BatchUpdateByPrimaryKeyPlugin extends AbstractXmbgPlugin {
 
     private static final String PROPERTY_PREFIX = "item.";
 
-
-    @Override
-    public void initialized(IntrospectedTable introspectedTable) {
-    }
 
     @Override
     public boolean validate(List<String> warnings) {

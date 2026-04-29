@@ -120,7 +120,7 @@ public class SelectColumnsByExamplePlugin extends AbstractXmbgPlugin {
 
     @Override
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
-        String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+        String tableName = introspectedTable.getAliasedFullyQualifiedRuntimeTableName();
         XmlElement parentElement = document.getRootElement();
 
         XmlElement selectElement = new XmlElement("select");

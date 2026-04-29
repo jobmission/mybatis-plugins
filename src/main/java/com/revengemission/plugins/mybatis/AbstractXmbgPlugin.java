@@ -1,26 +1,26 @@
 package com.revengemission.plugins.mybatis;
 
-
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.JavaTypeResolver;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.VisitableElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
+import org.mybatis.generator.codegen.CalculatedContextValues;
+import org.mybatis.generator.codegen.ConnectionUtility;
+import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.internal.ObjectFactory;
+import org.mybatis.generator.internal.db.DatabaseIntrospector;
+import org.mybatis.generator.runtime.mybatis3.MyBatis3FormattingUtilities;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class AbstractXmbgPlugin extends PluginAdapter {
 
@@ -29,7 +29,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
     protected void generateTextBlockAppendTableName(String text, IntrospectedTable introspectedTable, XmlElement parent) {
         StringBuilder sb = new StringBuilder();
         sb.append(text);
-        sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
+        sb.append(introspectedTable.getAliasedFullyQualifiedRuntimeTableName());
         parent.addElement(new TextElement(sb.toString()));
     }
 
@@ -160,11 +160,9 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
             Map<Integer, VisitableElement> tobeReplaced = new LinkedHashMap<>();
 
             for (int i = 0; i < element.getElements().size(); i++) {
-                if (element.getElements().get(i) instanceof TextElement) {
-                    TextElement element1 = (TextElement) element.getElements().get(i);
+                if (element.getElements().get(i) instanceof TextElement(String elementContent)) {
                     final Integer tempIndex = i;
                     replacement.forEach((k, v) -> {
-                        String elementContent = element1.getContent();
                         if (elementContent.contains(k)) {
                             String newContent = elementContent.replace(k, v);
                             tobeReplaced.put(tempIndex, new TextElement(newContent));
@@ -229,7 +227,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
     }
 
     String getTableName(IntrospectedTable introspectedTable) {
-        return introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+        return introspectedTable.getAliasedFullyQualifiedRuntimeTableName();
     }
 
     String getEntityName(IntrospectedTable introspectedTable) {
@@ -247,8 +245,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
 
     XmlElement findFirstMatchedXmlElement(XmlElement element, String xmlElementTag) {
         for (int i = 0; i < element.getElements().size(); i++) {
-            if (element.getElements().get(i) instanceof XmlElement) {
-                XmlElement child = (XmlElement) element.getElements().get(i);
+            if (element.getElements().get(i) instanceof XmlElement child) {
                 if (child.getName().equalsIgnoreCase(xmlElementTag)) {
                     return child;
                 } else {
@@ -268,9 +265,9 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
     Map<String, List<String>> getUniqueConstraintKeys(IntrospectedTable introspectedTable) {
 
         Map<String, List<String>> uniqueConstraintMap = new HashMap<>();
-        try (Connection connection = context.getConnection()) {
+        try (Connection connection = ConnectionUtility.getConnection(context)) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
-            ResultSet rs = databaseMetaData.getIndexInfo(null, null, getTableName(introspectedTable), true, false);
+            ResultSet rs = databaseMetaData.getIndexInfo(null, null, getTableName(introspectedTable), true, true);
             while (rs.next()) {
                 String ascOrDesc = rs.getString("ASC_OR_DESC");
                 int cardinality = rs.getInt("CARDINALITY");
@@ -298,7 +295,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
 
     List<String> getPrimaryKeys(IntrospectedTable introspectedTable) {
         List<String> primaryKeys = new ArrayList<>();
-        try (Connection connection = context.getConnection()) {
+        try (Connection connection = ConnectionUtility.getConnection(context)) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
             ResultSet rs = databaseMetaData.getPrimaryKeys(null, null, getTableName(introspectedTable));
             while (rs.next()) {
@@ -312,14 +309,14 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
     }
 
     Map<String, List<ForeignKeyItem>> foreignKeysCacheMap = new HashMap<>();
-    
+
     List<ForeignKeyItem> getForeignKeys(IntrospectedTable introspectedTable) {
         String tableName = getTableName(introspectedTable);
         if (foreignKeysCacheMap.containsKey(tableName)) {
             return foreignKeysCacheMap.get(tableName);
         }
         List<ForeignKeyItem> foreignKeyItemList = new LinkedList<>();
-        try (Connection connection = context.getConnection()) {
+        try (Connection connection = ConnectionUtility.getConnection(context)) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
             ResultSet importedKeyssResultSet = databaseMetaData.getImportedKeys(null, null, getTableName(introspectedTable));
             while (importedKeyssResultSet.next()) {
@@ -328,6 +325,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                 String fkColumnName = importedKeyssResultSet.getString("FKCOLUMN_NAME");
                 String pkTableName = importedKeyssResultSet.getString("PKTABLE_NAME");
                 String pkColumnName = importedKeyssResultSet.getString("PKCOLUMN_NAME");
+                log.info("fkName: {}, fkTableName: {}, fkColumnName: {}, pkTableName: {}, pkColumnName: {}", fkName, fkTableName, fkColumnName, pkTableName, pkColumnName);
                 ForeignKeyItem foreignKeyItem = new ForeignKeyItem(fkName, fkTableName, fkColumnName, pkTableName, pkColumnName);
                 foreignKeyItemList.add(foreignKeyItem);
             }
@@ -337,7 +335,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         foreignKeysCacheMap.put(tableName, foreignKeyItemList);
         return foreignKeyItemList;
     }
-    
+
     Map<String, Map<String, String>> tableColumnsCacheMap = new HashMap<>();
 
     Map<String, String> getTableColumns(String tableName) {
@@ -345,7 +343,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
             return tableColumnsCacheMap.get(tableName);
         }
         Map<String, String> columnsRemarkMap = new LinkedHashMap<>();
-        try (Connection connection = context.getConnection()) {
+        try (Connection connection = ConnectionUtility.getConnection(context)) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
             ResultSet columnsResultSet = databaseMetaData.getColumns(null, null, tableName, "%");
             while (columnsResultSet.next()) {
@@ -361,4 +359,53 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         tableColumnsCacheMap.put(tableName, columnsRemarkMap);
         return columnsRemarkMap;
     }
+
+    IntrospectedTable getIntrospectedTable(String tableName) {
+        List<IntrospectedTable> introspectedTableList = introspectTables();
+        for (IntrospectedTable introspectedTable : introspectedTableList) {
+            String tempTableName = getTableName(introspectedTable);
+            if (tableName.equals(tempTableName)) {
+                return introspectedTable;
+            }
+        }
+        return null;
+    }
+
+    public List<IntrospectedTable> introspectTables() {
+        List<String> warnings = new ArrayList<>();
+        CalculatedContextValues.Builder builder = new CalculatedContextValues.Builder();
+        builder.withContext(context).withWarnings(warnings);
+        CalculatedContextValues contextValues = builder.build();
+        List<IntrospectedTable> introspectedTables = new ArrayList<>();
+        JavaTypeResolver javaTypeResolver = ObjectFactory.createJavaTypeResolver(contextValues.context(), warnings);
+
+        try (Connection connection = ConnectionUtility.getConnection(contextValues.context())) {
+
+            DatabaseIntrospector databaseIntrospector = new DatabaseIntrospector(
+                contextValues.context(), connection.getMetaData(), javaTypeResolver);
+
+            for (TableConfiguration tc : contextValues.context().tableConfigurations()) {
+                if (!shouldIntrospect(contextValues, tc)) {
+                    continue;
+                }
+
+                List<IntrospectedTable> tables = databaseIntrospector
+                    .introspectTables(tc, contextValues.knownRuntime(), contextValues.pluginAggregator());
+                introspectedTables.addAll(tables);
+
+            }
+
+            warnings.addAll(databaseIntrospector.getWarnings());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return introspectedTables;
+    }
+
+    private boolean shouldIntrospect(CalculatedContextValues contextValues, TableConfiguration tc) {
+        return !contextValues.knownRuntime().isLegacyMyBatis3Based() || tc.areAnyStatementsEnabled();
+    }
+
+
 }

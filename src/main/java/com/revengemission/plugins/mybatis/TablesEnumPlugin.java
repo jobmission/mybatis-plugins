@@ -1,12 +1,11 @@
 package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.GeneratedJavaFile;
-import org.mybatis.generator.api.JavaFormatter;
-import org.mybatis.generator.api.dom.DefaultJavaFormatter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.codegen.ConnectionUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,9 +16,9 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
-public class TableConstantsPlugin extends AbstractXmbgPlugin {
+public class TablesEnumPlugin extends AbstractXmbgPlugin {
 
-    private static final Logger log = LoggerFactory.getLogger(TableConstantsPlugin.class);
+    private static final Logger log = LoggerFactory.getLogger(TablesEnumPlugin.class);
 
     private String tableNamePattern = "%%";
     private String codePackageName = "tables";
@@ -47,7 +46,7 @@ public class TableConstantsPlugin extends AbstractXmbgPlugin {
         topLevelClass.setVisibility(JavaVisibility.PUBLIC);
 
 
-        try (Connection connection = context.getConnection()) {
+        try (Connection connection = ConnectionUtility.getConnection(context)) {
             DatabaseMetaData metaData = connection.getMetaData();
             ResultSet resultSet = metaData.getTables(null, "public", tableNamePattern, new String[]{"TABLE"});
             while (resultSet.next()) {
@@ -63,13 +62,7 @@ public class TableConstantsPlugin extends AbstractXmbgPlugin {
                 field.setInitializationString("\"" + tableRemarks + "\"");
                 topLevelClass.addField(field);
             }
-            JavaFormatter javaFormatter = new DefaultJavaFormatter();
-            GeneratedJavaFile generatedJavaFile = new GeneratedJavaFile(
-                    topLevelClass,
-                    "src/main/java",
-                    "UTF-8",
-                    javaFormatter
-            );
+            GeneratedJavaFile generatedJavaFile = new GeneratedJavaFile(topLevelClass, context.getClientGeneratorConfiguration().get().getTargetProject(), true);
             return Collections.singletonList(generatedJavaFile);
         } catch (SQLException e) {
             log.error("SqlException in my plugin", e);
