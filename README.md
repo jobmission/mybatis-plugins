@@ -17,7 +17,7 @@
 <plugin>
     <groupId>org.mybatis.generator</groupId>
     <artifactId>mybatis-generator-maven-plugin</artifactId>
-    <version>1.4.2</version>
+    <version>2.0.0</version>
     
     <dependencies>
         <dependency>
