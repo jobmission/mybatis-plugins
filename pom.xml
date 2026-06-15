@@ -15,7 +15,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <HikariCP.version>7.0.2</HikariCP.version>
+        <HikariCP.version>7.1.0</HikariCP.version>
     </properties>
 
     <dependencies>
