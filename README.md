@@ -165,8 +165,13 @@
     ````
     <plugin type="com.revengemission.plugins.mybatis.ForeignKeyPlugin"/>
     ````
-
-16. [TypeResolver](src/main/java/com/revengemission/plugins/mybatis/CustomTypeResolver.java)，生成model时，数据库json列类型映射对应java对象的字段类型，mybatis/mybatis-config.xml
+16. [重置表的Sequence](src/main/java/com/revengemission/plugins/mybatis/ResetTableSequencePlugin.java)
+    ````
+    <plugin type="com.revengemission.plugins.mybatis.ResetTableSequencePlugin"/>
+    
+    userEntityMapper.resetSequence("id", 1);
+    ````
+17. [TypeResolver](src/main/java/com/revengemission/plugins/mybatis/CustomTypeResolver.java)，生成model时，数据库json列类型映射对应java对象的字段类型，mybatis/mybatis-config.xml
     ````xml
     <javaTypeResolver type="com.revengemission.plugins.mybatis.CustomTypeResolver">
         <property name="forceBigDecimals" value="false"/>
@@ -178,10 +183,6 @@
         <!-- Map MySQL JSON(common as LONGVARCHAR) to JsonNode -->
         <property name="forceLongVarcharToJson" value="true"/>
     </javaTypeResolver>
-    ````
-17. [重置表的Sequence](src/main/java/com/revengemission/plugins/mybatis/ResetTableSequencePlugin.java)
-    ````
-    userEntityMapper.resetSequence("id", 1);
     ````
 
 ### JsonNodeTypeHandler
