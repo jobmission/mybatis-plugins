@@ -169,7 +169,7 @@
     ````
     <plugin type="com.revengemission.plugins.mybatis.ResetTableSequencePlugin"/>
     
-    userEntityMapper.resetSequence("id", 1);
+    userEntityMapper.resetSequence(1);
     ````
 17. [TypeResolver](src/main/java/com/revengemission/plugins/mybatis/CustomTypeResolver.java)，生成model时，数据库json列类型映射对应java对象的字段类型，mybatis/mybatis-config.xml
     ````xml
