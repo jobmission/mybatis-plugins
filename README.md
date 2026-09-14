@@ -252,3 +252,10 @@ public class JsonNodeTypeHandler extends BaseTypeHandler<JsonNode> {
 3、
 ````
 
+### 其他问题，生成代码中文乱码
+````
+generatorConfig.xml
+
+<property name="javaFileEncoding" value="utf-8"/>
+````
+

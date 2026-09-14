@@ -20,7 +20,12 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractXmbgPlugin extends PluginAdapter {
 
@@ -293,6 +298,12 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         return uniqueConstraintMap;
     }
 
+    /**
+     * 每张表有且只能有一个主键约束‌，单独主键或者组合主键
+     *
+     * @param introspectedTable 表
+     * @return 单独主键或者组合主键
+     */
     List<String> getPrimaryKeys(IntrospectedTable introspectedTable) {
         List<String> primaryKeys = new ArrayList<>();
         try (Connection connection = ConnectionUtility.getConnection(context)) {
@@ -382,7 +393,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         try (Connection connection = ConnectionUtility.getConnection(contextValues.context())) {
 
             DatabaseIntrospector databaseIntrospector = new DatabaseIntrospector(
-                contextValues.context(), connection.getMetaData(), javaTypeResolver);
+                    contextValues.context(), connection.getMetaData(), javaTypeResolver);
 
             for (TableConfiguration tc : contextValues.context().tableConfigurations()) {
                 if (!shouldIntrospect(contextValues, tc)) {
@@ -390,7 +401,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                 }
 
                 List<IntrospectedTable> tables = databaseIntrospector
-                    .introspectTables(tc, contextValues.knownRuntime(), contextValues.pluginAggregator());
+                        .introspectTables(tc, contextValues.knownRuntime(), contextValues.pluginAggregator());
                 introspectedTables.addAll(tables);
 
             }

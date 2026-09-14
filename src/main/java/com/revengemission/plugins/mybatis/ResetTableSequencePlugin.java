@@ -32,16 +32,18 @@ public class ResetTableSequencePlugin extends AbstractXmbgPlugin {
 
     @Override
     public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
+        List<String> primaryKeys = getPrimaryKeys(introspectedTable);
+        if (primaryKeys == null || primaryKeys.size() != 1) {
+            return true;
+        }
         Method method = new Method(CLIENT_METHOD_NAME);
         method.addJavaDocLine("/**");
-        method.addJavaDocLine(" * 重置表的Sequence，取传入值和表中最大值的最大值");
+        method.addJavaDocLine(" * 重置表的sequence，取传入值和表中最大值的较大值");
         method.addJavaDocLine(" *");
-        method.addJavaDocLine(" * @param sequenceField 字段名");
         method.addJavaDocLine(" * @param targetValue 设定值");
         method.addJavaDocLine(" * @return 设定后的值");
         method.addJavaDocLine(" */");
         method.setAbstract(true);
-        method.addParameter(new Parameter(new FullyQualifiedJavaType("String"), "sequenceField", "@Param(\"sequenceField\")"));
         method.addParameter(new Parameter(new FullyQualifiedJavaType("long"), "targetValue", "@Param(\"targetValue\")"));
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
         interfaze.addMethod(method);
@@ -53,12 +55,17 @@ public class ResetTableSequencePlugin extends AbstractXmbgPlugin {
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
 
         String tableName = getTableName(introspectedTable);
+        List<String> primaryKeys = getPrimaryKeys(introspectedTable);
+        if (primaryKeys == null || primaryKeys.size() != 1) {
+            return true;
+        }
+        String primaryKey = primaryKeys.getFirst();
 
         XmlElement updateElement = new XmlElement("update");
         updateElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME));
         String mysqlString = "ALTER TABLE " + tableName + " AUTO_INCREMENT = ${targetValue}";
-        String postgresString = "SELECT setval(" + tableName + "_${sequenceField}_seq::regclass, GREATEST(${targetValue}, (SELECT COALESCE(MAX(${sequenceField}), 1) FROM " + tableName + ")))";
-        String sqliteString = "INSERT OR REPLACE INTO sqlite_sequence (name, seq) VALUES (" + tableName + ", GREATEST(${targetValue}, (SELECT COALESCE(MAX(${sequenceFieldName}), 0) FROM " + tableName + ")))";
+        String postgresString = "SELECT setval(" + tableName + "_" + primaryKey + "_seq::regclass, GREATEST(${targetValue}, (SELECT COALESCE(MAX(" + primaryKey + "), 1) FROM " + tableName + ")))";
+        String sqliteString = "INSERT OR REPLACE INTO sqlite_sequence (name, seq) VALUES (" + tableName + ", GREATEST(${targetValue}, (SELECT COALESCE(MAX(" + primaryKey + "), 0) FROM " + tableName + ")))";
 
         XmlElement chooseXmlElement = new XmlElement("choose");
         XmlElement whenPostgresqlElement = new XmlElement("when");
