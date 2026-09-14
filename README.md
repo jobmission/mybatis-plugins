@@ -52,7 +52,7 @@
     
     userEntityMapper.batchInsert(items);
     ````
-2. [根据唯一约束批量upsert, 如果没有配置唯一约束字段，则自动使用唯一约束的多个字段](src/main/java/com/revengemission/plugins/mybatis/InsertOnUpdatePlugin.java)
+2. [根据唯一约束批量upsert](src/main/java/com/revengemission/plugins/mybatis/InsertOnUpdatePlugin.java), 如果没有配置唯一约束字段，则自动使用唯一约束的多个字段
     ````
     name:[表名]，value:uniqueFields=;updateFields=;updateIgnoreFields=
     <plugin type="com.revengemission.plugins.mybatis.InsertOnUpdatePlugin">
@@ -143,7 +143,7 @@
     //mysql, filed_a="a,b,c,d,e": FIND_IN_SET('b', field_a); LOCATE('b,c',field_a)
     userEntityExample.createCriteria().andFunctionRightKey("find_in_set", "field_a", "searchValue"); 
     ````
-13. [topN](src/main/java/com/revengemission/plugins/mybatis/TopNByExamplePlugin.java), 针对所有表, Mysql、PostgreSQL
+13. [topN](src/main/java/com/revengemission/plugins/mybatis/TopNByExamplePlugin.java), 针对所有表, Mysql、PostgreSQL、SQLite
     ````
     <plugin type="com.revengemission.plugins.mybatis.TopNByExamplePlugin"/>
     
@@ -152,7 +152,7 @@
     userEntityExample.setTopN(5);
     List<UserEntity> userEntityList = userEntityMapper.topNByExample(example);;
     ````
-14. [根据唯一约束批量upsert增强版](src/main/java/com/revengemission/plugins/mybatis/InsertOnUpdateSelectivePlugin.java)
+14. [根据唯一约束批量upsert增强版](src/main/java/com/revengemission/plugins/mybatis/InsertOnUpdateSelectivePlugin.java), Mysql、PostgreSQL、SQLite
     ````
     name:[表名]，value:uniqueFields=;updateFields=;updateIgnoreFields=
     <plugin type="com.revengemission.plugins.mybatis.InsertOnUpdateSelectivePlugin">
@@ -161,24 +161,86 @@
    
     userEntityMapper.batchInsertOnUpdateSelective(items);
     ````
-15. [根据外键生成对象返回](src/main/java/com/revengemission/plugins/mybatis/ForeignKeyPlugin.java)
+15. [根据外键生成对象返回](src/main/java/com/revengemission/plugins/mybatis/ForeignKeyPlugin.java), 如果有外键，嵌套对象返回
     ````
     <plugin type="com.revengemission.plugins.mybatis.ForeignKeyPlugin"/>
     ````
-### Others
-````
 
-````
+16. [TypeResolver](src/main/java/com/revengemission/plugins/mybatis/CustomTypeResolver.java)，生成model时，数据库json列类型映射对应java对象的字段类型，mybatis/mybatis-config.xml
+    ````xml
+    <javaTypeResolver type="com.revengemission.plugins.mybatis.CustomTypeResolver">
+        <property name="forceBigDecimals" value="false"/>
+        <property name="useJSR310Types" value="true"/>
+        <!-- Map JAVA_OBJECT(json/jsonb) to Map<String, Object> -->
+        <property name="forceJavaObjectToMap" value="true"/>
+        <!-- Map PostgreSQL OTHER(json/jsonb) to JsonNode -->
+        <property name="forceOtherToJson" value="true"/>
+        <!-- Map MySQL JSON(common as LONGVARCHAR) to JsonNode -->
+        <property name="forceLongVarcharToJson" value="true"/>
+    </javaTypeResolver>
+    ````
+17. [重置表的Sequence](src/main/java/com/revengemission/plugins/mybatis/ResetTableSequencePlugin.java)
+    ````
+    userEntityMapper.resetSequence("id", 1);
+    ````
 
-### [TypeResolver](src/main/java/com/revengemission/plugins/mybatis/CustomTypeResolver.java)，mybatis/mybatis-config.xml
-````xml
-<javaTypeResolver type="com.revengemission.plugins.mybatis.CustomTypeResolver">
-    <property name="forceBigDecimals" value="false"/>
-    <property name="useJSR310Types" value="true"/>
-    <property name="forceJavaObjectToMap" value="true"/>
-    <property name="forceOtherToJson" value="true"/>
-    <property name="forceLongVarcharToJson" value="true"/>
-</javaTypeResolver>
+### JsonNodeTypeHandler
+````
+import org.apache.ibatis.type.BaseTypeHandler;
+import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.MappedJdbcTypes;
+import org.apache.ibatis.type.MappedTypes;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Cross-database JsonNode mapping for PostgreSQL/MySQL JSON columns.
+ * 在application.properties中配置
+ * mybatis.type-handlers-package=com.example.demo.persistence.typehandlers
+ */
+@MappedTypes(JsonNode.class)
+@MappedJdbcTypes({JdbcType.OTHER, JdbcType.LONGVARCHAR, JdbcType.JAVA_OBJECT})
+public class JsonNodeTypeHandler extends BaseTypeHandler<JsonNode> {
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    @Override
+    public void setNonNullParameter(PreparedStatement ps, int i, JsonNode parameter, JdbcType jdbcType) throws SQLException {
+        // Use JSON text for broad JDBC compatibility.
+        ps.setString(i, parameter.toString());
+    }
+
+    @Override
+    public JsonNode getNullableResult(ResultSet rs, String columnName) throws SQLException {
+        return parse(rs.getString(columnName));
+    }
+
+    @Override
+    public JsonNode getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+        return parse(rs.getString(columnIndex));
+    }
+
+    @Override
+    public JsonNode getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+        return parse(cs.getString(columnIndex));
+    }
+
+    private JsonNode parse(String json) throws SQLException {
+        if (json == null) {
+            return null;
+        }
+        try {
+            return MAPPER.readTree(json);
+        } catch (Exception ex) {
+            throw new SQLException("Failed to parse JSON column to JsonNode", ex);
+        }
+    }
+}
 
 ````
 

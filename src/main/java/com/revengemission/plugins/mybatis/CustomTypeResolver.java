@@ -11,6 +11,11 @@ import java.sql.JDBCType;
 import java.sql.Types;
 import java.util.Properties;
 
+/**
+ * 生成model时，数据库json列类型映射java对象字段类型
+ * MySQL 的 JDBC 驱动（Connector/J）通常将 JSON 类型视为一种特殊的文本类型。在 JDBC 元数据中，它往往被报告为 Types.LONGVARCHAR
+ * PostgreSQL 的 JDBC 驱动（pgjdbc）将 json 和 jsonb 类型报告为 Types.OTHER
+ */
 public class CustomTypeResolver extends JavaTypeResolverDefaultImpl {
     private static final Logger log = LoggerFactory.getLogger(CustomTypeResolver.class);
 
@@ -48,6 +53,7 @@ public class CustomTypeResolver extends JavaTypeResolverDefaultImpl {
                 this.typeMap.put(Types.LONGVARCHAR, new JdbcTypeInformation(JDBCType.OTHER.name(), new FullyQualifiedJavaType(com.fasterxml.jackson.databind.JsonNode.class.getName())));
             }
         }
+
     }
 
     boolean isJackson3() {

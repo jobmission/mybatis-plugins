@@ -13,7 +13,7 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import java.util.List;
 
 /**
- * Mysql Truncate table plugin
+ * Truncate table plugin
  */
 public class TruncateTablePlugin extends AbstractXmbgPlugin {
 
