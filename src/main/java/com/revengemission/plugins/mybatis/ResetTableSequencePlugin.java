@@ -64,8 +64,9 @@ public class ResetTableSequencePlugin extends AbstractXmbgPlugin {
         XmlElement updateElement = new XmlElement("update");
         updateElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME));
         String mysqlString = "ALTER TABLE " + tableName + " AUTO_INCREMENT = ${targetValue}";
-        String postgresString = "SELECT setval(" + tableName + "_" + primaryKey + "_seq::regclass, GREATEST(${targetValue}, (SELECT COALESCE(MAX(" + primaryKey + "), 1) FROM " + tableName + ")))";
-        String sqliteString = "INSERT OR REPLACE INTO sqlite_sequence (name, seq) VALUES (" + tableName + ", GREATEST(${targetValue}, (SELECT COALESCE(MAX(" + primaryKey + "), 0) FROM " + tableName + ")))";
+        String postgresString = "SELECT setval('" + tableName + "_" + primaryKey + "_seq'::regclass, GREATEST(${targetValue}, (SELECT COALESCE(MAX(" + primaryKey + "), 1) FROM " + tableName + ")))";
+        String sqliteString = "UPDATE sqlite_sequence SET seq = MAX(${targetValue}, (SELECT COALESCE(MAX(" + primaryKey + "), 0) FROM \" + tableName + \"))  WHERE name = '" + tableName + "'";
+        String h2String = "ALTER TABLE " + tableName + " ALTER COLUMN " + primaryKey + " RESTART WITH ${targetValue}";
 
         XmlElement chooseXmlElement = new XmlElement("choose");
         XmlElement whenPostgresqlElement = new XmlElement("when");
@@ -80,12 +81,17 @@ public class ResetTableSequencePlugin extends AbstractXmbgPlugin {
         whenSqliteElement.addAttribute(new Attribute("test", "_databaseId == 'sqlite'"));
         whenSqliteElement.addElement(new TextElement(sqliteString));
 
+        XmlElement whenH2Element = new XmlElement("when");
+        whenH2Element.addAttribute(new Attribute("test", "_databaseId == 'h2'"));
+        whenH2Element.addElement(new TextElement(h2String));
+
         XmlElement otherwiseElement = new XmlElement("otherwise");
         otherwiseElement.addElement(new TextElement("SELECT 1"));
 
         chooseXmlElement.addElement(whenPostgresqlElement);
         chooseXmlElement.addElement(whenMysqlElement);
         chooseXmlElement.addElement(whenSqliteElement);
+        chooseXmlElement.addElement(whenH2Element);
         chooseXmlElement.addElement(otherwiseElement);
 
         updateElement.addElement(chooseXmlElement);
