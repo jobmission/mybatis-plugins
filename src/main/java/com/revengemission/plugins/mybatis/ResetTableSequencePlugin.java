@@ -65,7 +65,7 @@ public class ResetTableSequencePlugin extends AbstractXmbgPlugin {
         updateElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME));
         String mysqlString = "ALTER TABLE " + tableName + " AUTO_INCREMENT = ${targetValue}";
         String postgresString = "SELECT setval('" + tableName + "_" + primaryKey + "_seq'::regclass, GREATEST(${targetValue}, (SELECT COALESCE(MAX(" + primaryKey + "), 1) FROM " + tableName + ")))";
-        String sqliteString = "UPDATE sqlite_sequence SET seq = MAX(${targetValue}, (SELECT COALESCE(MAX(" + primaryKey + "), 0) FROM \" + tableName + \"))  WHERE name = '" + tableName + "'";
+        String sqliteString = "UPDATE sqlite_sequence SET seq = MAX(${targetValue}, (SELECT COALESCE(MAX(" + primaryKey + "), 0) FROM " + tableName + "))  WHERE name = '" + tableName + "'";
         String h2String = "ALTER TABLE " + tableName + " ALTER COLUMN " + primaryKey + " RESTART WITH ${targetValue}";
 
         XmlElement chooseXmlElement = new XmlElement("choose");
