@@ -169,9 +169,14 @@
     ````
     <plugin type="com.revengemission.plugins.mybatis.ResetTableSequencePlugin"/>
     
-    userEntityMapper.resetSequence(1);
+    long maxPrimaryKeyValue = userEntityMapper.getMaxPrimaryKeyValue();
+    userEntityMapper.resetSequence(maxPrimaryKeyValue + 1);
     ````
-17. [TypeResolver](src/main/java/com/revengemission/plugins/mybatis/CustomTypeResolver.java)，生成model时，数据库json列类型映射对应java对象的字段类型，mybatis/mybatis-config.xml
+17. [统计表的行数](src/main/java/com/revengemission/plugins/mybatis/TableStatisticsPlugin.java)
+    ````
+    <plugin type="com.revengemission.plugins.mybatis.TableStatisticsPlugin"/>
+    ````
+18. [TypeResolver](src/main/java/com/revengemission/plugins/mybatis/CustomTypeResolver.java)，生成model时，数据库json列类型映射对应java对象的字段类型，mybatis/mybatis-config.xml
     ````xml
     <javaTypeResolver type="com.revengemission.plugins.mybatis.CustomTypeResolver">
         <property name="forceBigDecimals" value="false"/>
@@ -185,8 +190,8 @@
     </javaTypeResolver>
     ````
 
-### JsonNodeTypeHandler
-````
+### JsonNodeTypeHandler 运行时处理json列
+````java
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
@@ -244,7 +249,34 @@ public class JsonNodeTypeHandler extends BaseTypeHandler<JsonNode> {
 }
 
 ````
+### DatabaseIdProviderConfig xml中判断数据库类型
+````java
+import org.apache.ibatis.mapping.DatabaseIdProvider;
+import org.apache.ibatis.mapping.VendorDatabaseIdProvider;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+import java.util.Properties;
+
+@Configuration
+public class DatabaseIdProviderConfig {
+
+    @Bean
+    public DatabaseIdProvider databaseIdProvider() {
+        VendorDatabaseIdProvider vendorDatabaseIdProvider = new VendorDatabaseIdProvider();
+        Properties properties = new Properties();
+        // Key 必须是 JDBC 驱动返回的 DatabaseProductName (区分大小写)
+        properties.setProperty("PostgreSQL", "postgresql");
+        properties.setProperty("MySQL", "mysql");
+        properties.setProperty("Oracle", "oracle");
+        properties.setProperty("SQLite", "sqlite");
+        properties.setProperty("H2", "h2");
+
+        vendorDatabaseIdProvider.setProperties(properties);
+        return vendorDatabaseIdProvider;
+    }
+}
+````
 ### 发布到中央仓库
 ````
 1、mvn clean deployment

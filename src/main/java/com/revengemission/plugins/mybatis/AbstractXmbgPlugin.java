@@ -4,6 +4,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.JavaTypeResolver;
 import org.mybatis.generator.api.PluginAdapter;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.VisitableElement;
@@ -261,6 +262,8 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         return null;
     }
 
+    Map<String, Map<String, List<String>>> uniqueConstraintKeysCacheMap = new HashMap<>();
+
     /**
      * get UniqueConstraintKeys
      *
@@ -268,7 +271,10 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
      * @return
      */
     Map<String, List<String>> getUniqueConstraintKeys(IntrospectedTable introspectedTable) {
-
+        String tableName = getTableName(introspectedTable);
+        if (uniqueConstraintKeysCacheMap.containsKey(tableName)) {
+            return uniqueConstraintKeysCacheMap.get(tableName);
+        }
         Map<String, List<String>> uniqueConstraintMap = new HashMap<>();
         try (Connection connection = ConnectionUtility.getConnection(context)) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
@@ -295,8 +301,11 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         } catch (SQLException e) {
             log.error("SqlException in my plugin", e);
         }
+        uniqueConstraintKeysCacheMap.put(tableName, uniqueConstraintMap);
         return uniqueConstraintMap;
     }
+
+    Map<String, List<String>> primaryKeysCacheMap = new HashMap<>();
 
     /**
      * 每张表有且只能有一个主键约束‌，单独主键或者组合主键
@@ -305,10 +314,14 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
      * @return 单独主键或者组合主键
      */
     List<String> getPrimaryKeys(IntrospectedTable introspectedTable) {
+        String tableName = getTableName(introspectedTable);
+        if (primaryKeysCacheMap.containsKey(tableName)) {
+            return primaryKeysCacheMap.get(tableName);
+        }
         List<String> primaryKeys = new ArrayList<>();
         try (Connection connection = ConnectionUtility.getConnection(context)) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
-            ResultSet rs = databaseMetaData.getPrimaryKeys(null, null, getTableName(introspectedTable));
+            ResultSet rs = databaseMetaData.getPrimaryKeys(null, null, tableName);
             while (rs.next()) {
                 String columnName = rs.getString("COLUMN_NAME");
                 primaryKeys.add(columnName);
@@ -316,6 +329,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         } catch (SQLException e) {
             log.error("SqlException in my plugin", e);
         }
+        primaryKeysCacheMap.put(tableName, primaryKeys);
         return primaryKeys;
     }
 
@@ -382,7 +396,12 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         return null;
     }
 
+    List<IntrospectedTable> allTables = new ArrayList<>();
+
     public List<IntrospectedTable> introspectTables() {
+        if (!allTables.isEmpty()) {
+            return allTables;
+        }
         List<String> warnings = new ArrayList<>();
         CalculatedContextValues.Builder builder = new CalculatedContextValues.Builder();
         builder.withContext(context).withWarnings(warnings);
@@ -393,7 +412,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         try (Connection connection = ConnectionUtility.getConnection(contextValues.context())) {
 
             DatabaseIntrospector databaseIntrospector = new DatabaseIntrospector(
-                    contextValues.context(), connection.getMetaData(), javaTypeResolver);
+                contextValues.context(), connection.getMetaData(), javaTypeResolver);
 
             for (TableConfiguration tc : contextValues.context().tableConfigurations()) {
                 if (!shouldIntrospect(contextValues, tc)) {
@@ -401,7 +420,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
                 }
 
                 List<IntrospectedTable> tables = databaseIntrospector
-                        .introspectTables(tc, contextValues.knownRuntime(), contextValues.pluginAggregator());
+                    .introspectTables(tc, contextValues.knownRuntime(), contextValues.pluginAggregator());
                 introspectedTables.addAll(tables);
 
             }
@@ -410,7 +429,7 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
+        allTables.addAll(introspectedTables);
         return introspectedTables;
     }
 
@@ -418,5 +437,23 @@ public abstract class AbstractXmbgPlugin extends PluginAdapter {
         return !contextValues.knownRuntime().isLegacyMyBatis3Based() || tc.areAnyStatementsEnabled();
     }
 
+    FullyQualifiedJavaType getColumnJavaType(IntrospectedTable introspectedTable, String columnName) {
+        for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
+            if (column.getActualColumnName().equalsIgnoreCase(columnName)) {
+                return column.getFullyQualifiedJavaType();
+            }
+        }
+        return FullyQualifiedJavaType.getObjectInstance();
+    }
+
+
+    String getJavaFieldName(IntrospectedTable introspectedTable, String columnName) {
+        for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
+            if (column.getActualColumnName().equalsIgnoreCase(columnName)) {
+                return column.getJavaProperty();
+            }
+        }
+        return columnName;
+    }
 
 }

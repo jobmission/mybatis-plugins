@@ -1,8 +1,11 @@
 package com.revengemission.plugins.mybatis;
 
 import org.mybatis.generator.api.GeneratedJavaFile;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.Interface;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.Parameter;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -15,24 +18,14 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GenericMapperPlugin.class);
 
-    private String mapperName = "GenericMapper";
-    private String queryForMapMethodName = "queryForMap";
-    private String queryForListMethodName = "queryForList";
-    private String queryForObjectMethodName = "queryForObject";
-    private String countMethodName = "count";
-    private String deleteMethodName = "delete";
-    private String insertMethodName = "insert";
-    private String updateMethodName = "update";
-    private String encoding = "UTF-8";
-
-
-    @Override
-    public void initialized(IntrospectedTable introspectedTable) {
-        String javaFileEncoding = introspectedTable.getContext().getProperties().getProperty("javaFileEncoding");
-        if (javaFileEncoding != null && !javaFileEncoding.trim().isEmpty()) {
-            encoding = javaFileEncoding;
-        }
-    }
+    private static final String mapperName = "GenericMapper";
+    private static final String queryForMapMethodName = "queryForMap";
+    private static final String queryForListMethodName = "queryForList";
+    private static final String queryForObjectMethodName = "queryForObject";
+    private static final String countMethodName = "count";
+    private static final String deleteMethodName = "delete";
+    private static final String insertMethodName = "insert";
+    private static final String updateMethodName = "update";
 
     @Override
     public boolean validate(List<String> warnings) {
