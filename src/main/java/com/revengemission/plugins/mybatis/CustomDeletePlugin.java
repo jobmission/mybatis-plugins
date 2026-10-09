@@ -21,10 +21,12 @@ public class CustomDeletePlugin extends AbstractXmbgPlugin {
 
     private static final String CLIENT_METHOD_NAME_LOGICAL_DELETE = "logicalDeleteById";
     private static final String CLIENT_METHOD_NAME_LOGICAL_DELETE_IDS = "logicalDeleteByIds";
+    private static final String CLIENT_METHOD_NAME_LOGICAL_RESTORE_IDS = "logicalRestoreByIds";
     private static final String CLIENT_METHOD_NAME_DELETE_IDS = "deleteByIds";
 
     private String deletedFlagTableFiled = "deleted";
     private Object deletedFlagValue = 1;
+    private Object enabledFlagValue = 0;
 
     @Override
     public void initialized(IntrospectedTable introspectedTable) {
@@ -33,6 +35,8 @@ public class CustomDeletePlugin extends AbstractXmbgPlugin {
                 deletedFlagTableFiled = entry.getValue().toString().trim();
             } else if ("deletedFlagValue".equalsIgnoreCase(entry.getKey().toString().trim())) {
                 deletedFlagValue = entry.getValue();
+            } else if ("enabledFlagValue".equalsIgnoreCase(entry.getKey().toString().trim())) {
+                enabledFlagValue = entry.getValue();
             }
         }
     }
@@ -57,6 +61,12 @@ public class CustomDeletePlugin extends AbstractXmbgPlugin {
             logicalDeleteByIdsMethod.addParameter(new Parameter(new FullyQualifiedJavaType("long[]"), "ids", "@Param(\"ids\")"));
             logicalDeleteByIdsMethod.setReturnType(FullyQualifiedJavaType.getIntInstance());
             interfaze.addMethod(logicalDeleteByIdsMethod);
+
+            Method logicalRestoreByIdsMethod = new Method(CLIENT_METHOD_NAME_LOGICAL_RESTORE_IDS);
+            logicalRestoreByIdsMethod.setAbstract(true);
+            logicalRestoreByIdsMethod.addParameter(new Parameter(new FullyQualifiedJavaType("long[]"), "ids", "@Param(\"ids\")"));
+            logicalRestoreByIdsMethod.setReturnType(FullyQualifiedJavaType.getIntInstance());
+            interfaze.addMethod(logicalRestoreByIdsMethod);
         }
 
         Method deleteByIdsMethod = new Method(CLIENT_METHOD_NAME_DELETE_IDS);
@@ -99,6 +109,23 @@ public class CustomDeletePlugin extends AbstractXmbgPlugin {
             foreachElement.addElement(new TextElement("#{item}"));
             logicalDeleteByIdsElement.addElement(foreachElement);
             parentElement.addElement(logicalDeleteByIdsElement);
+
+            XmlElement logicalRestoreByIdsElement = new XmlElement("update");
+            logicalRestoreByIdsElement.addAttribute(new Attribute("id", CLIENT_METHOD_NAME_LOGICAL_RESTORE_IDS));
+            logicalRestoreByIdsElement.addElement(new TextElement("update " + tableName));
+            logicalRestoreByIdsElement.addElement(new TextElement("set " + deletedFlagTableFiled + " = " + enabledFlagValue));
+            logicalRestoreByIdsElement.addElement(new TextElement("where id in"));
+
+            XmlElement foreachRestoreElement = new XmlElement("foreach");
+            foreachRestoreElement.addAttribute(new Attribute("item", "item"));
+            foreachRestoreElement.addAttribute(new Attribute("index", "index"));
+            foreachRestoreElement.addAttribute(new Attribute("collection", "ids"));
+            foreachRestoreElement.addAttribute(new Attribute("open", "("));
+            foreachRestoreElement.addAttribute(new Attribute("separator", ","));
+            foreachRestoreElement.addAttribute(new Attribute("close", ")"));
+            foreachRestoreElement.addElement(new TextElement("#{item}"));
+            logicalRestoreByIdsElement.addElement(foreachRestoreElement);
+            parentElement.addElement(logicalRestoreByIdsElement);
 
         }
 
