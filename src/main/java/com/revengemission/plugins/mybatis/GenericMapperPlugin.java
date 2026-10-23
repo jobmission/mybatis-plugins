@@ -56,61 +56,64 @@ public class GenericMapperPlugin extends AbstractXmbgPlugin {
         FullyQualifiedJavaType deleteJavaType = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Delete");
         anInterface.addImportedType(deleteJavaType);
 
+        FullyQualifiedJavaType paramJavaType = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param");
+        anInterface.addImportedType(paramJavaType);
+
         anInterface.addImportedType(new FullyQualifiedJavaType("java.util.Map"));
         anInterface.addImportedType(FullyQualifiedJavaType.getNewListInstance());
 
         Method queryForMapMethod = new Method(queryForMapMethodName);
         queryForMapMethod.setAbstract(true);
-        queryForMapMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql"));
-        queryForMapMethod.addParameter(new Parameter(mapType, "parameters"));
+        queryForMapMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", "@Param(\"sql\")"));
+        queryForMapMethod.addParameter(new Parameter(mapType, "parameters", "@Param(\"parameters\")"));
         queryForMapMethod.setReturnType(mapType);
         queryForMapMethod.addAnnotation("@Select(\"${sql}\")");
         anInterface.addMethod(queryForMapMethod);
 
         Method queryForListMethod = new Method(queryForListMethodName);
         queryForListMethod.setAbstract(true);
-        queryForListMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql"));
-        queryForListMethod.addParameter(new Parameter(mapType, "parameters"));
+        queryForListMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", "@Param(\"sql\")"));
+        queryForListMethod.addParameter(new Parameter(mapType, "parameters", "@Param(\"parameters\")"));
         queryForListMethod.setReturnType(listMapType);
         queryForListMethod.addAnnotation("@Select(\"${sql}\")");
         anInterface.addMethod(queryForListMethod);
 
         Method queryForObjectMethod = new Method(queryForObjectMethodName);
         queryForObjectMethod.setAbstract(true);
-        queryForObjectMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql"));
-        queryForObjectMethod.addParameter(new Parameter(mapType, "parameters"));
+        queryForObjectMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", "@Param(\"sql\")"));
+        queryForObjectMethod.addParameter(new Parameter(mapType, "parameters", "@Param(\"parameters\")"));
         queryForObjectMethod.setReturnType(FullyQualifiedJavaType.getObjectInstance());
         queryForObjectMethod.addAnnotation("@Select(\"${sql}\")");
         anInterface.addMethod(queryForObjectMethod);
 
         Method countMethod = new Method(countMethodName);
         countMethod.setAbstract(true);
-        countMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql"));
-        countMethod.addParameter(new Parameter(mapType, "parameters"));
+        countMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", "@Param(\"sql\")"));
+        countMethod.addParameter(new Parameter(mapType, "parameters", "@Param(\"parameters\")"));
         countMethod.setReturnType(longType);
         countMethod.addAnnotation("@Select(\"${sql}\")");
         anInterface.addMethod(countMethod);
 
         Method updateMethod = new Method(updateMethodName);
         updateMethod.setAbstract(true);
-        updateMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql"));
-        updateMethod.addParameter(new Parameter(mapType, "parameters"));
+        updateMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", "@Param(\"sql\")"));
+        updateMethod.addParameter(new Parameter(mapType, "parameters", "@Param(\"parameters\")"));
         updateMethod.setReturnType(FullyQualifiedJavaType.getIntInstance());
         updateMethod.addAnnotation("@Update(\"${sql}\")");
         anInterface.addMethod(updateMethod);
 
         Method insertMethod = new Method(insertMethodName);
         insertMethod.setAbstract(true);
-        insertMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql"));
-        insertMethod.addParameter(new Parameter(mapType, "parameters"));
+        insertMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", "@Param(\"sql\")"));
+        insertMethod.addParameter(new Parameter(mapType, "parameters", "@Param(\"parameters\")"));
         insertMethod.setReturnType(FullyQualifiedJavaType.getIntInstance());
         insertMethod.addAnnotation("@Insert(\"${sql}\")");
         anInterface.addMethod(insertMethod);
 
         Method deleteMethod = new Method(deleteMethodName);
         deleteMethod.setAbstract(true);
-        deleteMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql"));
-        deleteMethod.addParameter(new Parameter(mapType, "parameters"));
+        deleteMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "sql", "@Param(\"sql\")"));
+        deleteMethod.addParameter(new Parameter(mapType, "parameters", "@Param(\"parameters\")"));
         deleteMethod.setReturnType(FullyQualifiedJavaType.getIntInstance());
         deleteMethod.addAnnotation("@Delete(\"${sql}\")");
         anInterface.addMethod(deleteMethod);
